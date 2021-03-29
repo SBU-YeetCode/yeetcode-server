@@ -3,6 +3,8 @@ import { ObjectId } from 'mongodb'
 
 import { User } from '../../entities'
 
+
+
 // This generates the mongoose model for us
 export const UserMongooseModel = getModelForClass(User)
 
@@ -14,5 +16,11 @@ export default class UserModel {
 
 	async findById(_id: ObjectId): Promise<DocumentType<User> | null> {
 		return UserMongooseModel.findById(_id).exec()
+	}
+
+	async createUser(user: User) {
+		let newUser = new UserMongooseModel(user)
+		await newUser.save()
+		return newUser
 	}
 }

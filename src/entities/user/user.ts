@@ -1,8 +1,9 @@
 import { prop } from '@typegoose/typegoose'
 import { ObjectId } from 'mongodb'
-import { Field, ObjectType } from 'type-graphql'
+import { Field, InputType, ObjectType, FieldResolver } from 'type-graphql'
 
-@ObjectType()
+@ObjectType('User')
+@InputType('UserInput')
 export class User {
     @Field()
     readonly _id!: ObjectId

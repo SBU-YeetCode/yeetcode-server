@@ -7,7 +7,10 @@ import sessionConfig from './session'
 
 export default async (app: express.Application) => {
 	// Body parser only needed during POST on the graphQL path
+
+	// Lets us accept JSON as a return from clients
 	app.use(express.json())
+
 	// Cors configuration
 	app.use('*', cors({ origin: config.clientOrigin, credentials: true }))
 

@@ -6,6 +6,7 @@ import loaders from './loaders'
 export default async (config: Config) => {
 	const app = express()
 	const server = await loaders(app)
+	await server.start()
 	server.applyMiddleware({
 		cors: { origin: config.clientOrigin, credentials: true },
 		app,

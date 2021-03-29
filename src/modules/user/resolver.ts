@@ -2,16 +2,18 @@ import { ObjectId } from 'mongodb'
 import {
     Query,
     Resolver,
-    Arg
+    Arg,
+    Mutation,
+    InputType
 } from 'type-graphql'
 import { Service } from 'typedi'
-import { User, } from '../../entities'
+import { User } from '../../entities'
 import { UserMongooseModel } from './model'
 import UserService from './service'
 
 
 @Service() // Dependencies injection
-@Resolver((of) => User)
+@Resolver(of => User)
 export default class UserResolver {
     constructor(private readonly userService: UserService) { }
     @Query((returns) => User, { nullable: true })
@@ -19,5 +21,12 @@ export default class UserResolver {
         const user = await this.userService.getById(id)
 
         return user
+    }
+
+
+    @Mutation((returns) => User)
+    async createUser(@Arg('user') user: User) {
+        const newUser = await this.userService.createUser(user)
+        return newUser
     }
 }

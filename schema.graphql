@@ -3,6 +3,10 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+type Mutation {
+  createUser(user: UserInput!): User!
+}
+
 """Mongo object id scalar type"""
 scalar ObjectId
 
@@ -11,6 +15,13 @@ type Query {
 }
 
 type User {
+  _id: ObjectId!
+  email: String!
+  name: String!
+  username: String!
+}
+
+input UserInput {
   _id: ObjectId!
   email: String!
   name: String!

@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb'
 import { Service } from 'typedi'
+import { User } from '../../entities'
 import UserModel from './model'
 
 @Service() // Dependencies injection
@@ -13,5 +14,11 @@ export default class UserService {
         return user
     }
 
+    public async createUser(user: User) {
+        const newUser = await this.userModel.createUser(user)
+        if(!user) throw new Error('Unable to create user')
+        // await newUser.save()
+        return newUser
+    }
 
 }
