@@ -1,12 +1,12 @@
 import { prop } from '@typegoose/typegoose'
 import { Field, InputType, ObjectType, FieldResolver } from 'type-graphql'
+import { ObjectId } from 'mongodb'
 
 @InputType('LevelInput')
 @ObjectType()
 export class Level {
-	@prop()
 	@Field()
-	id: string
+	readonly _id!: ObjectId
 
 	@prop()
 	@Field()
