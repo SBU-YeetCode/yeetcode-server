@@ -3,27 +3,289 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+type Comment {
+  _id: ObjectId!
+  dateCreated: Int!
+  gameId: String!
+  lastUpdated: Int!
+  rating: Int!
+  review: String!
+  userId: String!
+}
+
+input CommentInput {
+  _id: ObjectId!
+  dateCreated: Int!
+  gameId: String!
+  lastUpdated: Int!
+  rating: Int!
+  review: String!
+  userId: String!
+}
+
+type Game {
+  _id: ObjectId!
+  commentCount: Int!
+  commentsRef: [String!]!
+  createdBy: String!
+  dateCreated: Int!
+  difficulty: String!
+  language: String!
+  lastUpdated: Int!
+  levels: [Level!]!
+  playCount: Int!
+  questions: [Question!]!
+  roadmap: [SubGameRoadmap!]!
+  stages: [Stage!]!
+  title: String!
+  totalStars: Int!
+}
+
+input GameInput {
+  _id: ObjectId!
+  commentCount: Int!
+  commentsRef: [String!]!
+  createdBy: String!
+  dateCreated: Int!
+  difficulty: String!
+  language: String!
+  lastUpdated: Int!
+  levels: [LevelInput!]!
+  playCount: Int!
+  questions: [QuestionInput!]!
+  roadmap: [SubGameRoadmapInput!]!
+  stages: [StageInput!]!
+  title: String!
+  totalStars: Int!
+}
+
+type GameProgress {
+  _id: ObjectId!
+  completedAt: Int!
+  gameId: String!
+  levels: [LevelProgress!]!
+  questions: [QuestionProgress!]!
+  stages: [StageProgress!]!
+  startedAt: Int!
+  userId: String!
+}
+
+input GameProgressInput {
+  _id: ObjectId!
+  completedAt: Int!
+  gameId: String!
+  levels: [LevelProgressInput!]!
+  questions: [QuestionProgressInput!]!
+  stages: [StageProgressInput!]!
+  startedAt: Int!
+  userId: String!
+}
+
+type Hint {
+  _id: ObjectId!
+  description: String!
+  timeToReveal: Int!
+}
+
+input HintInput {
+  _id: ObjectId!
+  description: String!
+  timeToReveal: Int!
+}
+
+type Level {
+  description: String!
+  id: String!
+  title: String!
+}
+
+input LevelInput {
+  description: String!
+  id: String!
+  title: String!
+}
+
+type LevelProgress {
+  _id: ObjectId!
+  completed: Boolean!
+  levelId: String!
+}
+
+input LevelProgressInput {
+  _id: ObjectId!
+  completed: Boolean!
+  levelId: String!
+}
+
+type Matching {
+  _id: ObjectId!
+  pairOne: String!
+  pairTwo: String!
+}
+
+input MatchingInput {
+  _id: ObjectId!
+  pairOne: String!
+  pairTwo: String!
+}
+
 type Mutation {
+  createComment(comment: CommentInput!): Comment!
+  createGame(game: GameInput!): Game!
+  createGameProgress(gameprogress: GameProgressInput!): GameProgress!
   createUser(user: UserInput!): User!
 }
 
 """Mongo object id scalar type"""
 scalar ObjectId
 
+type Points {
+  c: Int!
+  cpp: Int!
+  java: Int!
+  javascript: Int!
+  python: Int!
+  total: Int!
+}
+
+input PointsInput {
+  c: Int!
+  cpp: Int!
+  java: Int!
+  javascript: Int!
+  python: Int!
+  total: Int!
+}
+
+type ProfilePicture {
+  avatar: String!
+  large: String!
+}
+
+input ProfilePictureInput {
+  avatar: String!
+  large: String!
+}
+
 type Query {
+  getComment(id: ObjectId!): Comment
+  getGame(id: ObjectId!): Game
+  getGameProgress(id: ObjectId!): GameProgress
   getUser(id: ObjectId!): User
+}
+
+type Question {
+  _id: ObjectId!
+  correctChoice: String!
+  description: String!
+  exampleSolutionCode: String!
+  exampleSolutionDescription: String!
+  gameType: String!
+  hints: [Hint!]!
+  incorrectChoices: [String!]!
+  lives: Int!
+  matchings: [Matching!]!
+  points: Int!
+  sequence: String!
+  timeLimit: Int!
+  title: String!
+  toAnswer: String!
+}
+
+input QuestionInput {
+  _id: ObjectId!
+  correctChoice: String!
+  description: String!
+  exampleSolutionCode: String!
+  exampleSolutionDescription: String!
+  gameType: String!
+  hints: [HintInput!]!
+  incorrectChoices: [String!]!
+  lives: Int!
+  matchings: [MatchingInput!]!
+  points: Int!
+  sequence: String!
+  timeLimit: Int!
+  title: String!
+  toAnswer: String!
+}
+
+type QuestionProgress {
+  _id: ObjectId!
+  completed: Boolean!
+  livesLeft: Int!
+  pointsReceived: Int!
+  questionid: String!
+}
+
+input QuestionProgressInput {
+  _id: ObjectId!
+  completed: Boolean!
+  livesLeft: Int!
+  pointsReceived: Int!
+  questionid: String!
+}
+
+type Stage {
+  _id: ObjectId!
+  description: String!
+  title: String!
+}
+
+input StageInput {
+  _id: ObjectId!
+  description: String!
+  title: String!
+}
+
+type StageProgress {
+  _id: ObjectId!
+  completed: Boolean!
+  levelId: String!
+}
+
+input StageProgressInput {
+  _id: ObjectId!
+  completed: Boolean!
+  levelId: String!
+}
+
+type SubGameRoadmap {
+  _id: ObjectId!
+  kind: String!
+  refId: String!
+  sequence: Int!
+}
+
+input SubGameRoadmapInput {
+  _id: ObjectId!
+  kind: String!
+  refId: String!
+  sequence: Int!
 }
 
 type User {
   _id: ObjectId!
+  comments: [String!]!
   email: String!
+  gamesCreated: [String!]!
+  gamesPlayed: [String!]!
+  lastUpdated: Int!
   name: String!
+  points: Points!
+  profilePicture: ProfilePicture!
   username: String!
 }
 
 input UserInput {
   _id: ObjectId!
+  comments: [String!]!
   email: String!
+  gamesCreated: [String!]!
+  gamesPlayed: [String!]!
+  lastUpdated: Int!
   name: String!
+  points: PointsInput!
+  profilePicture: ProfilePictureInput!
   username: String!
 }

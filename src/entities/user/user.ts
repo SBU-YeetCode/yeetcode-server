@@ -1,26 +1,53 @@
 import { prop } from '@typegoose/typegoose'
 import { ObjectId } from 'mongodb'
-import { Field, InputType, ObjectType, FieldResolver } from 'type-graphql'
-
+import { Field, InputType, ObjectType, Int } from 'type-graphql'
+import { ProfilePicture } from './profilePicture'
+import { Points } from './points'
 @ObjectType('User')
 @InputType('UserInput')
 export class User {
-    @Field()
-    readonly _id!: ObjectId
+	@Field()
+	readonly _id!: ObjectId
 
-    @prop()
-    @Field()
-    username!: string
+	@prop()
+	@Field()
+	name: string
 
-    @prop()
-    @Field()
-    email!: string
+	@prop()
+	@Field()
+	username!: string
 
-    @prop()
-    @Field()
-    name: string
+	@prop()
+	@Field()
+	email!: string
 
-    @prop()
-    password: string
+	@prop({ type: () => [String] })
+	@Field(() => [String])
+	gamesPlayed!: string[]
 
+	@prop({ type: () => [String] })
+	@Field(() => [String])
+	gamesCreated!: string[]
+
+	@prop()
+	password: string
+
+	@prop()
+	accessToken: string
+
+	@prop({ type: Points })
+	@Field(() => Points)
+	points: Points
+
+	@prop({ type: ProfilePicture })
+	@Field(() => ProfilePicture)
+	profilePicture: ProfilePicture
+
+	@prop({ type: () => [String] })
+	@Field(() => [String])
+	comments: string[]
+
+	@prop()
+	@Field(() => Int)
+	lastUpdated!: number
 }

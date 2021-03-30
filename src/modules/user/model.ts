@@ -1,13 +1,12 @@
 import { getModelForClass, DocumentType } from '@typegoose/typegoose'
 import { ObjectId } from 'mongodb'
-
+import { Service } from 'typedi'
 import { User } from '../../entities'
-
-
 
 // This generates the mongoose model for us
 export const UserMongooseModel = getModelForClass(User)
 
+@Service()
 export default class UserModel {
 	async getById(_id: ObjectId): Promise<User | null> {
 		// Use mongoose as usual
