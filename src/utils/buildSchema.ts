@@ -11,6 +11,7 @@ import path from 'path'
 // Here goes your schema building bit, doing it this way allows us to use it in the tests as well!
 export const buildSchema = () =>
 	typeGraphqlBuildSchema({
+		dateScalarMode: 'isoDate',
 		resolvers,
 		container: Container,
 		scalarsMap: [{ type: ObjectId, scalar: ObjectIdScalar }],

@@ -30,13 +30,13 @@ export class GameProgress {
 
 	@prop({ type: () => [LevelProgress] })
 	@Field(() => [LevelProgress])
-	levels: [LevelProgress]
+	levels: LevelProgress[]
 
 	@prop({ type: () => [StageProgress] })
 	@Field(() => [StageProgress])
-	stages: [StageProgress]
+	stages: StageProgress[]
 
 	@prop({ type: () => [QuestionProgress] })
 	@Field(() => [QuestionProgress])
-	questions: [QuestionProgress]
+	questions: QuestionProgress[]
 }

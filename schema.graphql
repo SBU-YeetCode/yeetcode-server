@@ -29,6 +29,7 @@ type Game {
   commentsRef: [String!]!
   createdBy: String!
   dateCreated: Int!
+  description: String!
   difficulty: String!
   language: String!
   lastUpdated: Int!
@@ -37,6 +38,7 @@ type Game {
   questions: [Question!]!
   roadmap: [SubGameRoadmap!]!
   stages: [Stage!]!
+  tags: [String!]!
   title: String!
   totalStars: Int!
 }
@@ -47,6 +49,7 @@ input GameInput {
   commentsRef: [String!]!
   createdBy: String!
   dateCreated: Int!
+  description: String!
   difficulty: String!
   language: String!
   lastUpdated: Int!
@@ -55,6 +58,7 @@ input GameInput {
   questions: [QuestionInput!]!
   roadmap: [SubGameRoadmapInput!]!
   stages: [StageInput!]!
+  tags: [String!]!
   title: String!
   totalStars: Int!
 }
@@ -94,14 +98,14 @@ input HintInput {
 }
 
 type Level {
+  _id: ObjectId!
   description: String!
-  id: String!
   title: String!
 }
 
 input LevelInput {
+  _id: ObjectId!
   description: String!
-  id: String!
   title: String!
 }
 
@@ -270,7 +274,7 @@ type User {
   email: String!
   gamesCreated: [String!]!
   gamesPlayed: [String!]!
-  lastUpdated: Int!
+  lastUpdated: String!
   name: String!
   points: Points!
   profilePicture: ProfilePicture!
@@ -283,7 +287,7 @@ input UserInput {
   email: String!
   gamesCreated: [String!]!
   gamesPlayed: [String!]!
-  lastUpdated: Int!
+  lastUpdated: String!
   name: String!
   points: PointsInput!
   profilePicture: ProfilePictureInput!

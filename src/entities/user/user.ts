@@ -48,6 +48,6 @@ export class User {
 	comments: string[]
 
 	@prop()
-	@Field(() => Int)
-	lastUpdated!: number
+	@Field()
+	lastUpdated!: string
 }

@@ -5,34 +5,35 @@ export const PRODUCTION = process.env.NODE_ENV === 'production'
 
 // Safely get the environment variable in the process
 const env = (name: string): string => {
-    const value = process.env[name]
+	const value = process.env[name]
 
-    if (!value) {
-        throw new Error(`Missing: process.env['${name}'].`)
-    }
+	if (!value) {
+		throw new Error(`Missing: process.env['${name}'].`)
+	}
 
-    return value
+	return value
 }
 
 export interface Config {
-    clientOrigin: string
-    cookieSecret: string
-    port: number
-    graphqlPath: string
-    isDev: boolean
-    mongoDB: {
-        uri: string
-    }
+	clientOrigin: string
+	cookieSecret: string
+	port: number
+	graphqlPath: string
+	isDev: boolean
+	mongoDB: {
+		uri: string
+		testUri: string
+	}
 }
 
 export const config: Config = {
-    clientOrigin: env('CLIENT_ORIGIN'),
-    cookieSecret: env('COOKIE_SECRET'),
-    port: +env('PORT'),
-    graphqlPath: env('GRAPHQL_PATH'),
-    isDev: env('NODE_ENV') === 'development',
-    mongoDB: {
-        uri: env('MONGODB_URI'),
-    },
-
+	clientOrigin: env('CLIENT_ORIGIN'),
+	cookieSecret: env('COOKIE_SECRET'),
+	port: +env('PORT'),
+	graphqlPath: env('GRAPHQL_PATH'),
+	isDev: env('NODE_ENV') === 'development',
+	mongoDB: {
+		uri: env('MONGODB_URI'),
+		testUri: env('MONGODB_TEST_URI'),
+	},
 }

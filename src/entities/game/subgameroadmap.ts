@@ -24,7 +24,6 @@ export class SubGameRoadmap {
 	// @Field(() => [SubGameRoadmap])
 	// matchings: SubGameRoadmap[]
 }
-1
 
 /**
  *  roadmap: [LevelRoadmap]

@@ -52,6 +52,14 @@ export class Game {
 	@Field()
 	difficulty: string
 
+	@prop({ type: () => [String] })
+	@Field(() => [String])
+	tags!: string[]
+
+	@prop()
+	@Field()
+	description: string
+
 	@prop({ type: Level })
 	@Field(() => [Level])
 	levels: Level[]
