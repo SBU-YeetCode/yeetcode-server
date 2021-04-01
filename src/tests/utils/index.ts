@@ -31,10 +31,10 @@ export const connect = async () => {
 		useFindAndModify: false,
 		socketTimeoutMS: 10000,
 		autoIndex: false,
-		autoReconnect: true,
-		reconnectTries: Number.MAX_VALUE,
-		reconnectInterval: 1000,
-		// useMongoClient: true, // remove this line if you use mongoose 5 and above
+		// autoReconnect: true,
+		// reconnectTries: Number.MAX_VALUE,
+		// reconnectInterval: 1000,
+		// // useMongoClient: true, // remove this line if you use mongoose 5 and above
 	}
 	mongoose.connection.on('error', (e) => {
 		if (e.message.code === 'ETIMEDOUT') {
@@ -52,9 +52,9 @@ export const connect = async () => {
  */
 export const closeDatabase = async () => {
 	try {
-		console.log('Before drop =================')
-		await mongoose.connection.dropDatabase()
-		console.log('Before close =================')
+		// console.log('Before drop =================')
+		// await mongoose.connection.dropDatabase()
+		// console.log('Before close =================')
 		await mongoose.connection.close()
 		await mongoose.disconnect()
 		// await mongod.stop()

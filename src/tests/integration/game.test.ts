@@ -23,7 +23,7 @@ afterEach(async () => {
 })
 
 afterAll(async (done) => {
-	await closeDatabase()
+	// await closeDatabase()
 	done()
 })
 

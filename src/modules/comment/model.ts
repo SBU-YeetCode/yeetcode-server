@@ -1,7 +1,9 @@
 import { getModelForClass, DocumentType } from '@typegoose/typegoose'
 import { ObjectId } from 'mongodb'
 import { Service } from 'typedi'
-import { Comment } from '../../entities'
+import { CommentInput, Comment } from '../../entities'
+import { PaginationInput } from '../utils/pagination'
+import { PaginatedCommentResponse } from './input'
 
 // This generates the mongoose model for us
 export const CommentMongooseModel = getModelForClass(Comment)
@@ -17,9 +19,40 @@ export default class CommentModel {
 		return CommentMongooseModel.findById(_id).exec()
 	}
 
-	async createComment(Comment: Comment) {
+	async createComment(Comment: CommentInput) {
 		let newComment = new CommentMongooseModel(Comment)
 		await newComment.save()
 		return newComment
+	}
+
+	async getPaginatedGameComments(
+		pagination: PaginationInput,
+		gameId: string
+	): Promise<PaginatedCommentResponse> {
+		let criteria = pagination.cursor
+			? {
+					_id: {
+						$lt: pagination.cursor,
+					},
+			  }
+			: {}
+		let nodes = await CommentMongooseModel.find(criteria)
+			.sort({ _id: -1 })
+			.where('gameId')
+			.equals(gameId)
+			.limit(pagination.amount + 1)
+			.lean()
+			.exec()
+		const hasMore = nodes.length > pagination.amount
+		if (hasMore) {
+			nodes = nodes.slice(0, nodes.length - 1)
+		}
+		return {
+			hasMore,
+			nextCursor: hasMore
+				? nodes[nodes.length - 1]._id.toHexString()
+				: null,
+			nodes,
+		}
 	}
 }

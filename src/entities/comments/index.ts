@@ -1,1 +1,1 @@
-export { Comment } from './comment'
+export { Comment, CommentInput } from './comment'

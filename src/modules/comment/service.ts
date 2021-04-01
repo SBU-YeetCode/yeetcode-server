@@ -1,6 +1,8 @@
 import { ObjectId } from 'mongodb'
 import { Service } from 'typedi'
-import { Comment } from '../../entities'
+import { CommentInput } from '../../entities'
+import { PaginationInput } from '../utils/pagination'
+import { PaginatedCommentResponse } from './input'
 import CommentModel from './model'
 
 @Service() // Dependencies injection
@@ -12,9 +14,20 @@ export default class CommentService {
 		return comment
 	}
 
-	public async createComment(comment: Comment) {
+	public async createComment(comment: CommentInput) {
 		const newComment = await this.commentModel.createComment(comment)
 		if (!comment) throw new Error('Unable to create comment')
 		return newComment
+	}
+
+	public async getGameComments(
+		pagination: PaginationInput,
+		gmaeId: string
+	): Promise<PaginatedCommentResponse> {
+		const comments = await this.commentModel.getPaginatedGameComments(
+			pagination,
+			gmaeId
+		)
+		return comments
 	}
 }

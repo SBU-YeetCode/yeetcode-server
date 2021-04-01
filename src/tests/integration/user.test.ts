@@ -19,11 +19,11 @@ beforeAll(async () => connect())
 // })
 
 afterEach(async () => {
-	await clearDatabase()
+	// await clearDatabase()
 })
 
 afterAll(async (done) => {
-	await closeDatabase()
+	// await closeDatabase()
 	done()
 })
 
@@ -41,12 +41,9 @@ describe('User', () => {
 			query: GET_USER,
 			variables: { id: user._id },
 		})
-		console.log(res)
 		expect(res.data!.getUser!).toEqual<
 			Omit<User, 'password' | '_id' | 'accessToken'>
 		>(userToMatch)
-
-		// expect(2).toEqual(2)
 	})
 })
 
