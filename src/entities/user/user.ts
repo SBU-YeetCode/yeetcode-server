@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb'
 import { Field, InputType, ObjectType, Int } from 'type-graphql'
 import { ProfilePicture } from './profilePicture'
 import { Points } from './points'
+import { DateScalar } from '../../utils/scalars'
 @ObjectType('User')
 @InputType('UserInput')
 export class User {
@@ -47,7 +48,7 @@ export class User {
 	@Field(() => [String])
 	comments: string[]
 
-	@prop()
-	@Field()
+	@prop({ type: Date })
+	@Field(() => DateScalar)
 	lastUpdated!: string
 }

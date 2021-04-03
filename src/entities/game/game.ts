@@ -5,6 +5,7 @@ import { Level } from './level'
 import { Stage } from './stage'
 import { Question } from './question'
 import { SubGameRoadmap } from './subgameroadmap'
+import { DateScalar } from '../../utils/scalars'
 
 @ObjectType('Game')
 @InputType('GameInput')
@@ -16,14 +17,13 @@ export class Game {
 	@Field()
 	createdBy!: string
 
-	@prop()
-	@Field(() => Int)
-	dateCreated!: number
+	@prop({ type: Date })
+	@Field(() => DateScalar)
+	dateCreated!: string
 
-	@prop()
-	@Field(() => Int)
-	lastUpdated!: number
-
+	@prop({ type: Date })
+	@Field(() => DateScalar)
+	lastUpdated!: string
 	@prop()
 	@Field(() => Int)
 	commentCount!: number

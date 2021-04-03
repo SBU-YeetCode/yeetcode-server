@@ -17,3 +17,19 @@ export const ObjectIdScalar = new GraphQLScalarType({
 		return null
 	},
 })
+
+export const DateScalar = new GraphQLScalarType({
+	name: 'Date',
+	description: 'Date Type for GraphQL',
+	parseValue(value: string) {
+		return new Date(value)
+	},
+	serialize(value: Date) {
+		return value.toISOString()
+	},
+	parseLiteral(ast) {
+		if (ast.kind === Kind.STRING) {
+			return new Date(ast.value)
+		}
+	},
+})

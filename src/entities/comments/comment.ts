@@ -1,6 +1,7 @@
 import { ObjectType, InputType, Field, Int } from 'type-graphql'
 import { prop } from '@typegoose/typegoose'
 import { ObjectId } from 'mongodb'
+import { DateScalar } from '../../utils/scalars'
 import { Min, Max } from 'class-validator'
 
 @ObjectType()
@@ -25,13 +26,13 @@ export class CommentInput {
 	rating: number
 
 	// date
-	@prop({ type: String })
-	@Field()
+	@prop({ type: Date })
+	@Field(() => DateScalar)
 	dateCreated: string
 
 	// date
-	@prop({ type: String })
-	@Field()
+	@prop({ type: Date })
+	@Field(() => DateScalar)
 	lastUpdated: string
 }
 

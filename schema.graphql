@@ -5,33 +5,36 @@
 
 type Comment {
   _id: ObjectId!
-  dateCreated: String!
+  dateCreated: Date!
   gameId: String!
-  lastUpdated: String!
+  lastUpdated: Date!
   rating: Int!
   review: String!
   userId: String!
 }
 
 input CommentInput {
-  dateCreated: String!
+  dateCreated: Date!
   gameId: String!
-  lastUpdated: String!
+  lastUpdated: Date!
   rating: Int!
   review: String!
   userId: String!
 }
+
+"""Date Type for GraphQL"""
+scalar Date
 
 type Game {
   _id: ObjectId!
   commentCount: Int!
   commentsRef: [String!]!
   createdBy: String!
-  dateCreated: Int!
+  dateCreated: Date!
   description: String!
   difficulty: String!
   language: String!
-  lastUpdated: Int!
+  lastUpdated: Date!
   levels: [Level!]!
   playCount: Int!
   questions: [Question!]!
@@ -47,11 +50,11 @@ input GameInput {
   commentCount: Int!
   commentsRef: [String!]!
   createdBy: String!
-  dateCreated: Int!
+  dateCreated: Date!
   description: String!
   difficulty: String!
   language: String!
-  lastUpdated: Int!
+  lastUpdated: Date!
   levels: [LevelInput!]!
   playCount: Int!
   questions: [QuestionInput!]!
@@ -64,23 +67,23 @@ input GameInput {
 
 type GameProgress {
   _id: ObjectId!
-  completedAt: Int!
+  completedAt: Date!
   gameId: String!
   levels: [LevelProgress!]!
   questions: [QuestionProgress!]!
   stages: [StageProgress!]!
-  startedAt: Int!
+  startedAt: Date!
   userId: String!
 }
 
 input GameProgressInput {
   _id: ObjectId!
-  completedAt: Int!
+  completedAt: Date!
   gameId: String!
   levels: [LevelProgressInput!]!
   questions: [QuestionProgressInput!]!
   stages: [StageProgressInput!]!
-  startedAt: Int!
+  startedAt: Date!
   userId: String!
 }
 
@@ -281,7 +284,7 @@ type User {
   email: String!
   gamesCreated: [String!]!
   gamesPlayed: [String!]!
-  lastUpdated: String!
+  lastUpdated: Date!
   name: String!
   points: Points!
   profilePicture: ProfilePicture!
@@ -294,7 +297,7 @@ input UserInput {
   email: String!
   gamesCreated: [String!]!
   gamesPlayed: [String!]!
-  lastUpdated: String!
+  lastUpdated: Date!
   name: String!
   points: PointsInput!
   profilePicture: ProfilePictureInput!

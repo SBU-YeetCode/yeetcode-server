@@ -4,6 +4,7 @@ import { ObjectId } from 'mongodb'
 import { LevelProgress } from './levelProgress'
 import { StageProgress } from './stageProgress'
 import { QuestionProgress } from './questionProgress'
+import { DateScalar } from '../../utils/scalars'
 
 @InputType('GameProgressInput')
 @ObjectType()
@@ -19,14 +20,13 @@ export class GameProgress {
 	@Field()
 	gameId: string
 
-	// date
-	@prop({ type: Number })
-	@Field(() => Int)
-	startedAt: number
-	// date
-	@prop({ type: Number })
-	@Field(() => Int)
-	completedAt: number
+	@prop({ type: Date })
+	@Field(() => DateScalar)
+	startedAt: string
+
+	@prop({ type: Date })
+	@Field(() => DateScalar)
+	completedAt: string
 
 	@prop({ type: () => [LevelProgress] })
 	@Field(() => [LevelProgress])
