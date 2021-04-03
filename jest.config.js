@@ -1,5 +1,5 @@
 module.exports = {
-	preset: '@shelf/jest-mongodb',
+	testEnvironment: 'node',
 	roots: ['<rootDir>/src'],
 	testMatch: [
 		'**/__tests__/**/*.+(ts|tsx|js)',
