@@ -35,4 +35,10 @@ export default class CommentResolver {
 		)
 		return gameComments
 	}
+
+	@Query((returns) => [Comment])
+	async getUserReviews(@Arg('userId') id: string) {
+		const userComments = await this.commentService.getUserComments(id)
+		return userComments
+	}
 }

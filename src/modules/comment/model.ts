@@ -55,4 +55,8 @@ export default class CommentModel {
 			nodes,
 		}
 	}
+
+	async getUserComments(id: string) {
+		return CommentMongooseModel.find({ userId: id }).lean().exec()
+	}
 }

@@ -22,12 +22,17 @@ export default class CommentService {
 
 	public async getGameComments(
 		pagination: PaginationInput,
-		gmaeId: string
+		gameId: string
 	): Promise<PaginatedCommentResponse> {
 		const comments = await this.commentModel.getPaginatedGameComments(
 			pagination,
-			gmaeId
+			gameId
 		)
 		return comments
+	}
+
+	public async getUserComments(id: string) {
+		const userComments = await this.commentModel.getUserComments(id)
+		return userComments
 	}
 }

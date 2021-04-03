@@ -77,7 +77,62 @@ describe('Comment', () => {
 		expect(res?.data?.getGameComments.hasMore).toBeFalsy()
 		expect(res.data?.getGameComments.nextCursor).toBeNull()
 	})
+
+	it('should get comments by user id in db', async () => {
+		let comments: Comment[] = []
+		let desiredUserId = new ObjectId().toHexString()
+		for (let i = 0; i < 5; i++) {
+			// Generate 5 comments with random IDs
+			comments.push(createComment())
+		}
+		// Alter comment in index 1 to desired ID
+		comments[1].userId = desiredUserId
+		await populateDatabase(CommentMongooseModel, comments)
+		const graphqlSchema = await buildSchema()
+		const server = new ApolloServer({ schema: graphqlSchema }) as any
+		// use the test server to create a query function
+		const { query } = createTestClient(server)
+		const res = await query<{ getUserReviews: Comment[] }>({
+			query: GET_USER_COMMENTS,
+			variables: { userId: desiredUserId },
+		})
+		const { _id, ...commentToMatch } = comments[1]
+		expect(res.data?.getUserReviews.length).toEqual(1)
+		expect(res.data?.getUserReviews[0]).toEqual(commentToMatch)
+	})
+
+	it('should get no comments by user id in db', async () => {
+		let comments: Comment[] = []
+		let desiredUserId = new ObjectId().toHexString()
+		for (let i = 0; i < 5; i++) {
+			// Generate 5 comments with random IDs
+			comments.push(createComment())
+		}
+		await populateDatabase(CommentMongooseModel, comments)
+		const graphqlSchema = await buildSchema()
+		const server = new ApolloServer({ schema: graphqlSchema }) as any
+		// use the test server to create a query function
+		const { query } = createTestClient(server)
+		const res = await query<{ getUserReviews: Comment[] }>({
+			query: GET_USER_COMMENTS,
+			variables: { userId: desiredUserId },
+		})
+		expect(res.data?.getUserReviews.length).toEqual(0)
+	})
 })
+
+const GET_USER_COMMENTS = gql`
+	query getUserReviews($userId: String!) {
+		getUserReviews(userId: $userId) {
+			userId
+			gameId
+			review
+			rating
+			lastUpdated
+			dateCreated
+		}
+	}
+`
 
 const GET_COMMENT = gql`
 	query getComment($id: ObjectId!) {

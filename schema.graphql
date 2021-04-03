@@ -182,6 +182,7 @@ type Query {
   getGameComments(amount: Int = 10, cursor: String, gameId: String!): PaginatedCommentResponse!
   getGameProgress(id: ObjectId!): GameProgress
   getUser(id: ObjectId!): User
+  getUserReviews(userId: String!): [Comment!]!
 }
 
 type Question {
