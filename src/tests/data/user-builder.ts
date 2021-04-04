@@ -15,6 +15,7 @@ export const createUser = (user: Partial<User>): User => {
 		comments: [],
 		gamesCreated: [],
 		gamesPlayed: [],
+		gamesCompleted: [],
 		lastUpdated: new Date().toISOString(),
 		username: name,
 		points: {

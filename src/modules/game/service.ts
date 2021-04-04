@@ -5,10 +5,14 @@ import { GameInput } from '../../entities/game/game'
 import { PaginationInput } from '../utils/pagination'
 import { LANGUAGES, PaginatedGameResponse, SORT_OPTIONS } from './input'
 import GameModel from './model'
+import UserModel from '../user/model'
 
 @Service() // Dependencies injection
 export default class GameService {
-	constructor(private readonly gameModel: GameModel) {}
+	constructor(
+		private readonly gameModel: GameModel,
+		private readonly userModel: UserModel
+	) {}
 	public async getById(id: string) {
 		const game = await this.gameModel.getById(id)
 		if (!game) throw new Error('No game found')
@@ -34,5 +38,28 @@ export default class GameService {
 			pagination
 		)
 		return games
+	}
+	public async getUserCreatedGames(userId: string) {
+		const user = await this.userModel.findById(new ObjectId(userId))
+		if (!user) throw new Error('User not found')
+		const createdGameIds = user.gamesCreated
+		const userCreatedGames: Game[] = []
+		for (var i = 0; i < createdGameIds.length; i++) {
+			const game = await this.gameModel.findById(createdGameIds[i])
+			if (game) userCreatedGames.push(game)
+		}
+		return userCreatedGames
+	}
+
+	public async getUserCompletedGames(userId: string) {
+		const user = await this.userModel.findById(new ObjectId(userId))
+		if (!user) throw new Error('User not found')
+		const gameCompletedIds = user.gamesCompleted
+		const userCompletedGames: Game[] = []
+		for (var i = 0; i < gameCompletedIds.length; i++) {
+			const game = await this.gameModel.findById(gameCompletedIds[i])
+			if (game) userCompletedGames.push(game)
+		}
+		return userCompletedGames
 	}
 }

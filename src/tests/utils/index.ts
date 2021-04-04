@@ -52,9 +52,7 @@ export const connect = async () => {
  */
 export const closeDatabase = async () => {
 	try {
-		// console.log('Before drop =================')
 		await mongoose.connection.dropDatabase()
-		// console.log('Before close =================')
 		await mongoose.connection.close()
 		await mongoose.disconnect()
 		// await mongod.stop()

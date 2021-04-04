@@ -30,6 +30,10 @@ export class User {
 	@Field(() => [String])
 	gamesCreated!: string[]
 
+	@prop({ type: () => [String] })
+	@Field(() => [String])
+	gamesCompleted!: string[]
+
 	@prop()
 	password: string
 

@@ -55,6 +55,7 @@ const GET_USER = gql`
 			name
 			gamesPlayed
 			gamesCreated
+			gamesCompleted
 			lastUpdated
 			comments
 			points {

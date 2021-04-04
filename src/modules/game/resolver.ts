@@ -32,6 +32,21 @@ export default class GameResolver {
 		)
 		return filterGames
 	}
+	@Query((returns) => [Game])
+	async getUserCreatedGames(@Arg('userId') userId: string) {
+		const userCreatedGames = await this.gameService.getUserCreatedGames(
+			userId
+		)
+		return userCreatedGames
+	}
+
+	@Query((returns) => [Game])
+	async getUserCompletedGames(@Arg('userId') userId: string) {
+		const userCreatedGames = await this.gameService.getUserCompletedGames(
+			userId
+		)
+		return userCreatedGames
+	}
 
 	@Mutation((returns) => Game)
 	async createGame(@Arg('game') game: GameInput) {

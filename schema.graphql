@@ -201,6 +201,8 @@ type Query {
   getGameComments(amount: Int = 10, cursor: String, gameId: String!): PaginatedCommentResponse!
   getGameProgress(id: ObjectId!): GameProgress
   getUser(id: ObjectId!): User
+  getUserCompletedGames(userId: String!): [Game!]!
+  getUserCreatedGames(userId: String!): [Game!]!
   getUserReviews(userId: String!): [Comment!]!
 }
 
@@ -304,6 +306,7 @@ type User {
   _id: ObjectId!
   comments: [String!]!
   email: String!
+  gamesCompleted: [String!]!
   gamesCreated: [String!]!
   gamesPlayed: [String!]!
   lastUpdated: Date!
@@ -317,6 +320,7 @@ input UserInput {
   _id: ObjectId!
   comments: [String!]!
   email: String!
+  gamesCompleted: [String!]!
   gamesCreated: [String!]!
   gamesPlayed: [String!]!
   lastUpdated: Date!
