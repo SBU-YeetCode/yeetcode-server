@@ -14,7 +14,7 @@ export class SubGameRoadmap {
 
 	@prop()
 	@Field(() => Int)
-	sequence!: number
+	sequence!: string
 
 	@prop()
 	@Field()
