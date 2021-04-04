@@ -1,7 +1,7 @@
 import { ApolloServer, gql } from 'apollo-server-express'
 import { createTestClient } from 'apollo-server-testing'
 import { GraphQLSchema } from 'graphql'
-import { Game, Level, Stage } from '../../entities'
+import { Game, Level, Stage, Question } from '../../entities'
 import { PaginatedGameResponse } from '../../modules/game/input'
 import { GameMongooseModel } from '../../modules/game/model'
 import { UserMongooseModel } from '../../modules/user/model'
@@ -10,6 +10,7 @@ import { createGame } from '../data/game-builder'
 import { createUser } from '../data/user-builder'
 import { createLevel } from '../data/level-builder'
 import { createStage } from '../data/stage-builder'
+import { createQuestion } from '../data/question-builder'
 import {
 	clearDatabase,
 	closeDatabase,
@@ -240,6 +241,29 @@ describe('Game', () => {
 		})
 		expect(res.data?.getStage._id).toEqual(stageIdToCheck)
 	})
+
+	it('should get a question in db', async () => {
+		// Create Game
+		let games: Game[] = []
+		games.push(createGame({}))
+		const game = games[0]
+		for (let i = 0; i < 3; i++) {
+			// Generate 3 questions
+			game.questions.push(createQuestion({}))
+		}
+		// Get the id of second question in the game
+		const questionIdToCheck = game.questions[1]._id.toHexString()
+		// Send data to db
+		await populateDatabase(GameMongooseModel, games)
+		const server = new ApolloServer({ schema: graphqlSchema }) as any
+		// use the test server to create a query function
+		const { query } = createTestClient(server)
+		const res = await query<{ getQuestion: Question }>({
+			query: GET_QUESTION,
+			variables: { questionId: questionIdToCheck, gameId: game._id.toHexString() },
+		})
+		expect(res.data?.getQuestion._id).toEqual(questionIdToCheck)
+	})
 })
 
 const GET_USER_COMPLETED_GAMES = gql`
@@ -331,6 +355,16 @@ const GET_LEVEL = gql`
 const GET_STAGE = gql`
 	query getStage($stageId: String!, $gameId: String!) {
 		getStage(stageId: $stageId, gameId: $gameId) {
+			_id
+			title
+			description
+		}
+	}
+`
+
+const GET_QUESTION = gql`
+	query getQuestion($questionId: String!, $gameId: String!) {
+		getQuestion(questionId: $questionId, gameId: $gameId) {
 			_id
 			title
 			description
