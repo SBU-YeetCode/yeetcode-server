@@ -24,6 +24,7 @@ export class Game {
 	@prop({ type: Date })
 	@Field(() => DateScalar)
 	lastUpdated!: string
+
 	@prop()
 	@Field(() => Int)
 	commentCount!: number
@@ -31,6 +32,10 @@ export class Game {
 	@prop()
 	@Field(() => Int)
 	totalStars!: number
+
+	@prop()
+	@Field(() => Int)
+	rating!: number
 
 	@prop()
 	@Field(() => Int)
