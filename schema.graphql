@@ -38,7 +38,7 @@ type Game {
   levels: [Level!]!
   playCount: Int!
   questions: [Question!]!
-  rating: Int!
+  rating: Float!
   roadmap: [SubGameRoadmap!]!
   stages: [Stage!]!
   tags: [String!]!
@@ -47,7 +47,6 @@ type Game {
 }
 
 input GameInput {
-  _id: ObjectId!
   commentCount: Int!
   commentsRef: [String!]!
   createdBy: String!
@@ -59,7 +58,7 @@ input GameInput {
   levels: [LevelInput!]!
   playCount: Int!
   questions: [QuestionInput!]!
-  rating: Int!
+  rating: Float!
   roadmap: [SubGameRoadmapInput!]!
   stages: [StageInput!]!
   tags: [String!]!
@@ -99,6 +98,14 @@ input HintInput {
   _id: ObjectId!
   description: String!
   timeToReveal: Int!
+}
+
+enum LANGUAGES {
+  C
+  CPP
+  JAVA
+  JAVASCRIPT
+  PYTHON
 }
 
 type Level {
@@ -153,6 +160,12 @@ type PaginatedCommentResponse {
   nodes: [Comment!]!
 }
 
+type PaginatedGameResponse {
+  hasMore: Boolean!
+  nextCursor: String
+  nodes: [Game!]!
+}
+
 type Points {
   c: Int!
   cpp: Int!
@@ -183,10 +196,12 @@ input ProfilePictureInput {
 
 type Query {
   getComment(id: ObjectId!): Comment
-  getGame(id: ObjectId!): Game
+  getFilterGames(amount: Int = 10, cursor: String, language: LANGUAGES, sort: SORT_OPTIONS, sortDir: Int = 1): PaginatedGameResponse!
+  getGame(id: String!): Game
   getGameComments(amount: Int = 10, cursor: String, gameId: String!): PaginatedCommentResponse!
   getGameProgress(id: ObjectId!): GameProgress
   getUser(id: ObjectId!): User
+  getUserCompletedGames(userId: String!): [Game!]!
   getUserCreatedGames(userId: String!): [Game!]!
   getUserReviews(userId: String!): [Comment!]!
 }
@@ -241,6 +256,12 @@ input QuestionProgressInput {
   livesLeft: Int!
   pointsReceived: Int!
   questionid: String!
+}
+
+enum SORT_OPTIONS {
+  NEWEST
+  PLAY_COUNT
+  RATING
 }
 
 type Stage {
