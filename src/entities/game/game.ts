@@ -1,18 +1,15 @@
 import { prop } from '@typegoose/typegoose'
 import { ObjectId } from 'mongodb'
-import { Field, InputType, ObjectType, Int } from 'type-graphql'
+import { Field, InputType, ObjectType, Int, Float } from 'type-graphql'
 import { Level } from './level'
 import { Stage } from './stage'
 import { Question } from './question'
 import { SubGameRoadmap } from './subgameroadmap'
 import { DateScalar } from '../../utils/scalars'
 
-@ObjectType('Game')
+@ObjectType()
 @InputType('GameInput')
-export class Game {
-	@Field()
-	readonly _id!: ObjectId
-
+export class GameInput {
 	@prop()
 	@Field()
 	createdBy!: string
@@ -34,7 +31,7 @@ export class Game {
 	totalStars!: number
 
 	@prop()
-	@Field(() => Int)
+	@Field(() => Float)
 	rating!: number
 
 	@prop()
@@ -80,4 +77,10 @@ export class Game {
 	@prop({ type: SubGameRoadmap })
 	@Field(() => [SubGameRoadmap])
 	roadmap: SubGameRoadmap[]
+}
+
+@ObjectType()
+export class Game extends GameInput {
+	@Field()
+	readonly _id!: ObjectId
 }
