@@ -1,13 +1,14 @@
 import { ApolloServer, gql } from 'apollo-server-express'
 import { createTestClient } from 'apollo-server-testing'
 import { GraphQLSchema } from 'graphql'
-import { Game } from '../../entities'
+import { Game, Level } from '../../entities'
 import { PaginatedGameResponse } from '../../modules/game/input'
 import { GameMongooseModel } from '../../modules/game/model'
 import { UserMongooseModel } from '../../modules/user/model'
 import { buildSchema } from '../../utils'
 import { createGame } from '../data/game-builder'
 import { createUser } from '../data/user-builder'
+import { createLevel } from '../data/level-builder'
 import {
 	clearDatabase,
 	closeDatabase,
@@ -192,6 +193,29 @@ describe('Game', () => {
 			expected[expected.length - 2]._id
 		)
 	})
+	
+	it('should get a level in db', async () => {
+		// Create Game
+		let games: Game[] = []
+		games.push(createGame({}))
+		const game = games[0]
+		for (let i = 0; i < 3; i++) {
+			// Generate 3 levels
+			game.levels.push(createLevel({}))
+		}
+		// Get the id of second level in the game
+		const levelIdToCheck = game.levels[1]._id.toHexString()
+		// Send data to db
+		await populateDatabase(GameMongooseModel, games)
+		const server = new ApolloServer({ schema: graphqlSchema }) as any
+		// use the test server to create a query function
+		const { query } = createTestClient(server)
+		const res = await query<{ getLevel: Level }>({
+			query: GET_LEVEL,
+			variables: { levelId: levelIdToCheck, gameId: game._id.toHexString() },
+		})
+		expect(res.data?.getLevel._id).toEqual(levelIdToCheck)
+	})
 })
 
 const GET_USER_COMPLETED_GAMES = gql`
@@ -266,6 +290,16 @@ const GET_FILTER_GAMES = gql`
 			}
 			hasMore
 			nextCursor
+		}
+	}
+`
+
+const GET_LEVEL = gql`
+	query getLevel($levelId: String!, $gameId: String!) {
+		getLevel(levelId: $levelId, gameId: $gameId) {
+			_id
+			title
+			description
 		}
 	}
 `

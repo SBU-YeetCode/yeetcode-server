@@ -62,4 +62,15 @@ export default class GameService {
 		}
 		return userCompletedGames
 	}
+
+	public async getLevel(levelId: string, gameId: string) {
+		const game = await this.gameModel.findById(gameId)
+		if (!game) throw new Error('Game not found')
+		const gameLevels = game.levels
+		for (var i= 0; i < gameLevels.length; i++) {
+			if (gameLevels[i]._id.toHexString() === levelId)
+				return gameLevels[i]
+		}
+		throw new Error('Level not found')
+	}
 }

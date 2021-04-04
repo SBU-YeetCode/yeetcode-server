@@ -48,6 +48,14 @@ export default class GameResolver {
 		return userCreatedGames
 	}
 
+	@Query((returns) => Game)
+	async getLevel(
+		@Arg('levelId') levelId: string,
+		@Arg('gameId') gameId: string) {
+		const level = await this.gameService.getLevel(levelId, gameId)
+		return level
+	}
+
 	@Mutation((returns) => Game)
 	async createGame(@Arg('game') game: GameInput) {
 		const newGame = await this.gameService.createGame(game)
