@@ -1,7 +1,7 @@
 import { ApolloServer, gql } from 'apollo-server-express'
 import { createTestClient } from 'apollo-server-testing'
 import { GraphQLSchema } from 'graphql'
-import { Game, Level } from '../../entities'
+import { Game, Level, Stage } from '../../entities'
 import { PaginatedGameResponse } from '../../modules/game/input'
 import { GameMongooseModel } from '../../modules/game/model'
 import { UserMongooseModel } from '../../modules/user/model'
@@ -9,6 +9,7 @@ import { buildSchema } from '../../utils'
 import { createGame } from '../data/game-builder'
 import { createUser } from '../data/user-builder'
 import { createLevel } from '../data/level-builder'
+import { createStage } from '../data/stage-builder'
 import {
 	clearDatabase,
 	closeDatabase,
@@ -216,6 +217,29 @@ describe('Game', () => {
 		})
 		expect(res.data?.getLevel._id).toEqual(levelIdToCheck)
 	})
+
+	it('should get a stage in db', async () => {
+		// Create Game
+		let games: Game[] = []
+		games.push(createGame({}))
+		const game = games[0]
+		for (let i = 0; i < 3; i++) {
+			// Generate 3 stages
+			game.stages.push(createStage({}))
+		}
+		// Get the id of second stage in the game
+		const stageIdToCheck = game.stages[1]._id.toHexString()
+		// Send data to db
+		await populateDatabase(GameMongooseModel, games)
+		const server = new ApolloServer({ schema: graphqlSchema }) as any
+		// use the test server to create a query function
+		const { query } = createTestClient(server)
+		const res = await query<{ getStage: Stage }>({
+			query: GET_STAGE,
+			variables: { stageId: stageIdToCheck, gameId: game._id.toHexString() },
+		})
+		expect(res.data?.getStage._id).toEqual(stageIdToCheck)
+	})
 })
 
 const GET_USER_COMPLETED_GAMES = gql`
@@ -297,6 +321,16 @@ const GET_FILTER_GAMES = gql`
 const GET_LEVEL = gql`
 	query getLevel($levelId: String!, $gameId: String!) {
 		getLevel(levelId: $levelId, gameId: $gameId) {
+			_id
+			title
+			description
+		}
+	}
+`
+
+const GET_STAGE = gql`
+	query getStage($stageId: String!, $gameId: String!) {
+		getStage(stageId: $stageId, gameId: $gameId) {
 			_id
 			title
 			description
