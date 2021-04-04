@@ -1,13 +1,13 @@
 import { ApolloServer, gql } from 'apollo-server-express'
 import { createTestClient } from 'apollo-server-testing'
-import { ObjectId } from 'mongodb'
-import { User, Game } from '../../entities'
+import { GraphQLSchema } from 'graphql'
+import { Game } from '../../entities'
+import { PaginatedGameResponse } from '../../modules/game/input'
 import { GameMongooseModel } from '../../modules/game/model'
 import { UserMongooseModel } from '../../modules/user/model'
 import { buildSchema } from '../../utils'
-import { createUser } from '../data/user-builder'
 import { createGame } from '../data/game-builder'
-import { GraphQLSchema } from 'graphql'
+import { createUser } from '../data/user-builder'
 import {
 	clearDatabase,
 	closeDatabase,
@@ -144,6 +144,54 @@ describe('Game', () => {
 		})
 		expect(res.data?.getUserCompletedGames.length).toEqual(0)
 	})
+
+	it('gets paginated filtered game results', async () => {
+		const games: Game[] = []
+		for (let i = 0; i < 15; i++) {
+			games.push(
+				createGame({ language: i < 10 ? 'javascript' : 'c', rating: i })
+			)
+		}
+		await populateDatabase(GameMongooseModel, games)
+		const server = new ApolloServer({ schema: graphqlSchema }) as any
+		// use the test server to create a query function
+		const { query } = createTestClient(server)
+		const res = await query<{ getFilterGames: PaginatedGameResponse }>({
+			query: GET_FILTER_GAMES,
+			variables: {
+				sort: 'RATING',
+				sortDir: -1,
+				amount: 9,
+				language: 'JAVASCRIPT',
+			},
+		})
+		const expected = games
+			.filter((g) => g.language === 'javascript')
+			.sort(
+				(a: Game, b: Game) =>
+					b.rating - a.rating ||
+					parseInt(b._id.toHexString()) -
+						parseInt(b._id.toHexString())
+			)
+			.map((g) => {
+				const {
+					_id,
+					questions,
+					stages,
+					levels,
+					roadmap,
+					...gameToMatch
+				} = g
+				return { ...gameToMatch, _id: _id.toHexString() }
+			})
+		expect(res?.data?.getFilterGames.nodes).toEqual(
+			expected.slice(0, expected.length - 1)
+		)
+		expect(res?.data?.getFilterGames.hasMore).toBeTruthy()
+		expect(res?.data?.getFilterGames.nextCursor).toEqual(
+			expected[expected.length - 2]._id
+		)
+	})
 })
 
 const GET_USER_COMPLETED_GAMES = gql`
@@ -182,6 +230,42 @@ const GET_USER_CREATED_GAMES = gql`
 			difficulty
 			tags
 			description
+		}
+	}
+`
+const GET_FILTER_GAMES = gql`
+	query getFilterGames(
+		$sort: SORT_OPTIONS
+		$sortDir: Int
+		$amount: Int
+		$language: LANGUAGES
+		$cursor: String
+	) {
+		getFilterGames(
+			sort: $sort
+			sortDir: $sortDir
+			amount: $amount
+			language: $language
+			cursor: $cursor
+		) {
+			nodes {
+				_id
+				createdBy
+				dateCreated
+				lastUpdated
+				commentCount
+				totalStars
+				playCount
+				rating
+				commentsRef
+				title
+				language
+				difficulty
+				tags
+				description
+			}
+			hasMore
+			nextCursor
 		}
 	}
 `
