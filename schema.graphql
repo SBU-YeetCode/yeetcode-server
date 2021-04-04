@@ -205,6 +205,7 @@ type Query {
   getUser(id: ObjectId!): User
   getUserCompletedGames(userId: String!): [Game!]!
   getUserCreatedGames(userId: String!): [Game!]!
+  getUserRecentGames(userId: String!): [Game!]!
   getUserReviews(userId: String!): [Comment!]!
 }
 

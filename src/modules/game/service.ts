@@ -63,11 +63,23 @@ export default class GameService {
 		return userCompletedGames
 	}
 
+	public async getUserRecentGames(userId: string) {
+		const user = await this.userModel.findById(new ObjectId(userId))
+		if (!user) throw new Error('User not found')
+		const recentGameIds = user.gamesPlayed
+		const userRecentGames: Game[] = []
+		for (var i = 0; i < recentGameIds.length; i++) {
+			const game = await this.gameModel.findById(recentGameIds[i])
+			if (game) userRecentGames.push(game)
+		}
+		return userRecentGames
+	}
+
 	public async getLevel(levelId: string, gameId: string) {
 		const game = await this.gameModel.findById(gameId)
 		if (!game) throw new Error('Game not found')
 		const gameLevels = game.levels
-		for (var i= 0; i < gameLevels.length; i++) {
+		for (var i = 0; i < gameLevels.length; i++) {
 			if (gameLevels[i]._id.toHexString() === levelId)
 				return gameLevels[i]
 		}
@@ -78,7 +90,7 @@ export default class GameService {
 		const game = await this.gameModel.findById(gameId)
 		if (!game) throw new Error('Game not found')
 		const gameStages = game.stages
-		for (var i= 0; i < gameStages.length; i++) {
+		for (var i = 0; i < gameStages.length; i++) {
 			if (gameStages[i]._id.toHexString() === stageId)
 				return gameStages[i]
 		}

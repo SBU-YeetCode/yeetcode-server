@@ -147,6 +147,59 @@ describe('Game', () => {
 		expect(res.data?.getUserCompletedGames.length).toEqual(0)
 	})
 
+	it('should get games played by user in db', async () => {
+		// Create User
+		const user = createUser({})
+		let games: Game[] = []
+		for (let i = 0; i < 5; i++) {
+			// Generate 5 games
+			games.push(createGame({}))
+		}
+		// Add game[1] to user's played games array
+		user.gamesPlayed.push(games[1]._id.toHexString())
+		// Send data to db
+		await populateDatabase(GameMongooseModel, games)
+		await populateDatabase(UserMongooseModel, [user])
+		const server = new ApolloServer({ schema: graphqlSchema }) as any
+		// use the test server to create a query function
+		const { query } = createTestClient(server)
+		const res = await query<{ getUserRecentGames: Game[] }>({
+			query: GET_USER_RECENT_GAMES,
+			variables: { userId: user._id.toHexString() },
+		})
+		const {
+			_id,
+			questions,
+			stages,
+			levels,
+			roadmap,
+			...gameToMatch
+		} = games[1]
+		expect(res.data?.getUserRecentGames.length).toEqual(1)
+		expect(res.data?.getUserRecentGames[0]).toEqual(gameToMatch)
+	})
+
+	it('should get no games played by user in db', async () => {
+		// Create User
+		const user = createUser({})
+		let games: Game[] = []
+		for (let i = 0; i < 5; i++) {
+			// Generate 5 games
+			games.push(createGame({}))
+		}
+		// Send data to db
+		await populateDatabase(GameMongooseModel, games)
+		await populateDatabase(UserMongooseModel, [user])
+		const server = new ApolloServer({ schema: graphqlSchema }) as any
+		// use the test server to create a query function
+		const { query } = createTestClient(server)
+		const res = await query<{ getUserRecentGames: Game[] }>({
+			query: GET_USER_RECENT_GAMES,
+			variables: { userId: user._id.toHexString() },
+		})
+		expect(res.data?.getUserRecentGames.length).toEqual(0)
+	})
+
 	it('gets paginated filtered game results', async () => {
 		const games: Game[] = []
 		for (let i = 0; i < 15; i++) {
@@ -194,7 +247,7 @@ describe('Game', () => {
 			expected[expected.length - 2]._id
 		)
 	})
-	
+
 	it('should get a level in db', async () => {
 		// Create Game
 		let games: Game[] = []
@@ -213,7 +266,10 @@ describe('Game', () => {
 		const { query } = createTestClient(server)
 		const res = await query<{ getLevel: Level }>({
 			query: GET_LEVEL,
-			variables: { levelId: levelIdToCheck, gameId: game._id.toHexString() },
+			variables: {
+				levelId: levelIdToCheck,
+				gameId: game._id.toHexString(),
+			},
 		})
 		expect(res.data?.getLevel._id).toEqual(levelIdToCheck)
 	})
@@ -236,11 +292,34 @@ describe('Game', () => {
 		const { query } = createTestClient(server)
 		const res = await query<{ getStage: Stage }>({
 			query: GET_STAGE,
-			variables: { stageId: stageIdToCheck, gameId: game._id.toHexString() },
+			variables: {
+				stageId: stageIdToCheck,
+				gameId: game._id.toHexString(),
+			},
 		})
 		expect(res.data?.getStage._id).toEqual(stageIdToCheck)
 	})
 })
+
+const GET_USER_RECENT_GAMES = gql`
+	query getUserRecentGames($userId: String!) {
+		getUserRecentGames(userId: $userId) {
+			createdBy
+			dateCreated
+			lastUpdated
+			commentCount
+			totalStars
+			playCount
+			rating
+			commentsRef
+			title
+			language
+			difficulty
+			tags
+			description
+		}
+	}
+`
 
 const GET_USER_COMPLETED_GAMES = gql`
 	query getUserCompletedGames($userId: String!) {
