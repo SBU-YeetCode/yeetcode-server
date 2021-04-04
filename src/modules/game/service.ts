@@ -35,4 +35,18 @@ export default class GameService {
 		}
 		return userCreatedGames
 	}
+
+	public async getUserCompletedGames(userId: string) {
+		const user = await this.userModel.findById(new ObjectId(userId))
+		if (!user) throw new Error('User not found')
+		const gameCompletedIds = user.gamesCompleted
+		const userCompletedGames: Game[] = []
+		for (var i = 0; i < gameCompletedIds.length; i++) {
+			const game = await this.gameModel.findById(
+				new ObjectId(gameCompletedIds[i])
+			)
+			if (game) userCompletedGames.push(game)
+		}
+		return userCompletedGames
+	}
 }
