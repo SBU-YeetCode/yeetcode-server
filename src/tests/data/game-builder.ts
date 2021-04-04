@@ -3,13 +3,13 @@ import { ObjectId } from 'mongodb'
 import { Game } from '../../entities'
 
 export const createGame = (game?: Partial<Game>): Game => {
-	const { levels, stages, questions, roadmap, ...other } = game
+	// const { levels, stages, questions, roadmap, ...other } = game
 	const dateCreation = faker.date.past().toISOString()
 	return {
 		_id: new ObjectId(),
 		createdBy: faker.name.findName(),
 		dateCreated: dateCreation,
-		lastUpdated: dateCreation + faker.datatype.number(1000),
+		lastUpdated: dateCreation,
 		commentCount: faker.datatype.number(100),
 		totalStars: faker.datatype.number(5),
 		playCount: faker.datatype.number(),
@@ -20,10 +20,10 @@ export const createGame = (game?: Partial<Game>): Game => {
 		difficulty: 'easy',
 		tags: ['tags'],
 		description: faker.lorem.sentence(),
-		levels: levels || [],
-		stages: stages || [],
-		questions: questions || [],
-		roadmap: roadmap || [],
-		...other,
+		levels: [],
+		stages: [],
+		questions: [],
+		roadmap: [],
+		...game,
 	}
 }
