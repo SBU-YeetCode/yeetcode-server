@@ -200,10 +200,11 @@ type Query {
   getGame(id: String!): Game
   getGameComments(amount: Int = 10, cursor: String, gameId: String!): PaginatedCommentResponse!
   getGameProgress(id: ObjectId!): GameProgress
-  getLevel(gameId: String!, levelId: String!): Game!
-  getQuestion(gameId: String!, questionId: String!): Game!
+  getLevel(gameId: String!, levelId: String!): Level!
+  getQuestion(gameId: String!, questionId: String!): Question!
+  getRoadmap(gameId: String!): [SubGameRoadmap!]!
   getSearch(amount: Int = 10, cursor: String, query: String!): PaginatedGameResponse!
-  getStage(gameId: String!, stageId: String!): Game!
+  getStage(gameId: String!, stageId: String!): Stage!
   getUser(id: ObjectId!): User
   getUserCompletedGames(userId: String!): [Game!]!
   getUserCreatedGames(userId: String!): [Game!]!

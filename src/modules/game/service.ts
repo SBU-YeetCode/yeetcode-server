@@ -114,4 +114,11 @@ export default class GameService {
 		}
 		throw new Error('Question not found')
 	}
+	
+	public async getRoadmap(gameId: string) {
+		const game = await this.gameModel.findById(gameId)
+		if (!game) throw new Error('Game not found')
+		if (!game.roadmap) throw new Error ('Roadmap not found')
+		else return game.roadmap
+	}
 }
