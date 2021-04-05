@@ -62,4 +62,12 @@ export default class GameService {
 		}
 		return userCompletedGames
 	}
+
+	public async getSearch(
+		query: string,
+		pagination: PaginationInput
+	): Promise<PaginatedGameResponse> {
+		const results = await this.gameModel.search(query, pagination)
+		return results
+	}
 }

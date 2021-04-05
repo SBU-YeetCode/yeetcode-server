@@ -1,14 +1,15 @@
-import { prop } from '@typegoose/typegoose'
+import { getModelForClass, Index, prop } from '@typegoose/typegoose'
 import { ObjectId } from 'mongodb'
-import { Field, InputType, ObjectType, Int, Float } from 'type-graphql'
-import { Level } from './level'
-import { Stage } from './stage'
-import { Question } from './question'
-import { SubGameRoadmap } from './subgameroadmap'
+import { Field, Float, InputType, Int, ObjectType } from 'type-graphql'
 import { DateScalar } from '../../utils/scalars'
+import { Level } from './level'
+import { Question } from './question'
+import { Stage } from './stage'
+import { SubGameRoadmap } from './subgameroadmap'
 
 @ObjectType()
 @InputType('GameInput')
+@Index({ title: 'text', description: 'text', tags: 'text', language: 'text' })
 export class GameInput {
 	@prop()
 	@Field()
@@ -44,7 +45,7 @@ export class GameInput {
 
 	@prop()
 	@Field()
-	language!: string
+	codingLanguage!: string
 
 	@prop()
 	@Field()
@@ -84,3 +85,6 @@ export class Game extends GameInput {
 	@Field()
 	readonly _id!: ObjectId
 }
+
+const GameModel = getModelForClass(Game)
+GameModel.syncIndexes()

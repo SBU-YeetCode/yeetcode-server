@@ -1,9 +1,9 @@
-import { getModelForClass, DocumentType } from '@typegoose/typegoose'
+import { DocumentType, getModelForClass } from '@typegoose/typegoose'
 import { Types } from 'mongoose'
 import { Service } from 'typedi'
 import { Game } from '../../entities'
 import { GameInput } from '../../entities/game/game'
-import { PaginationInput, cursorMatch } from '../utils/pagination'
+import { cursorMatch, PaginationInput } from '../utils/pagination'
 import { LANGUAGES, PaginatedGameResponse, SORT_OPTIONS } from './input'
 
 // This generates the mongoose model for us
@@ -38,7 +38,9 @@ export default class GameModel {
 			game = await this.getById(pagination.cursor)
 		}
 		if (language) {
-			aggregateArray.push({ $match: { language: language.toString() } })
+			aggregateArray.push({
+				$match: { codingLanguage: language.toString() },
+			})
 		}
 		let sorter: any = {}
 		let match: any = {}
@@ -73,7 +75,6 @@ export default class GameModel {
 				},
 			}
 		}
-		console.log(JSON.stringify(match))
 		aggregateArray.push({ $sort: { ...sorter, _id: -1 } })
 		if (pagination.cursor && game) {
 			aggregateArray.push({
@@ -85,6 +86,40 @@ export default class GameModel {
 		})
 		let aggregate = await GameMongooseModel.aggregate<Game>(aggregateArray)
 		let nodes = aggregate
+		const hasMore = nodes.length > pagination.amount
+		if (hasMore) {
+			nodes = nodes.slice(0, nodes.length - 1)
+		}
+		return {
+			hasMore,
+			nextCursor: hasMore
+				? nodes[nodes.length - 1]._id.toHexString()
+				: null,
+			nodes,
+		}
+	}
+
+	async search(
+		query: string,
+		pagination: PaginationInput
+	): Promise<PaginatedGameResponse> {
+		let criteria: any = {
+			$text: {
+				$search: query,
+			},
+		}
+		if (pagination.cursor)
+			criteria = {
+				...criteria,
+				_id: {
+					$lt: pagination.cursor,
+				},
+			}
+		let nodes = await GameMongooseModel.find(criteria)
+			.sort({ _id: -1 })
+			.limit(pagination.amount + 1)
+			.lean()
+			.exec()
 		const hasMore = nodes.length > pagination.amount
 		if (hasMore) {
 			nodes = nodes.slice(0, nodes.length - 1)

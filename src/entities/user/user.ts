@@ -4,6 +4,7 @@ import { Field, InputType, ObjectType, Int } from 'type-graphql'
 import { ProfilePicture } from './profilePicture'
 import { Points } from './points'
 import { DateScalar } from '../../utils/scalars'
+
 @ObjectType('User')
 @InputType('UserInput')
 export class User {

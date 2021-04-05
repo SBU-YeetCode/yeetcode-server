@@ -149,7 +149,10 @@ describe('Game', () => {
 		const games: Game[] = []
 		for (let i = 0; i < 15; i++) {
 			games.push(
-				createGame({ language: i < 10 ? 'javascript' : 'c', rating: i })
+				createGame({
+					codingLanguage: i < 10 ? 'javascript' : 'c',
+					rating: i,
+				})
 			)
 		}
 		await populateDatabase(GameMongooseModel, games)
@@ -166,7 +169,7 @@ describe('Game', () => {
 			},
 		})
 		const expected = games
-			.filter((g) => g.language === 'javascript')
+			.filter((g) => g.codingLanguage === 'javascript')
 			.sort(
 				(a: Game, b: Game) =>
 					b.rating - a.rating ||
@@ -192,6 +195,41 @@ describe('Game', () => {
 			expected[expected.length - 2]._id
 		)
 	})
+
+	it('gets paginated search results', async () => {
+		let matchingGames: Game[] = []
+		let otherGames: Game[] = []
+		matchingGames.push(
+			createGame({
+				codingLanguage: 'javascript',
+				title: 'Saransh Grover Cubing',
+			})
+		)
+		matchingGames.push(createGame({ description: 'saransh grover' }))
+		matchingGames.push(createGame({ tags: ['javascript'] }))
+		for (let i = 0; i < 15; i++) {
+			otherGames.push(createGame({}))
+		}
+		await populateDatabase(GameMongooseModel, [
+			...matchingGames,
+			...otherGames,
+		])
+		const server = new ApolloServer({ schema: graphqlSchema }) as any
+		const { query } = createTestClient(server)
+		const res = await query<{ getSearch: PaginatedGameResponse }>({
+			query: GET_SEARCH,
+			variables: { query: 'Saransh javascript', amount: 10 },
+		})
+		const nodes = res?.data?.getSearch.nodes
+		for (const node of nodes || []) {
+			const gameId = matchingGames
+				.find((g) => g._id.toHexString() === (node._id as any))
+				?._id.toHexString()
+			expect(gameId).toEqual(node._id)
+		}
+		expect(res?.data?.getSearch.hasMore).toBeFalsy()
+		expect(res?.data?.getSearch.nextCursor).toBeNull()
+	})
 })
 
 const GET_USER_COMPLETED_GAMES = gql`
@@ -206,7 +244,7 @@ const GET_USER_COMPLETED_GAMES = gql`
 			rating
 			commentsRef
 			title
-			language
+			codingLanguage
 			difficulty
 			tags
 			description
@@ -226,7 +264,7 @@ const GET_USER_CREATED_GAMES = gql`
 			rating
 			commentsRef
 			title
-			language
+			codingLanguage
 			difficulty
 			tags
 			description
@@ -259,10 +297,24 @@ const GET_FILTER_GAMES = gql`
 				rating
 				commentsRef
 				title
-				language
+				codingLanguage
 				difficulty
 				tags
 				description
+			}
+			hasMore
+			nextCursor
+		}
+	}
+`
+
+const GET_SEARCH = gql`
+	query getSearch($cursor: String, $query: String!, $amount: Int) {
+		getSearch(cursor: $cursor, query: $query, amount: $amount) {
+			nodes {
+				_id
+				title
+				tags
 			}
 			hasMore
 			nextCursor

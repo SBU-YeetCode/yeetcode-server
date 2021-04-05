@@ -27,13 +27,13 @@ scalar Date
 
 type Game {
   _id: ObjectId!
+  codingLanguage: String!
   commentCount: Int!
   commentsRef: [String!]!
   createdBy: String!
   dateCreated: Date!
   description: String!
   difficulty: String!
-  language: String!
   lastUpdated: Date!
   levels: [Level!]!
   playCount: Int!
@@ -47,13 +47,13 @@ type Game {
 }
 
 input GameInput {
+  codingLanguage: String!
   commentCount: Int!
   commentsRef: [String!]!
   createdBy: String!
   dateCreated: Date!
   description: String!
   difficulty: String!
-  language: String!
   lastUpdated: Date!
   levels: [LevelInput!]!
   playCount: Int!
@@ -200,6 +200,7 @@ type Query {
   getGame(id: String!): Game
   getGameComments(amount: Int = 10, cursor: String, gameId: String!): PaginatedCommentResponse!
   getGameProgress(id: ObjectId!): GameProgress
+  getSearch(amount: Int = 10, cursor: String, query: String!): PaginatedGameResponse!
   getUser(id: ObjectId!): User
   getUserCompletedGames(userId: String!): [Game!]!
   getUserCreatedGames(userId: String!): [Game!]!

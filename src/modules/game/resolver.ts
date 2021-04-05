@@ -32,6 +32,16 @@ export default class GameResolver {
 		)
 		return filterGames
 	}
+
+	@Query((returns) => PaginatedGameResponse)
+	async getSearch(
+		@Arg('query') query: string,
+		@Args() pagination: PaginationInput
+	): Promise<PaginatedGameResponse> {
+		const searchResult = await this.gameService.getSearch(query, pagination)
+		return searchResult
+	}
+
 	@Query((returns) => [Game])
 	async getUserCreatedGames(@Arg('userId') userId: string) {
 		const userCreatedGames = await this.gameService.getUserCreatedGames(

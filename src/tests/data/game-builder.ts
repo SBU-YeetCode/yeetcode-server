@@ -15,7 +15,7 @@ export const createGame = (game?: Partial<Game>): Game => {
 		playCount: faker.datatype.number(),
 		rating: faker.datatype.number(5),
 		commentsRef: ['testing123'],
-		language: 'testing123',
+		codingLanguage: 'python',
 		title: 'game123',
 		difficulty: 'easy',
 		tags: ['tags'],
