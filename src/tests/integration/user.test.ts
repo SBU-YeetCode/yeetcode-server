@@ -1,9 +1,12 @@
 import { ApolloServer, gql } from 'apollo-server-express'
 import { createTestClient } from 'apollo-server-testing'
 import { ObjectId } from 'mongodb'
+import { use } from 'passport'
 import { User } from '../../entities'
+import { PaginatedUserResponse } from '../../modules/user/input'
 import { UserMongooseModel } from '../../modules/user/model'
 import { buildSchema } from '../../utils'
+import { createPoints } from '../data/points-builder'
 import { createUser } from '../data/user-builder'
 import {
 	clearDatabase,
@@ -19,11 +22,11 @@ beforeAll(async () => connect())
 // })
 
 afterEach(async () => {
-	// await clearDatabase()
+	await clearDatabase()
 })
 
 afterAll(async (done) => {
-	// await closeDatabase()
+	await closeDatabase()
 	done()
 })
 
@@ -57,9 +60,9 @@ describe('User', () => {
 		const { query } = createTestClient(server)
 
 		const res = await query({ query: GET_ME })
-		expect(res.data!.getMe).toEqual<Omit<User, 'googleId' | 'accessToken' | '_id'>>(
-			userToMatch
-		)
+		expect(res.data!.getMe).toEqual<
+			Omit<User, 'googleId' | 'accessToken' | '_id'>
+		>(userToMatch)
 	})
 
 	it('should return null since no user is logged in', async () => {
@@ -72,7 +75,107 @@ describe('User', () => {
 		const res = await query({ query: GET_ME })
 		expect(res.data!.getMe).toBeNull()
 	})
+
+	it('should get users sorted by total points in db', async () => {
+		const graphqlSchema = await buildSchema()
+		const server = new ApolloServer({
+			schema: graphqlSchema,
+		}) as any
+		// Create users
+		let users: User[] = []
+		for (let i = 0; i < 5; i++) {
+			users.push(createUser({ points: createPoints() }))
+		}
+		await populateDatabase(UserMongooseModel, users)
+		const expectedUsers = users
+			.sort((a: User, b: User) => {
+				return (
+					b.points.total - a.points.total ||
+					parseInt(b._id.toHexString()) -
+						parseInt(a._id.toHexString())
+				)
+			})
+			.map((user) => {
+				const { _id, googleId, accessToken, ...userToMatch } = user
+				return { ...userToMatch, _id: _id.toHexString() }
+			})
+		const { query } = createTestClient(server)
+		const queryAmount = 4
+		const res = await query<{ getLeaderboard: PaginatedUserResponse }>({
+			query: GET_LEADERBOARD,
+			variables: { amount: queryAmount },
+		})
+		expect(res.data?.getLeaderboard.hasMore).toBe(true)
+		expect(res.data?.getLeaderboard.nodes).toEqual(
+			expectedUsers.slice(0, queryAmount)
+		)
+	})
+
+	it('should get users sorted by total points after cursor in db', async () => {
+		const graphqlSchema = await buildSchema()
+		const server = new ApolloServer({
+			schema: graphqlSchema,
+		}) as any
+		// Create users
+		let users: User[] = []
+		for (let i = 0; i < 5; i++) {
+			users.push(createUser({ points: createPoints() }))
+		}
+		await populateDatabase(UserMongooseModel, users)
+		const expectedUsers = users
+			.sort((a: User, b: User) => {
+				return (
+					b.points.total - a.points.total ||
+					parseInt(b._id.toHexString()) -
+						parseInt(a._id.toHexString())
+				)
+			})
+			.map((user) => {
+				const { _id, googleId, accessToken, ...userToMatch } = user
+				return { ...userToMatch, _id: _id.toHexString() }
+			})
+		const { query } = createTestClient(server)
+		// Query for 3 users after first three users cursor
+		const res = await query<{ getLeaderboard: PaginatedUserResponse }>({
+			query: GET_LEADERBOARD,
+			variables: { amount: 3, cursor: expectedUsers[2]._id },
+		})
+		expect(res.data?.getLeaderboard.hasMore).toBe(false)
+		expect(res.data?.getLeaderboard.nodes).toEqual(expectedUsers.slice(3))
+	})
 })
+
+const GET_LEADERBOARD = gql`
+	query getLeaderboard($amount: Int, $cursor: String) {
+		getLeaderboard(amount: $amount, cursor: $cursor) {
+			nodes {
+				_id
+				username
+				email
+				name
+				gamesPlayed
+				gamesCreated
+				gamesCompleted
+				lastUpdated
+				comments
+				points {
+					cpp
+					javascript
+					c
+					python
+					total
+					java
+				}
+				profilePicture {
+					avatar
+					large
+				}
+			}
+			hasMore
+			nextCursor
+		}
+	}
+`
 
 const GET_USER = gql`
 	query getUser($id: ObjectId!) {

@@ -166,6 +166,12 @@ type PaginatedGameResponse {
   nodes: [Game!]!
 }
 
+type PaginatedUserResponse {
+  hasMore: Boolean!
+  nextCursor: String
+  nodes: [User!]!
+}
+
 type Points {
   c: Int!
   cpp: Int!
@@ -200,6 +206,7 @@ type Query {
   getGame(id: String!): Game
   getGameComments(amount: Int = 10, cursor: String, gameId: String!): PaginatedCommentResponse!
   getGameProgress(id: ObjectId!): GameProgress
+  getLeaderboard(amount: Int = 10, cursor: String, language: LANGUAGES): PaginatedUserResponse!
   getLevel(gameId: String!, levelId: String!): Level!
   getMe: User
   getQuestion(gameId: String!, questionId: String!): Question!
