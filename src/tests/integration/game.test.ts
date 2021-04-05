@@ -1,7 +1,7 @@
 import { ApolloServer, gql } from 'apollo-server-express'
 import { createTestClient } from 'apollo-server-testing'
 import { GraphQLSchema } from 'graphql'
-import { Game, Level, Question, Stage } from '../../entities'
+import { Game, Level, Question, Stage, SubGameRoadmap } from '../../entities'
 import { PaginatedGameResponse } from '../../modules/game/input'
 import { GameMongooseModel } from '../../modules/game/model'
 import { UserMongooseModel } from '../../modules/user/model'
@@ -10,6 +10,7 @@ import { createGame } from '../data/game-builder'
 import { createLevel } from '../data/level-builder'
 import { createQuestion } from '../data/question-builder'
 import { createStage } from '../data/stage-builder'
+import { createSubGameRoadmap } from '../data/subgameroadmap-builder'
 import { createUser } from '../data/user-builder'
 import {
 	clearDatabase,
@@ -363,6 +364,30 @@ describe('Game', () => {
 		})
 		expect(res.data?.getQuestion._id).toEqual(questionIdToCheck)
 	})
+
+	it('should get a roadmap in db', async () => {
+		// Create Game
+		let games: Game[] = []
+		games.push(createGame({}))
+		const game = games[0]
+		for (let i = 0; i < 3; i++) {
+			// Generate roadmap
+			game.roadmap.push(createSubGameRoadmap({}))
+		}
+		// Get the id of roadmap in the game
+		const roadmapIdToCheck = game.roadmap[0]._id.toHexString()
+		// Send data to db
+		await populateDatabase(GameMongooseModel, games)
+		const server = new ApolloServer({ schema: graphqlSchema }) as any
+		// use the test server to create a query function
+		const { query } = createTestClient(server)
+		const res = await query<{ getRoadmap: SubGameRoadmap[] }>({
+			query: GET_ROADMAP,
+			variables: { gameId: game._id.toHexString() },
+		})
+		expect(res.data?.getRoadmap.length).toEqual(3)
+		expect(res.data?.getRoadmap[0]._id).toEqual(roadmapIdToCheck)
+	})
 })
 
 const GET_USER_RECENT_GAMES = gql`
@@ -499,8 +524,39 @@ const GET_QUESTION = gql`
 	query getQuestion($questionId: String!, $gameId: String!) {
 		getQuestion(questionId: $questionId, gameId: $gameId) {
 			_id
+			sequence
 			title
 			description
+			timeLimit
+			points
+			lives
+			hints {
+				_id
+				description
+				timeToReveal
+			}
+			gameType
+			toAnswer
+			exampleSolutionCode
+			exampleSolutionDescription
+			correctChoice
+			incorrectChoices
+			matchings {
+				_id
+				pairOne
+				pairTwo
+			}
+		}
+	}
+`
+
+const GET_ROADMAP = gql`
+	query getRoadmap($gameId: String!) {
+		getRoadmap(gameId: $gameId) {
+			_id
+			refId
+			sequence
+			kind
 		}
 	}
 `

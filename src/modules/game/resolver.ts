@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb'
 import { Query, Resolver, Arg, Mutation, Args } from 'type-graphql'
 import { Service } from 'typedi'
-import { Game } from '../../entities'
+import { Game, Level, Stage, Question, SubGameRoadmap } from '../../entities'
 import GameService from './service'
 import { LANGUAGES, SORT_OPTIONS, GetFilterGamesInput } from './input'
 import { PaginatedGameResponse } from './input'
@@ -66,7 +66,7 @@ export default class GameResolver {
 		return userCreatedGames
 	}
 
-	@Query((returns) => Game)
+	@Query((returns) => Level)
 	async getLevel(
 		@Arg('levelId') levelId: string,
 		@Arg('gameId') gameId: string
@@ -75,7 +75,7 @@ export default class GameResolver {
 		return level
 	}
 
-	@Query((returns) => Game)
+	@Query((returns) => Stage)
 	async getStage(
 		@Arg('stageId') stageId: string,
 		@Arg('gameId') gameId: string
@@ -84,12 +84,18 @@ export default class GameResolver {
 		return stage
 	}
 
-	@Query((returns) => Game)
+	@Query((returns) => Question)
 	async getQuestion(
 		@Arg('questionId') questionId: string,
 		@Arg('gameId') gameId: string) {
 		const question = await this.gameService.getQuestion(questionId, gameId)
 		return question
+	}
+
+	@Query((returns) => [SubGameRoadmap])
+	async getRoadmap(@Arg('gameId') gameId: string) {
+		const roadmap = await this.gameService.getRoadmap(gameId)
+		return roadmap
 	}
 
 	@Mutation((returns) => Game)
