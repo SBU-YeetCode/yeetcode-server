@@ -1,7 +1,8 @@
 import { ObjectId } from 'mongodb'
-import { Query, Resolver, Arg, Mutation, InputType } from 'type-graphql'
+import { Query, Resolver, Arg, Mutation, InputType, UseMiddleware } from 'type-graphql'
 import { Service } from 'typedi'
 import { GameProgress } from '../../entities'
+import { isLoggedIn } from '../middleware/isLoggedIn'
 import { GameProgressMongooseModel } from './model'
 import GameProgressService from './service'
 
@@ -16,6 +17,7 @@ export default class GameProgressResolver {
 		return GameProgress
 	}
 
+	@UseMiddleware(isLoggedIn)
 	@Mutation((returns) => GameProgress)
 	async createGameProgress(@Arg('gameprogress') gameprogress: GameProgress) {
 		const newGameProgress = await this.gameprogressService.createGameProgress(

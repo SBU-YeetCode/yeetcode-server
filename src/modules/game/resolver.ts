@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb'
-import { Query, Resolver, Arg, Mutation, Args } from 'type-graphql'
+import { Query, Resolver, Arg, Mutation, Args, UseMiddleware } from 'type-graphql'
 import { Service } from 'typedi'
 import { Game, Level, Stage, Question, SubGameRoadmap } from '../../entities'
 import GameService from './service'
@@ -7,6 +7,7 @@ import { LANGUAGES, SORT_OPTIONS, GetFilterGamesInput } from './input'
 import { PaginatedGameResponse } from './input'
 import { PaginationInput } from '../utils/pagination'
 import { GameInput } from '../../entities/game/game'
+import { isLoggedIn } from '../middleware/isLoggedIn'
 
 @Service() // Dependencies injection
 @Resolver((of) => Game)
@@ -98,6 +99,7 @@ export default class GameResolver {
 		return roadmap
 	}
 
+	@UseMiddleware(isLoggedIn)
 	@Mutation((returns) => Game)
 	async createGame(@Arg('game') game: GameInput) {
 		const newGame = await this.gameService.createGame(game)
