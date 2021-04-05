@@ -24,6 +24,11 @@ export interface Config {
 		uri: string
 		testUri: string
 	}
+	google: {
+		clientId: string,
+		secret: string,
+		callbackUrl: string
+	}
 }
 
 export const config: Config = {
@@ -36,4 +41,9 @@ export const config: Config = {
 		uri: env('MONGODB_URI'),
 		testUri: env('MONGODB_TEST_URI'),
 	},
+	google: {
+		clientId: env('GOOGLE_CLIENT_ID'),
+		secret: env('GOOGLE_CLIENT_SECRET'),
+		callbackUrl: env('GOOGLE_CALLBACK_URL')
+	}
 }

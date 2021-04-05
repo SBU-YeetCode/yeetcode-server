@@ -36,7 +36,7 @@ export class User {
 	gamesCompleted!: string[]
 
 	@prop()
-	password: string
+	googleId: string
 
 	@prop()
 	accessToken: string

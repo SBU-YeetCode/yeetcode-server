@@ -10,7 +10,7 @@ export const createUser = (user: Partial<User>): User => {
 		_id: new ObjectId(),
 		name,
 		email: faker.internet.email(),
-		password: faker.internet.password(),
+		googleId: faker.datatype.uuid(),
 		accessToken: faker.datatype.uuid(),
 		comments: [],
 		gamesCreated: [],

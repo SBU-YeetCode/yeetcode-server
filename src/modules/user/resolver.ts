@@ -1,7 +1,8 @@
 import { ObjectId } from 'mongodb'
-import { Query, Resolver, Arg, Mutation, InputType } from 'type-graphql'
+import { Query, Resolver, Arg, Mutation, Ctx, } from 'type-graphql'
 import { Service } from 'typedi'
 import { User } from '../../entities'
+import { isLoggedIn } from '../middleware/isLoggedIn'
 import { UserMongooseModel } from './model'
 import UserService from './service'
 
@@ -9,8 +10,16 @@ import UserService from './service'
 @Resolver((of) => User)
 export default class UserResolver {
 	constructor(private readonly userService: UserService) {}
+
+	@Query(returns => User, {nullable: true})
+	async getMe(@Ctx() {req}: Context) {
+		if(!req.user) return null
+		const user = await this.userService.getById(req!.user._id)
+		return user
+	}
+
 	@Query((returns) => User, { nullable: true })
-	async getUser(@Arg('id') id: ObjectId) {
+	async getUser( @Arg('id') id: ObjectId) {
 		const user = await this.userService.getById(id)
 
 		return user
