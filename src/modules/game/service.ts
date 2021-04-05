@@ -70,4 +70,48 @@ export default class GameService {
 		const results = await this.gameModel.search(query, pagination)
 		return results
 	}
+	public async getUserRecentGames(userId: string) {
+		const user = await this.userModel.findById(new ObjectId(userId))
+		if (!user) throw new Error('User not found')
+		const recentGameIds = user.gamesPlayed
+		const userRecentGames: Game[] = []
+		for (var i = 0; i < recentGameIds.length; i++) {
+			const game = await this.gameModel.findById(recentGameIds[i])
+			if (game) userRecentGames.push(game)
+		}
+		return userRecentGames
+	}
+
+	public async getLevel(levelId: string, gameId: string) {
+		const game = await this.gameModel.findById(gameId)
+		if (!game) throw new Error('Game not found')
+		const gameLevels = game.levels
+		for (var i = 0; i < gameLevels.length; i++) {
+			if (gameLevels[i]._id.toHexString() === levelId)
+				return gameLevels[i]
+		}
+		throw new Error('Level not found')
+	}
+
+	public async getStage(stageId: string, gameId: string) {
+		const game = await this.gameModel.findById(gameId)
+		if (!game) throw new Error('Game not found')
+		const gameStages = game.stages
+		for (var i = 0; i < gameStages.length; i++) {
+			if (gameStages[i]._id.toHexString() === stageId)
+				return gameStages[i]
+		}
+		throw new Error('Stage not found')
+	}
+
+	public async getQuestion(questionId: string, gameId: string) {
+		const game = await this.gameModel.findById(gameId)
+		if (!game) throw new Error('Game not found')
+		const gameQuestions = game.questions
+		for (var i = 0; i < gameQuestions.length; i++) {
+			if (gameQuestions[i]._id.toHexString() === questionId)
+				return gameQuestions[i]
+		}
+		throw new Error('Question not found')
+	}
 }

@@ -13,8 +13,8 @@ export class SubGameRoadmap {
 	refId!: string
 
 	@prop()
-	@Field(() => Int)
-	sequence!: number
+	@Field()
+	sequence!: string
 
 	@prop()
 	@Field()

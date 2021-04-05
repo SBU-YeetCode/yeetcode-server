@@ -58,6 +58,40 @@ export default class GameResolver {
 		return userCreatedGames
 	}
 
+	@Query((returns) => [Game])
+	async getUserRecentGames(@Arg('userId') userId: string) {
+		const userCreatedGames = await this.gameService.getUserRecentGames(
+			userId
+		)
+		return userCreatedGames
+	}
+
+	@Query((returns) => Game)
+	async getLevel(
+		@Arg('levelId') levelId: string,
+		@Arg('gameId') gameId: string
+	) {
+		const level = await this.gameService.getLevel(levelId, gameId)
+		return level
+	}
+
+	@Query((returns) => Game)
+	async getStage(
+		@Arg('stageId') stageId: string,
+		@Arg('gameId') gameId: string
+	) {
+		const stage = await this.gameService.getStage(stageId, gameId)
+		return stage
+	}
+
+	@Query((returns) => Game)
+	async getQuestion(
+		@Arg('questionId') questionId: string,
+		@Arg('gameId') gameId: string) {
+		const question = await this.gameService.getQuestion(questionId, gameId)
+		return question
+	}
+
 	@Mutation((returns) => Game)
 	async createGame(@Arg('game') game: GameInput) {
 		const newGame = await this.gameService.createGame(game)

@@ -1,12 +1,15 @@
 import { ApolloServer, gql } from 'apollo-server-express'
 import { createTestClient } from 'apollo-server-testing'
 import { GraphQLSchema } from 'graphql'
-import { Game } from '../../entities'
+import { Game, Level, Question, Stage } from '../../entities'
 import { PaginatedGameResponse } from '../../modules/game/input'
 import { GameMongooseModel } from '../../modules/game/model'
 import { UserMongooseModel } from '../../modules/user/model'
 import { buildSchema } from '../../utils'
 import { createGame } from '../data/game-builder'
+import { createLevel } from '../data/level-builder'
+import { createQuestion } from '../data/question-builder'
+import { createStage } from '../data/stage-builder'
 import { createUser } from '../data/user-builder'
 import {
 	clearDatabase,
@@ -145,6 +148,59 @@ describe('Game', () => {
 		expect(res.data?.getUserCompletedGames.length).toEqual(0)
 	})
 
+	it('should get games played by user in db', async () => {
+		// Create User
+		const user = createUser({})
+		let games: Game[] = []
+		for (let i = 0; i < 5; i++) {
+			// Generate 5 games
+			games.push(createGame({}))
+		}
+		// Add game[1] to user's played games array
+		user.gamesPlayed.push(games[1]._id.toHexString())
+		// Send data to db
+		await populateDatabase(GameMongooseModel, games)
+		await populateDatabase(UserMongooseModel, [user])
+		const server = new ApolloServer({ schema: graphqlSchema }) as any
+		// use the test server to create a query function
+		const { query } = createTestClient(server)
+		const res = await query<{ getUserRecentGames: Game[] }>({
+			query: GET_USER_RECENT_GAMES,
+			variables: { userId: user._id.toHexString() },
+		})
+		const {
+			_id,
+			questions,
+			stages,
+			levels,
+			roadmap,
+			...gameToMatch
+		} = games[1]
+		expect(res.data?.getUserRecentGames.length).toEqual(1)
+		expect(res.data?.getUserRecentGames[0]).toEqual(gameToMatch)
+	})
+
+	it('should get no games played by user in db', async () => {
+		// Create User
+		const user = createUser({})
+		let games: Game[] = []
+		for (let i = 0; i < 5; i++) {
+			// Generate 5 games
+			games.push(createGame({}))
+		}
+		// Send data to db
+		await populateDatabase(GameMongooseModel, games)
+		await populateDatabase(UserMongooseModel, [user])
+		const server = new ApolloServer({ schema: graphqlSchema }) as any
+		// use the test server to create a query function
+		const { query } = createTestClient(server)
+		const res = await query<{ getUserRecentGames: Game[] }>({
+			query: GET_USER_RECENT_GAMES,
+			variables: { userId: user._id.toHexString() },
+		})
+		expect(res.data?.getUserRecentGames.length).toEqual(0)
+	})
+
 	it('gets paginated filtered game results', async () => {
 		const games: Game[] = []
 		for (let i = 0; i < 15; i++) {
@@ -230,7 +286,104 @@ describe('Game', () => {
 		expect(res?.data?.getSearch.hasMore).toBeFalsy()
 		expect(res?.data?.getSearch.nextCursor).toBeNull()
 	})
+	it('should get a level in db', async () => {
+		// Create Game
+		let games: Game[] = []
+		games.push(createGame({}))
+		const game = games[0]
+		for (let i = 0; i < 3; i++) {
+			// Generate 3 levels
+			game.levels.push(createLevel({}))
+		}
+		// Get the id of second level in the game
+		const levelIdToCheck = game.levels[1]._id.toHexString()
+		// Send data to db
+		await populateDatabase(GameMongooseModel, games)
+		const server = new ApolloServer({ schema: graphqlSchema }) as any
+		// use the test server to create a query function
+		const { query } = createTestClient(server)
+		const res = await query<{ getLevel: Level }>({
+			query: GET_LEVEL,
+			variables: {
+				levelId: levelIdToCheck,
+				gameId: game._id.toHexString(),
+			},
+		})
+		expect(res.data?.getLevel._id).toEqual(levelIdToCheck)
+	})
+
+	it('should get a stage in db', async () => {
+		// Create Game
+		let games: Game[] = []
+		games.push(createGame({}))
+		const game = games[0]
+		for (let i = 0; i < 3; i++) {
+			// Generate 3 stages
+			game.stages.push(createStage({}))
+		}
+		// Get the id of second stage in the game
+		const stageIdToCheck = game.stages[1]._id.toHexString()
+		// Send data to db
+		await populateDatabase(GameMongooseModel, games)
+		const server = new ApolloServer({ schema: graphqlSchema }) as any
+		// use the test server to create a query function
+		const { query } = createTestClient(server)
+		const res = await query<{ getStage: Stage }>({
+			query: GET_STAGE,
+			variables: {
+				stageId: stageIdToCheck,
+				gameId: game._id.toHexString(),
+			},
+		})
+		expect(res.data?.getStage._id).toEqual(stageIdToCheck)
+	})
+
+	it('should get a question in db', async () => {
+		// Create Game
+		let games: Game[] = []
+		games.push(createGame({}))
+		const game = games[0]
+		for (let i = 0; i < 3; i++) {
+			// Generate 3 questions
+			game.questions.push(createQuestion({}))
+		}
+		// Get the id of second question in the game
+		const questionIdToCheck = game.questions[1]._id.toHexString()
+		// Send data to db
+		await populateDatabase(GameMongooseModel, games)
+		const server = new ApolloServer({ schema: graphqlSchema }) as any
+		// use the test server to create a query function
+		const { query } = createTestClient(server)
+		const res = await query<{ getQuestion: Question }>({
+			query: GET_QUESTION,
+			variables: {
+				questionId: questionIdToCheck,
+				gameId: game._id.toHexString(),
+			},
+		})
+		expect(res.data?.getQuestion._id).toEqual(questionIdToCheck)
+	})
 })
+
+const GET_USER_RECENT_GAMES = gql`
+	query getUserRecentGames($userId: String!) {
+		getUserRecentGames(userId: $userId) {
+			createdBy
+			dateCreated
+			lastUpdated
+			commentCount
+			totalStars
+			playCount
+			rating
+			commentsRef
+			title
+			codingLanguage
+			difficulty
+			tags
+			description
+		}
+	}
+`
 
 const GET_USER_COMPLETED_GAMES = gql`
 	query getUserCompletedGames($userId: String!) {
@@ -318,6 +471,36 @@ const GET_SEARCH = gql`
 			}
 			hasMore
 			nextCursor
+		}
+	}
+`
+
+const GET_LEVEL = gql`
+	query getLevel($levelId: String!, $gameId: String!) {
+		getLevel(levelId: $levelId, gameId: $gameId) {
+			_id
+			title
+			description
+		}
+	}
+`
+
+const GET_STAGE = gql`
+	query getStage($stageId: String!, $gameId: String!) {
+		getStage(stageId: $stageId, gameId: $gameId) {
+			_id
+			title
+			description
+		}
+	}
+`
+
+const GET_QUESTION = gql`
+	query getQuestion($questionId: String!, $gameId: String!) {
+		getQuestion(questionId: $questionId, gameId: $gameId) {
+			_id
+			title
+			description
 		}
 	}
 `
