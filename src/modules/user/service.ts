@@ -1,10 +1,9 @@
 import { ObjectId } from 'mongodb'
-import { Types } from 'mongoose'
 import { Service } from 'typedi'
 import { User } from '../../entities'
 import { LANGUAGES } from '../game/input'
 import { PaginationInput } from '../utils/pagination'
-import { PaginatedUserResponse } from './input'
+import { PaginatedUserResponse, UpdateUserInput } from './input'
 import UserModel, { UserMongooseModel } from './model'
 
 @Service() // Dependencies injection
@@ -86,5 +85,30 @@ export default class UserService {
 				: null,
 			nodes,
 		}
+	}
+
+	public async updateUser(newUserData: UpdateUserInput) {
+		const { newName, newUsername, newAvatar, newLargePicture } = newUserData
+		const oldUser = await this.userModel.findById(newUserData._id)
+		if (!oldUser)
+			throw new Error(
+				`User could not be found with ID: ${newUserData._id}`
+			)
+		// If setting a username, ensure it is unique
+		if (newUsername) {
+			const usernameTaken = await UserMongooseModel.exists({
+				username: newUsername,
+			})
+			if (usernameTaken)
+				throw new Error(`Username already taken: ${newUsername}`)
+		}
+		// Begin updating
+		if (newName) oldUser.name = newName
+		if (newUsername) oldUser.username = newUsername
+		if (newAvatar) oldUser.profilePicture.avatar = newAvatar
+		if (newLargePicture) oldUser.profilePicture.large = newLargePicture
+		const updatedUser = await oldUser.save()
+		if (!updatedUser) throw new Error('Error updating document')
+		return oldUser.toObject() as User
 	}
 }

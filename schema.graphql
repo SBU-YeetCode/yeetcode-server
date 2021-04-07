@@ -149,6 +149,7 @@ type Mutation {
   createGame(game: GameInput!): Game!
   createGameProgress(gameprogress: GameProgressInput!): GameProgress!
   createUser(user: UserInput!): User!
+  updateUser(_id: ObjectId!, newAvatar: String!, newLargePicture: String!, newName: String!, newUsername: String!): User!
 }
 
 """Mongo object id scalar type"""

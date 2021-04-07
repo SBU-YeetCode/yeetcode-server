@@ -4,7 +4,11 @@ import { Service } from 'typedi'
 import { User } from '../../entities'
 import { isLoggedIn } from '../middleware/isLoggedIn'
 import { PaginationInput } from '../utils/pagination'
-import { GetLeaderboardInput, PaginatedUserResponse } from './input'
+import {
+	GetLeaderboardInput,
+	PaginatedUserResponse,
+	UpdateUserInput,
+} from './input'
 import { UserMongooseModel } from './model'
 import UserService from './service'
 
@@ -43,5 +47,18 @@ export default class UserResolver {
 	async createUser(@Arg('user') user: User) {
 		const newUser = await this.userService.createUser(user)
 		return newUser
+	}
+
+	@Mutation((returns) => User)
+	async updateUser(
+		@Args() newUserData: UpdateUserInput,
+		@Ctx() { req }: Context
+	) {
+		// Signed in user can only make changes to his own profile
+		if (!req.user) throw new Error('User not signed in')
+		if (req.user._id !== newUserData._id)
+			throw new Error('Signed in user does not match ID of user input')
+		let updatedUser = await this.userService.updateUser(newUserData)
+		return updatedUser
 	}
 }

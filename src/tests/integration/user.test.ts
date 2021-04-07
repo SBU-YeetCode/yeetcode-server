@@ -3,7 +3,10 @@ import { createTestClient } from 'apollo-server-testing'
 import { ObjectId } from 'mongodb'
 import { use } from 'passport'
 import { User } from '../../entities'
-import { PaginatedUserResponse } from '../../modules/user/input'
+import {
+	PaginatedUserResponse,
+	UpdateUserInput,
+} from '../../modules/user/input'
 import { UserMongooseModel } from '../../modules/user/model'
 import { buildSchema } from '../../utils'
 import { createPoints } from '../data/points-builder'
@@ -143,7 +146,79 @@ describe('User', () => {
 		expect(res.data?.getLeaderboard.hasMore).toBe(false)
 		expect(res.data?.getLeaderboard.nodes).toEqual(expectedUsers.slice(3))
 	})
+
+	it('should update user in db', async () => {
+		const graphqlSchema = await buildSchema()
+		// Create user
+		const user = createUser({})
+		const server = new ApolloServer({
+			schema: graphqlSchema,
+			context: { req: { user } },
+		}) as any
+		await populateDatabase(UserMongooseModel, [user])
+		const newUserInfo: Required<UpdateUserInput> = {
+			_id: user._id,
+			newName: 'New Name',
+			newUsername: 'NewUsername1234',
+			newAvatar: 'NewAvatar',
+			newLargePicture: 'NewLargePic',
+		}
+		user.name = newUserInfo.newName
+		user.username = newUserInfo.newUsername
+		user.profilePicture.avatar = newUserInfo.newAvatar
+		user.profilePicture.large = newUserInfo.newLargePicture
+		const { mutate } = createTestClient(server)
+		const res = await mutate<{ updateUser: User }>({
+			mutation: UPDATE_USER,
+			variables: { ...newUserInfo },
+		})
+		const { accessToken, googleId, ...userToMatch } = user
+		expect(res.data?.updateUser).toEqual({
+			...userToMatch,
+			_id: user._id.toHexString(),
+		})
+	})
 })
+
+const UPDATE_USER = gql`
+	mutation updateUser(
+		$_id: ObjectId!
+		$newName: String!
+		$newUsername: String!
+		$newAvatar: String!
+		$newLargePicture: String!
+	) {
+		updateUser(
+			_id: $_id
+			newName: $newName
+			newUsername: $newUsername
+			newAvatar: $newAvatar
+			newLargePicture: $newLargePicture
+		) {
+			_id
+			username
+			email
+			name
+			gamesPlayed
+			gamesCreated
+			gamesCompleted
+			lastUpdated
+			comments
+			points {
+				cpp
+				javascript
+				c
+				python
+				total
+				java
+			}
+			profilePicture {
+				avatar
+				large
+			}
+		}
+	}
+`
 
 const GET_LEADERBOARD = gql`
 	query getLeaderboard($amount: Int, $cursor: String) {
