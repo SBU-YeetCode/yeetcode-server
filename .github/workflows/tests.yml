@@ -39,5 +39,5 @@ jobs:
                   GRAPHQL_PATH: ${{ secrets.GRAPHQL_PATH }}
                   MONGODB_URI: ${{ secrets.MONGODB_URI }}
                   MONGODB_TEST_URI: ${{ secrets.MONGODB_TEST_URI }}
-                  GOOGLE_CLEINT_ID: ${{ secrets.GOOGLE_CLEINT_ID }}
+                  GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
                   GOOGLE_CALLBACK_URL: ${{ secrets.GOOGLE_CALLBACK_URL }}
