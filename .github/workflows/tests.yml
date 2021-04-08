@@ -1,5 +1,4 @@
 name: Run tests
-
 on:
     push:
         branches: master
@@ -28,9 +27,9 @@ jobs:
                   mongodb-version: ${{ matrix.mongodb-version }}
 
             - name: Install dependencies
-            - run: npm install
+              run: npm install
 
             - name: Run tests
-            - run: npm run test:ci
+              run: npm run test:ci
               env:
                   CI: true
