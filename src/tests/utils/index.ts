@@ -1,8 +1,5 @@
-import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose from 'mongoose'
 import { config } from '../../config'
-
-// const mongod = new MongoMemoryServer()
 
 /**
  * Populate db with a schema and data for test purpose only
