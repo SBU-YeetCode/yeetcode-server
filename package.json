@@ -23,7 +23,6 @@
 	},
 	"homepage": "https://github.com/SBU-YeetCode/yeetcode-server#readme",
 	"devDependencies": {
-		"@shelf/jest-mongodb": "^1.2.3",
 		"@types/express-session": "^1.17.3",
 		"@types/faker": "^5.5.0",
 		"@types/helmet": "^4.0.0",
