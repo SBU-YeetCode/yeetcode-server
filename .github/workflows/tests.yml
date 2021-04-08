@@ -4,13 +4,21 @@ on:
         branches: master
     pull_request:
         branches: master
+    workflow_dispatch:
+    inputs:
+        logLevel:
+            description: 'Log level'
+            required: true
+            default: 'warning'
+        tags:
+            description: 'Test scenario tags'
 jobs:
     build:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                node-version: [12.x, 14.x]
-                mongodb-version: [4.0, 4.2, 4.4]
+                node-version: [12.x]
+                mongodb-version: [4.0]
 
         steps:
             - name: Git checkout
@@ -33,3 +41,11 @@ jobs:
               run: npm run test:ci
               env:
                   CI: true
+                  CLIENT_ORIGIN: ${{ secrets.CLIENT_ORIGIN }}
+                  COOKIE_SECRET: ${{ secrets.COOKIE_SECRET }}
+                  PORT: ${{ secrets.PORT }}
+                  GRAPHQL_PATH: ${{ secrets.GRAPHQL_PATH }}
+                  MONGODB_URI: ${{ secrets.MONGODB_URI }}
+                  MONGODB_TEST_URI: ${{ secrets.MONGODB_TEST_URI }}
+                  GOOGLE_CLEINT_ID: ${{ secrets.GOOGLE_CLEINT_ID }}
+                  GOOGLE_CALLBACK_URL: ${{ secrets.GOOGLE_CALLBACK_URL }}
