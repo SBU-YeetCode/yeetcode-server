@@ -3,18 +3,26 @@ import { ObjectId } from 'mongodb'
 import { User } from '../entities'
 import createUsername from './createUsername'
 
-export const createUser = ({profilePicture, name, email, accessToken, googleId }: Pick<User, 'email' | 'name' | 'accessToken' | 'googleId' | 'profilePicture'>): User => {
-
+export const createUser = ({
+	profilePicture,
+	name,
+	email,
+	accessToken,
+	googleId,
+}: Pick<
+	User,
+	'email' | 'name' | 'accessToken' | 'googleId' | 'profilePicture'
+>): User => {
 	return {
 		_id: new ObjectId(),
 		name,
 		email,
 		googleId,
 		accessToken,
-		comments: [],
-		gamesCreated: [],
-		gamesPlayed: [],
-		gamesCompleted: [],
+		// comments: [],
+		// gamesCreated: [],
+		// gamesRecent: [],
+		// gamesCompleted: [],
 		lastUpdated: new Date().toISOString(),
 		username: createUsername(name),
 		points: {
@@ -25,6 +33,7 @@ export const createUser = ({profilePicture, name, email, accessToken, googleId }
 			python: 0,
 			total: 0,
 		},
-		profilePicture
+		profilePicture,
+		roles: ['USER'],
 	}
 }

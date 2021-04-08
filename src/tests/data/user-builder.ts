@@ -9,13 +9,14 @@ export const createUser = (user: Partial<User>): User => {
 	return {
 		_id: new ObjectId(),
 		name,
+		roles: ['USER'],
 		email: faker.internet.email(),
 		googleId: faker.datatype.uuid(),
 		accessToken: faker.datatype.uuid(),
-		comments: [],
-		gamesCreated: [],
-		gamesPlayed: [],
-		gamesCompleted: [],
+		// comments: [],
+		// gamesCreated: [],
+		// gamesRecent: [],
+		// gamesCompleted: [],
 		lastUpdated: new Date().toISOString(),
 		username: name,
 		points: {

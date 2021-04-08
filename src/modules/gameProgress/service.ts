@@ -19,4 +19,29 @@ export default class GameProgressService {
 		if (!gameprogress) throw new Error('Unable to create gameprogress')
 		return newGameProgress
 	}
+	public async getUserRecentGames(userId: string) {
+		const userRecentGames = await this.gameprogressModel.getGameProgresses(
+			{
+				userId: userId,
+				isCompleted: false,
+			},
+			{
+				startedAt: -1,
+			}
+		)
+		return userRecentGames
+	}
+
+	public async getUserCompletedGames(userId: string) {
+		const userRecentGames = await this.gameprogressModel.getGameProgresses(
+			{
+				userId: userId,
+				isCompleted: true,
+			},
+			{
+				completedAt: -1,
+			}
+		)
+		return userRecentGames
+	}
 }

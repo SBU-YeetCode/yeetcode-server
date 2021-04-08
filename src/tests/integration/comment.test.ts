@@ -13,14 +13,18 @@ import {
 import { Comment } from '../../entities'
 import { PaginatedCommentResponse } from '../../modules/comment/input'
 
-beforeAll(async () => connect())
+beforeAll(async (done) => {
+	await connect()
+	done()
+})
 
 // beforeEach(async () => {
 // 	await populateDatabase(WcifMongooseModel, [wcif1])
 // })
 
-afterEach(async () => {
+afterEach(async (done) => {
 	await clearDatabase()
+	done()
 })
 
 afterAll(async (done) => {

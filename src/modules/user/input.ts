@@ -17,17 +17,17 @@ export class GetLeaderboardInput {
 @ArgsType()
 export class UpdateUserInput {
 	@Field()
-	readonly _id!: ObjectId
+	readonly userId!: ObjectId
 
-	@Field()
+	@Field({ nullable: true })
 	newName?: string
 
-	@Field()
+	@Field({ nullable: true })
 	newUsername?: string
 
-	@Field()
+	@Field({ nullable: true })
 	newAvatar?: string
 
-	@Field()
+	@Field({ nullable: true })
 	newLargePicture?: string
 }

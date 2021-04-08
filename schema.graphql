@@ -11,12 +11,11 @@ type Comment {
   rating: Int!
   review: String!
   userId: String!
+  userInfo: User!
 }
 
 input CommentInput {
-  dateCreated: Date!
   gameId: String!
-  lastUpdated: Date!
   rating: Int!
   review: String!
   userId: String!
@@ -69,7 +68,9 @@ input GameInput {
 type GameProgress {
   _id: ObjectId!
   completedAt: Date!
+  game: Game!
   gameId: String!
+  isCompleted: Boolean!
   levels: [LevelProgress!]!
   questions: [QuestionProgress!]!
   stages: [StageProgress!]!
@@ -81,6 +82,7 @@ input GameProgressInput {
   _id: ObjectId!
   completedAt: Date!
   gameId: String!
+  isCompleted: Boolean!
   levels: [LevelProgressInput!]!
   questions: [QuestionProgressInput!]!
   stages: [StageProgressInput!]!
@@ -145,11 +147,13 @@ input MatchingInput {
 }
 
 type Mutation {
-  createComment(comment: CommentInput!): Comment!
+  createComment(comment: CommentInput!, userId: ObjectId!): Comment!
   createGame(game: GameInput!): Game!
   createGameProgress(gameprogress: GameProgressInput!): GameProgress!
   createUser(user: UserInput!): User!
-  updateUser(_id: ObjectId!, newAvatar: String!, newLargePicture: String!, newName: String!, newUsername: String!): User!
+  deleteUser(userId: ObjectId!): User!
+  updateLevels(gameId: String!, levelsToUpdate: UpdateLevels!): [Level!]!
+  updateUser(newAvatar: String, newLargePicture: String, newName: String, newUsername: String, userId: ObjectId!): User!
 }
 
 """Mongo object id scalar type"""
@@ -215,9 +219,9 @@ type Query {
   getSearch(amount: Int = 10, cursor: String, query: String!): PaginatedGameResponse!
   getStage(gameId: String!, stageId: String!): Stage!
   getUser(id: ObjectId!): User
-  getUserCompletedGames(userId: String!): [Game!]!
+  getUserCompletedGames(userId: String!): [GameProgress!]!
   getUserCreatedGames(userId: String!): [Game!]!
-  getUserRecentGames(userId: String!): [Game!]!
+  getUserRecentGames(userId: String!): [GameProgress!]!
   getUserReviews(userId: String!): [Comment!]!
 }
 
@@ -317,30 +321,32 @@ input SubGameRoadmapInput {
   sequence: String!
 }
 
+input UpdateLevels {
+  levels: [LevelInput!]!
+}
+
 type User {
   _id: ObjectId!
-  comments: [String!]!
+  comments: [Comment!]!
   email: String!
-  gamesCompleted: [String!]!
-  gamesCreated: [String!]!
-  gamesPlayed: [String!]!
+  gamesCompleted: [GameProgress!]!
+  gamesCreated: [Game!]!
+  gamesRecent: [GameProgress!]!
   lastUpdated: Date!
   name: String!
   points: Points!
   profilePicture: ProfilePicture!
+  roles: [String!]!
   username: String!
 }
 
 input UserInput {
   _id: ObjectId!
-  comments: [String!]!
   email: String!
-  gamesCompleted: [String!]!
-  gamesCreated: [String!]!
-  gamesPlayed: [String!]!
   lastUpdated: Date!
   name: String!
   points: PointsInput!
   profilePicture: ProfilePictureInput!
+  roles: [String!]!
   username: String!
 }

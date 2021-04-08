@@ -89,10 +89,10 @@ export default class UserService {
 
 	public async updateUser(newUserData: UpdateUserInput) {
 		const { newName, newUsername, newAvatar, newLargePicture } = newUserData
-		const oldUser = await this.userModel.findById(newUserData._id)
+		const oldUser = await this.userModel.findById(newUserData.userId)
 		if (!oldUser)
 			throw new Error(
-				`User could not be found with ID: ${newUserData._id}`
+				`User could not be found with ID: ${newUserData.userId}`
 			)
 		// If setting a username, ensure it is unique
 		if (newUsername) {
@@ -110,5 +110,9 @@ export default class UserService {
 		const updatedUser = await oldUser.save()
 		if (!updatedUser) throw new Error('Error updating document')
 		return oldUser.toObject() as User
+	}
+
+	public async deleteUser(userId: ObjectId) {
+		// Delete comments and games? If delete games, should comments made on those games be deleted too?
 	}
 }

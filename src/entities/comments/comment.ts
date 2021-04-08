@@ -24,7 +24,12 @@ export class CommentInput {
 	@Min(1)
 	@Max(5)
 	rating: number
+}
 
+@ObjectType()
+export class Comment extends CommentInput {
+	@Field()
+	readonly _id!: ObjectId
 	// date
 	@prop({ type: Date })
 	@Field(() => DateScalar)
@@ -34,10 +39,4 @@ export class CommentInput {
 	@prop({ type: Date })
 	@Field(() => DateScalar)
 	lastUpdated: string
-}
-
-@ObjectType()
-export class Comment extends CommentInput {
-	@Field()
-	readonly _id!: ObjectId
 }

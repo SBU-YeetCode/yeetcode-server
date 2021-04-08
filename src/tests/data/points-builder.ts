@@ -16,7 +16,7 @@ export const createPoints = (points?: Partial<Points>): Points => {
 		if (key != 'total') {
 			const langPoints = faker.datatype.number(100)
 			pointObj.total += langPoints
-			pointObj[key] = langPoints
+			pointObj[key as keyof Points] = langPoints
 		}
 	}
 	return pointObj

@@ -1,9 +1,14 @@
 import { ObjectId } from 'mongodb'
 import { Service } from 'typedi'
-import { Game } from '../../entities'
+import { Game, Level } from '../../entities'
 import { GameInput } from '../../entities/game/game'
 import { PaginationInput } from '../utils/pagination'
-import { LANGUAGES, PaginatedGameResponse, SORT_OPTIONS } from './input'
+import {
+	LANGUAGES,
+	PaginatedGameResponse,
+	SORT_OPTIONS,
+	UpdateLevels,
+} from './input'
 import GameModel from './model'
 import UserModel from '../user/model'
 
@@ -39,28 +44,10 @@ export default class GameService {
 		)
 		return games
 	}
-	public async getUserCreatedGames(userId: string) {
-		const user = await this.userModel.findById(new ObjectId(userId))
-		if (!user) throw new Error('User not found')
-		const createdGameIds = user.gamesCreated
-		const userCreatedGames: Game[] = []
-		for (var i = 0; i < createdGameIds.length; i++) {
-			const game = await this.gameModel.findById(createdGameIds[i])
-			if (game) userCreatedGames.push(game)
-		}
-		return userCreatedGames
-	}
 
-	public async getUserCompletedGames(userId: string) {
-		const user = await this.userModel.findById(new ObjectId(userId))
-		if (!user) throw new Error('User not found')
-		const gameCompletedIds = user.gamesCompleted
-		const userCompletedGames: Game[] = []
-		for (var i = 0; i < gameCompletedIds.length; i++) {
-			const game = await this.gameModel.findById(gameCompletedIds[i])
-			if (game) userCompletedGames.push(game)
-		}
-		return userCompletedGames
+	public async getUserCreatedGames(userId: string) {
+		const games = await this.gameModel.getGames({ createdBy: userId })
+		return games
 	}
 
 	public async getSearch(
@@ -69,17 +56,6 @@ export default class GameService {
 	): Promise<PaginatedGameResponse> {
 		const results = await this.gameModel.search(query, pagination)
 		return results
-	}
-	public async getUserRecentGames(userId: string) {
-		const user = await this.userModel.findById(new ObjectId(userId))
-		if (!user) throw new Error('User not found')
-		const recentGameIds = user.gamesPlayed
-		const userRecentGames: Game[] = []
-		for (var i = 0; i < recentGameIds.length; i++) {
-			const game = await this.gameModel.findById(recentGameIds[i])
-			if (game) userRecentGames.push(game)
-		}
-		return userRecentGames
 	}
 
 	public async getLevel(levelId: string, gameId: string) {
@@ -114,11 +90,15 @@ export default class GameService {
 		}
 		throw new Error('Question not found')
 	}
-	
+
 	public async getRoadmap(gameId: string) {
 		const game = await this.gameModel.findById(gameId)
 		if (!game) throw new Error('Game not found')
-		if (!game.roadmap) throw new Error ('Roadmap not found')
+		if (!game.roadmap) throw new Error('Roadmap not found')
 		else return game.roadmap
+	}
+
+	public async updateLevels(levelsToUpdate: UpdateLevels, gameId: string) {
+		const levelArray = await this.gameModel.findById(gameId)
 	}
 }

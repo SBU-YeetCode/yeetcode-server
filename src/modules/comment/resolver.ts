@@ -1,17 +1,40 @@
 import { ObjectId } from 'mongodb'
-import { Query, Resolver, Arg, Mutation, Args, UseMiddleware } from 'type-graphql'
+import {
+	Query,
+	Resolver,
+	Arg,
+	Mutation,
+	Args,
+	UseMiddleware,
+	Root,
+	FieldResolver,
+} from 'type-graphql'
 import { Service } from 'typedi'
-import { Comment, CommentInput } from '../../entities'
+import { Comment, CommentInput, User } from '../../entities'
 import { CommentMongooseModel } from './model'
 import { PaginationInput, PaginatedResponse } from '../utils/pagination'
 import CommentService from './service'
 import { PaginatedCommentResponse } from './input'
 import { isLoggedIn } from '../middleware/isLoggedIn'
+import { canEdit } from '../middleware/canEdit'
+import UserService from '../user/service'
 
 @Service() // Dependencies injection
 @Resolver((of) => Comment)
 export default class CommentResolver {
-	constructor(private readonly commentService: CommentService) {}
+	constructor(
+		private readonly commentService: CommentService,
+		private readonly userService: UserService
+	) {}
+
+	@FieldResolver(() => User)
+	async userInfo(@Root() comment: Comment) {
+		const user = await this.userService.getById(
+			new ObjectId(comment.userId)
+		)
+		return user
+	}
+
 	@Query((returns) => Comment, { nullable: true })
 	async getComment(@Arg('id') id: ObjectId) {
 		const Comment = await this.commentService.getById(id)
@@ -36,10 +59,13 @@ export default class CommentResolver {
 		const userComments = await this.commentService.getUserComments(id)
 		return userComments
 	}
-	
-	@UseMiddleware(isLoggedIn)
+
+	@canEdit()
 	@Mutation((returns) => Comment)
-	async createComment(@Arg('comment') comment: CommentInput) {
+	async createComment(
+		@Arg('userId') userId: ObjectId,
+		@Arg('comment') comment: CommentInput
+	) {
 		const newComment = await this.commentService.createComment(comment)
 		return newComment
 	}

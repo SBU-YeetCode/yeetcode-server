@@ -28,6 +28,10 @@ export class GameProgress {
 	@Field(() => DateScalar)
 	completedAt: string
 
+	@prop()
+	@Field()
+	isCompleted: boolean
+
 	@prop({ type: () => [LevelProgress] })
 	@Field(() => [LevelProgress])
 	levels: LevelProgress[]

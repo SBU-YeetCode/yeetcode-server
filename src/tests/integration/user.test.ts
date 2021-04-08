@@ -18,14 +18,18 @@ import {
 	populateDatabase,
 } from '../utils'
 
-beforeAll(async () => connect())
+beforeAll(async (done) => {
+	await connect()
+	done()
+})
 
 // beforeEach(async () => {
 // 	await populateDatabase(WcifMongooseModel, [wcif1])
 // })
 
-afterEach(async () => {
+afterEach(async (done) => {
 	await clearDatabase()
+	done()
 })
 
 afterAll(async (done) => {
@@ -157,7 +161,7 @@ describe('User', () => {
 		}) as any
 		await populateDatabase(UserMongooseModel, [user])
 		const newUserInfo: Required<UpdateUserInput> = {
-			_id: user._id,
+			userId: user._id,
 			newName: 'New Name',
 			newUsername: 'NewUsername1234',
 			newAvatar: 'NewAvatar',
@@ -182,14 +186,14 @@ describe('User', () => {
 
 const UPDATE_USER = gql`
 	mutation updateUser(
-		$_id: ObjectId!
+		$userId: ObjectId!
 		$newName: String!
 		$newUsername: String!
 		$newAvatar: String!
 		$newLargePicture: String!
 	) {
 		updateUser(
-			_id: $_id
+			userId: $userId
 			newName: $newName
 			newUsername: $newUsername
 			newAvatar: $newAvatar
@@ -198,12 +202,9 @@ const UPDATE_USER = gql`
 			_id
 			username
 			email
+			roles
 			name
-			gamesPlayed
-			gamesCreated
-			gamesCompleted
 			lastUpdated
-			comments
 			points {
 				cpp
 				javascript
@@ -227,12 +228,9 @@ const GET_LEADERBOARD = gql`
 				_id
 				username
 				email
+				roles
 				name
-				gamesPlayed
-				gamesCreated
-				gamesCompleted
 				lastUpdated
-				comments
 				points {
 					cpp
 					javascript
@@ -258,11 +256,8 @@ const GET_USER = gql`
 			username
 			email
 			name
-			gamesPlayed
-			gamesCreated
-			gamesCompleted
+			roles
 			lastUpdated
-			comments
 			points {
 				cpp
 				javascript
@@ -285,11 +280,8 @@ const GET_ME = gql`
 			username
 			email
 			name
-			gamesPlayed
-			gamesCreated
-			gamesCompleted
+			roles
 			lastUpdated
-			comments
 			points {
 				cpp
 				javascript

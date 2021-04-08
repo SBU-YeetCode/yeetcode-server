@@ -1,7 +1,16 @@
 import { ObjectId } from 'mongodb'
-import { Query, Resolver, Arg, Mutation, Ctx, Args } from 'type-graphql'
+import {
+	Query,
+	Resolver,
+	Arg,
+	Mutation,
+	Ctx,
+	Args,
+	FieldResolver,
+	Root,
+} from 'type-graphql'
 import { Service } from 'typedi'
-import { User } from '../../entities'
+import { Comment, User, Game, GameProgress } from '../../entities'
 import { isLoggedIn } from '../middleware/isLoggedIn'
 import { PaginationInput } from '../utils/pagination'
 import {
@@ -11,11 +20,46 @@ import {
 } from './input'
 import { UserMongooseModel } from './model'
 import UserService from './service'
+import { canEdit } from '../middleware/canEdit'
+import CommentService from '../comment/service'
+import GameService from '../game/service'
+import GameProgressService from '../gameProgress/service'
 
 @Service() // Dependencies injection
 @Resolver((of) => User)
 export default class UserResolver {
-	constructor(private readonly userService: UserService) {}
+	constructor(
+		private readonly userService: UserService,
+		private readonly commentService: CommentService,
+		private readonly gameService: GameService,
+		private readonly gameProgressService: GameProgressService
+	) {}
+
+	@FieldResolver(() => [Comment])
+	async comments(@Root() user: User) {
+		return await this.commentService.getUserComments(user._id.toHexString())
+	}
+
+	@FieldResolver(() => [GameProgress])
+	async gamesRecent(@Root() user: User) {
+		return await this.gameProgressService.getUserRecentGames(
+			user._id.toHexString()
+		)
+	}
+
+	@FieldResolver(() => [GameProgress])
+	async gamesCompleted(@Root() user: User) {
+		return await this.gameProgressService.getUserCompletedGames(
+			user._id.toHexString()
+		)
+	}
+
+	@FieldResolver(() => [Game])
+	async gamesCreated(@Root() user: User) {
+		return await this.gameService.getUserCreatedGames(
+			user._id.toHexString()
+		)
+	}
 
 	@Query((returns) => User, { nullable: true })
 	async getMe(@Ctx() { req }: Context) {
@@ -50,15 +94,16 @@ export default class UserResolver {
 	}
 
 	@Mutation((returns) => User)
-	async updateUser(
-		@Args() newUserData: UpdateUserInput,
-		@Ctx() { req }: Context
-	) {
+	@canEdit()
+	async updateUser(@Args() newUserData: UpdateUserInput) {
 		// Signed in user can only make changes to his own profile
-		if (!req.user) throw new Error('User not signed in')
-		if (req.user._id !== newUserData._id)
-			throw new Error('Signed in user does not match ID of user input')
 		let updatedUser = await this.userService.updateUser(newUserData)
 		return updatedUser
+	}
+
+	@Mutation((returns) => User)
+	@canEdit()
+	async deleteUser(@Arg('userId') userId: ObjectId) {
+		const deletedUser = await this.userService.deleteUser(userId)
 	}
 }

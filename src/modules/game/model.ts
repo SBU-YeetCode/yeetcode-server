@@ -132,4 +132,11 @@ export default class GameModel {
 			nodes,
 		}
 	}
+	async getGames(where?: any, sort?: any) {
+		const games = await GameMongooseModel.find(where)
+			.sort(sort)
+			.lean()
+			.exec()
+		return games
+	}
 }

@@ -7,12 +7,13 @@ export const createGameProgress = (
 ): GameProgress => {
 	return {
 		_id: new ObjectId(),
-		completedAt: faker.date.past().getTime(),
+		completedAt: faker.date.past().toISOString(),
 		gameId: 'game123',
 		levels: [],
 		questions: [],
 		stages: [],
-		startedAt: faker.date.recent().getTime(),
+		isCompleted: faker.datatype.boolean(),
+		startedAt: faker.date.recent().toISOString(),
 		userId: 'user123',
 		...gameProgress,
 	}

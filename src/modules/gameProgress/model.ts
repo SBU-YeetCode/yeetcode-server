@@ -22,4 +22,12 @@ export default class GameProgressModel {
 		await newGameProgress.save()
 		return newGameProgress
 	}
+
+	async getGameProgresses(where: any, sort: any) {
+		const games = await GameProgressMongooseModel.find(where)
+			.sort(sort)
+			.lean()
+			.exec()
+		return games
+	}
 }

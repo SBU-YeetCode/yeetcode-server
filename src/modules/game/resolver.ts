@@ -1,10 +1,18 @@
 import { ObjectId } from 'mongodb'
-import { Query, Resolver, Arg, Mutation, Args, UseMiddleware } from 'type-graphql'
+import {
+	Query,
+	Resolver,
+	Arg,
+	Mutation,
+	Args,
+	UseMiddleware,
+	FieldResolver,
+} from 'type-graphql'
 import { Service } from 'typedi'
 import { Game, Level, Stage, Question, SubGameRoadmap } from '../../entities'
 import GameService from './service'
 import { LANGUAGES, SORT_OPTIONS, GetFilterGamesInput } from './input'
-import { PaginatedGameResponse } from './input'
+import { PaginatedGameResponse, UpdateLevels } from './input'
 import { PaginationInput } from '../utils/pagination'
 import { GameInput } from '../../entities/game/game'
 import { isLoggedIn } from '../middleware/isLoggedIn'
@@ -51,21 +59,21 @@ export default class GameResolver {
 		return userCreatedGames
 	}
 
-	@Query((returns) => [Game])
-	async getUserCompletedGames(@Arg('userId') userId: string) {
-		const userCreatedGames = await this.gameService.getUserCompletedGames(
-			userId
-		)
-		return userCreatedGames
-	}
+	// @Query((returns) => [Game])
+	// async getUserCompletedGames(@Arg('userId') userId: string) {
+	// 	const userCreatedGames = await this.gameService.getUserCompletedGames(
+	// 		userId
+	// 	)
+	// 	return userCreatedGames
+	// }
 
-	@Query((returns) => [Game])
-	async getUserRecentGames(@Arg('userId') userId: string) {
-		const userCreatedGames = await this.gameService.getUserRecentGames(
-			userId
-		)
-		return userCreatedGames
-	}
+	// @Query((returns) => [Game])
+	// async getUserRecentGames(@Arg('userId') userId: string) {
+	// 	const userCreatedGames = await this.gameService.getUserRecentGames(
+	// 		userId
+	// 	)
+	// 	return userCreatedGames
+	// }
 
 	@Query((returns) => Level)
 	async getLevel(
@@ -88,7 +96,8 @@ export default class GameResolver {
 	@Query((returns) => Question)
 	async getQuestion(
 		@Arg('questionId') questionId: string,
-		@Arg('gameId') gameId: string) {
+		@Arg('gameId') gameId: string
+	) {
 		const question = await this.gameService.getQuestion(questionId, gameId)
 		return question
 	}
@@ -104,5 +113,17 @@ export default class GameResolver {
 	async createGame(@Arg('game') game: GameInput) {
 		const newGame = await this.gameService.createGame(game)
 		return newGame
+	}
+
+	@Mutation((returns) => [Level])
+	async updateLevels(
+		@Arg('levelsToUpdate') levelsToUpdate: UpdateLevels,
+		@Arg('gameId') gameId: string
+	) {
+		let allLevels = await this.gameService.updateLevels(
+			levelsToUpdate,
+			gameId
+		)
+		return allLevels
 	}
 }

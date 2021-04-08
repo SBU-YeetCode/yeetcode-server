@@ -23,17 +23,17 @@ export class User {
 	@Field()
 	email!: string
 
-	@prop({ type: () => [String] })
-	@Field(() => [String])
-	gamesPlayed!: string[]
+	// @prop({ type: () => [String] })
+	// @Field(() => [String])
+	// gamesRecent!: string[]
 
-	@prop({ type: () => [String] })
-	@Field(() => [String])
-	gamesCreated!: string[]
+	// @prop({ type: () => [String] })
+	// @Field(() => [String])
+	// gamesCreated!: string[]
 
-	@prop({ type: () => [String] })
-	@Field(() => [String])
-	gamesCompleted!: string[]
+	// @prop({ type: () => [String] })
+	// @Field(() => [String])
+	// gamesCompleted!: string[]
 
 	@prop()
 	googleId: string
@@ -49,11 +49,15 @@ export class User {
 	@Field(() => ProfilePicture)
 	profilePicture: ProfilePicture
 
-	@prop({ type: () => [String] })
-	@Field(() => [String])
-	comments: string[]
+	// @prop({ type: () => [String] })
+	// @Field(() => [String])
+	// comments: string[]
 
 	@prop({ type: Date })
 	@Field(() => DateScalar)
 	lastUpdated!: string
+
+	@prop({ type: () => [String] })
+	@Field(() => [String])
+	roles: string[]
 }
