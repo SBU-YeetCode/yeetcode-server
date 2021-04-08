@@ -43,3 +43,19 @@ jobs:
                   GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
                   GOOGLE_CALLBACK_URL: ${{ secrets.GOOGLE_CALLBACK_URL }}
                   NODE_ENV: ${{ secrets.NODE_ENV }}
+    deploy:
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Deploy Yeetcode Server
+              uses: appleboy/ssh-action@v0.1.2
+              with:
+                  host: ${{ secrets.SSH_HOST }}
+                  key: ${{ secrets.SSH_KEY }}
+                  username: ${{ secrets.SSH_USERNAME }}
+
+                  script: |
+                      mkdir deployment
+                      cd deployment
+                      git clone git@github.com:SBU-YeetCode/yeetcode-server.git
+                      echo 'Deployment successful to digital ocean'
