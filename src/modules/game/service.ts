@@ -3,12 +3,7 @@ import { Service } from 'typedi'
 import { Game, Level } from '../../entities'
 import { GameInput } from '../../entities/game/game'
 import { PaginationInput } from '../utils/pagination'
-import {
-	LANGUAGES,
-	PaginatedGameResponse,
-	SORT_OPTIONS,
-	UpdateLevels,
-} from './input'
+import { LANGUAGES, PaginatedGameResponse, SORT_OPTIONS } from './input'
 import GameModel from './model'
 import UserModel from '../user/model'
 
@@ -98,7 +93,7 @@ export default class GameService {
 		else return game.roadmap
 	}
 
-	public async updateLevels(levelsToUpdate: UpdateLevels, gameId: string) {
-		const levelArray = await this.gameModel.findById(gameId)
+	public async updateLevels(levelsToUpdate: Level[], gameId: string) {
+		const game = await this.gameModel.findById(gameId)
 	}
 }

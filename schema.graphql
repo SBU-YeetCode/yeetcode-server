@@ -152,7 +152,7 @@ type Mutation {
   createGameProgress(gameprogress: GameProgressInput!): GameProgress!
   createUser(user: UserInput!): User!
   deleteUser(userId: ObjectId!): User!
-  updateLevels(gameId: String!, levelsToUpdate: UpdateLevels!): [Level!]!
+  updateLevels(gameId: String!, levelsToUpdate: [LevelInput!]!): [Level!]!
   updateUser(newAvatar: String, newLargePicture: String, newName: String, newUsername: String, userId: ObjectId!): User!
 }
 
@@ -319,10 +319,6 @@ input SubGameRoadmapInput {
   kind: String!
   refId: String!
   sequence: String!
-}
-
-input UpdateLevels {
-  levels: [LevelInput!]!
 }
 
 type User {
