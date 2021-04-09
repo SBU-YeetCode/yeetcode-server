@@ -24,6 +24,7 @@ import { canEdit } from '../middleware/canEdit'
 import CommentService from '../comment/service'
 import GameService from '../game/service'
 import GameProgressService from '../gameProgress/service'
+import { Deleted } from '../utils/deleted'
 
 @Service() // Dependencies injection
 @Resolver((of) => User)
@@ -101,9 +102,10 @@ export default class UserResolver {
 		return updatedUser
 	}
 
-	@Mutation((returns) => User)
+	@Mutation((returns) => Deleted)
 	@canEdit()
 	async deleteUser(@Arg('userId') userId: ObjectId) {
-		const deletedUser = await this.userService.deleteUser(userId)
+		const userDeletion = await this.userService.deleteUser(userId)
+		return userDeletion
 	}
 }

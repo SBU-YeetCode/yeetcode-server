@@ -10,7 +10,6 @@ export const CommentMongooseModel = getModelForClass(Comment)
 
 @Service()
 export default class CommentModel {
-
 	async exists(q: any) {
 		return CommentMongooseModel.exists(q)
 	}
@@ -63,5 +62,9 @@ export default class CommentModel {
 
 	async getUserComments(id: string) {
 		return CommentMongooseModel.find({ userId: id }).lean().exec()
+	}
+
+	async deleteMany(query: any) {
+		return await CommentMongooseModel.deleteMany(query).exec()
 	}
 }

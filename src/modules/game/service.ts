@@ -5,13 +5,16 @@ import { GameInput } from '../../entities/game/game'
 import { PaginationInput } from '../utils/pagination'
 import { LANGUAGES, PaginatedGameResponse, SORT_OPTIONS } from './input'
 import GameModel from './model'
-import UserModel from '../user/model'
+import CommentModel from '../comment/model'
+import GameProgressModel from '../gameProgress/model'
+import { Deleted } from '../utils/deleted'
 
 @Service() // Dependencies injection
 export default class GameService {
 	constructor(
 		private readonly gameModel: GameModel,
-		private readonly userModel: UserModel
+		private readonly gameProgressModel: GameProgressModel,
+		private readonly commentModel: CommentModel
 	) {}
 	public async getById(id: string) {
 		const game = await this.gameModel.getById(id)
@@ -95,11 +98,10 @@ export default class GameService {
 
 	public async updateLevels(levelsToUpdate: Level[], gameId: string) {
 		var game = await this.gameModel.findById(gameId)
-		if (!game)
-			throw new Error(`Game could not be found with ID: ${gameId}`)
+		if (!game) throw new Error(`Game could not be found with ID: ${gameId}`)
 		const oldLevelArray = game.levels
 		if (!oldLevelArray)
-		 	throw new Error(`Levels could not be found with ID: ${gameId}`)
+			throw new Error(`Levels could not be found with ID: ${gameId}`)
 		for (var i = 0; i < oldLevelArray.length; i++) {
 			for (var j = 0; j < levelsToUpdate.length; j++) {
 				if (oldLevelArray[i]._id.equals(levelsToUpdate[j]._id))
@@ -111,13 +113,15 @@ export default class GameService {
 		return game.levels
 	}
 
-	public async updateQuestions(questionsToUpdate: Question[], gameId: string) {
+	public async updateQuestions(
+		questionsToUpdate: Question[],
+		gameId: string
+	) {
 		var game = await this.gameModel.findById(gameId)
-		if (!game)
-			throw new Error(`Game could not be found with ID: ${gameId}`)
+		if (!game) throw new Error(`Game could not be found with ID: ${gameId}`)
 		const oldQuestionArray = game.questions
 		if (!oldQuestionArray)
-		 	throw new Error(`Questions could not be found with ID: ${gameId}`)
+			throw new Error(`Questions could not be found with ID: ${gameId}`)
 		for (var i = 0; i < oldQuestionArray.length; i++) {
 			for (var j = 0; j < questionsToUpdate.length; j++) {
 				if (oldQuestionArray[i]._id.equals(questionsToUpdate[j]._id))
@@ -131,11 +135,10 @@ export default class GameService {
 
 	public async updateStages(stagesToUpdate: Stage[], gameId: string) {
 		var game = await this.gameModel.findById(gameId)
-		if (!game)
-			throw new Error(`Game could not be found with ID: ${gameId}`)
+		if (!game) throw new Error(`Game could not be found with ID: ${gameId}`)
 		const oldStageArray = game.stages
 		if (!oldStageArray)
-		 	throw new Error(`Stages could not be found with ID: ${gameId}`)
+			throw new Error(`Stages could not be found with ID: ${gameId}`)
 		for (var i = 0; i < oldStageArray.length; i++) {
 			for (var j = 0; j < stagesToUpdate.length; j++) {
 				if (oldStageArray[i]._id.equals(stagesToUpdate[j]._id))
@@ -145,5 +148,54 @@ export default class GameService {
 		const newGame = await game.save()
 		if (!newGame) throw new Error('Error updating stages')
 		return game.stages
+	}
+
+	/**
+	 * Deletes the game as well as all comments and game progress related to game
+	 * @param gameId String id of game to be deleted
+	 */
+	public async deleteGame(gameId: string) {
+		const toReturn: Deleted = {
+			success: false,
+			err: null,
+			amountDeleted: 0,
+		}
+		try {
+			const gameExists = await this.gameModel.findById(gameId)
+			if (!gameExists) throw new Error('Game not found')
+
+			// Delete game comments
+			const commentsDeleted = await this.commentModel.deleteMany({
+				gameId,
+			})
+			if (commentsDeleted.ok !== 1)
+				throw new Error('Error deleting comments on game')
+			toReturn.amountDeleted += commentsDeleted.deletedCount!
+
+			// Delete game progress
+			const progressDeleted = await this.gameProgressModel.deleteMany({
+				gameId,
+			})
+			if (progressDeleted.ok !== 1)
+				throw new Error('Error deleting game progress for game')
+			toReturn.amountDeleted += progressDeleted.deletedCount!
+
+			// Delete game
+			const gameDeleted = await this.gameModel.deleteGame({
+				_id: new ObjectId(gameId),
+			})
+			if (gameDeleted.ok !== 1) throw new Error('Error deleting game')
+			toReturn.amountDeleted += gameDeleted.deletedCount!
+		} catch (err) {
+			if (err instanceof Error) {
+				toReturn.err = err.message
+				return toReturn
+			} else {
+				toReturn.err = 'An unexpected error has occured'
+				return toReturn
+			}
+		}
+		toReturn.success = true
+		return toReturn
 	}
 }

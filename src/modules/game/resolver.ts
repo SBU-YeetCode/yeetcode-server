@@ -16,6 +16,8 @@ import { PaginatedGameResponse } from './input'
 import { PaginationInput } from '../utils/pagination'
 import { GameInput } from '../../entities/game/game'
 import { isLoggedIn } from '../middleware/isLoggedIn'
+import { Deleted } from '../utils/deleted'
+import { canEdit } from '../middleware/canEdit'
 
 @Service() // Dependencies injection
 @Resolver((of) => Game)
@@ -129,7 +131,8 @@ export default class GameResolver {
 
 	@Mutation((returns) => [Question])
 	async updateQuestions(
-		@Arg('questionsToUpdate', () => [Question]) questionsToUpdate: Question[],
+		@Arg('questionsToUpdate', () => [Question])
+		questionsToUpdate: Question[],
 		@Arg('gameId') gameId: string
 	) {
 		let allQuestions = await this.gameService.updateQuestions(
@@ -149,5 +152,12 @@ export default class GameResolver {
 			gameId
 		)
 		return allStages
+	}
+
+	@Mutation(() => Deleted)
+	@canEdit()
+	async deleteGame(@Arg('gameId') gameId: string) {
+		const deletedObj = await this.gameService.deleteGame(gameId)
+		return deletedObj
 	}
 }

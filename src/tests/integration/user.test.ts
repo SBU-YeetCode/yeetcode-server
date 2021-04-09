@@ -2,13 +2,18 @@ import { ApolloServer, gql } from 'apollo-server-express'
 import { createTestClient } from 'apollo-server-testing'
 import { ObjectId } from 'mongodb'
 import { use } from 'passport'
-import { User } from '../../entities'
+import { User, Game, Comment } from '../../entities'
+import { CommentMongooseModel } from '../../modules/comment/model'
+import { GameMongooseModel } from '../../modules/game/model'
 import {
 	PaginatedUserResponse,
 	UpdateUserInput,
 } from '../../modules/user/input'
 import { UserMongooseModel } from '../../modules/user/model'
+import { Deleted } from '../../modules/utils/deleted'
 import { buildSchema } from '../../utils'
+import { createComment } from '../data/comment-builder'
+import { createGame } from '../data/game-builder'
 import { createPoints } from '../data/points-builder'
 import { createUser } from '../data/user-builder'
 import {
@@ -182,7 +187,51 @@ describe('User', () => {
 			_id: user._id.toHexString(),
 		})
 	})
+
+	it('should delete user from db', async () => {
+		const graphqlSchema = await buildSchema()
+		// Create user
+		const user = createUser({})
+		const server = new ApolloServer({
+			schema: graphqlSchema,
+			context: { req: { user } },
+		}) as any
+		// Create 3 games
+		const games: Game[] = []
+		for (var i = 0; i < 3; i++) games.push(createGame({}))
+		// 1 game made by user
+		games[0].createdBy = user._id.toHexString()
+		// Create 10 comments
+		const comments: Comment[] = []
+		for (var i = 0; i < 10; i++) comments.push(createComment({}))
+		// 2 comments made by user
+		comments[0].userId = user._id.toHexString()
+		comments[1].userId = user._id.toHexString()
+		// 2 comments on game made by user
+		comments[2].gameId = games[0]._id.toHexString()
+		comments[3].gameId = games[0]._id.toHexString()
+		await populateDatabase(UserMongooseModel, [user])
+		await populateDatabase(GameMongooseModel, games)
+		await populateDatabase(CommentMongooseModel, comments)
+		const { mutate } = createTestClient(server)
+		const res = await mutate<{ deleteUser: Deleted }>({
+			mutation: DELETE_USER,
+			variables: { userId: user._id },
+		})
+		expect(res.data?.deleteUser.amountDeleted).toEqual(6)
+		expect(res.data?.deleteUser.success).toEqual(true)
+	})
 })
+
+const DELETE_USER = gql`
+	mutation deleteUser($userId: ObjectId!) {
+		deleteUser(userId: $userId) {
+			err
+			amountDeleted
+			success
+		}
+	}
+`
 
 const UPDATE_USER = gql`
 	mutation updateUser(
