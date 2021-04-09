@@ -30,4 +30,8 @@ export default class GameProgressModel {
 			.exec()
 		return games
 	}
+
+	async deleteMany(query: any) {
+		return await GameProgressMongooseModel.deleteMany({ query }).exec()
+	}
 }
