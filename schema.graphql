@@ -134,6 +134,7 @@ type Mutation {
   createUser(user: UserInput!): User!
   deleteUser(userId: ObjectId!): User!
   updateLevels(gameId: String!, levelsToUpdate: [LevelInput!]!): [Level!]!
+  updateQuestions(gameId: String!, questionsToUpdate: [QuestionInput!]!): [Question!]!
   updateUser(newAvatar: String, newLargePicture: String, newName: String, newUsername: String, userId: ObjectId!): User!
 }
 

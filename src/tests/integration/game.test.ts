@@ -415,6 +415,33 @@ describe('Game', () => {
 		})
 		expect(res.data?.updateLevels[1].description).toEqual(levelsToUpdate[0].description)
 	})
+
+	it('should update a question in db', async () => {
+		// Create Game
+		let games: Game[] = []
+		games.push(createGame({}))
+		const game = games[0]
+		for (let i = 0; i < 3; i++) {
+			// Generate 3 questions
+			game.questions.push(createQuestion({}))
+		}
+		// Get the second question in the game and update it
+		const questionsToUpdate = [game.questions[1]]
+		questionsToUpdate[0].description = "updated description"
+		// Send data to db
+		await populateDatabase(GameMongooseModel, games)
+		const server = new ApolloServer({ schema: graphqlSchema }) as any
+		// use the test server to create a query function
+		const { mutate } = createTestClient(server)
+		const res = await mutate<{ updateQuestions: Question[] }>({
+			mutation: UPDATE_QUESTIONS,
+			variables: {
+				questionsToUpdate: questionsToUpdate,
+				gameId: game._id.toHexString(),
+			},
+		})
+		expect(res.data?.updateQuestions[1].description).toEqual(questionsToUpdate[0].description)
+	})
 })
 
 const GET_USER_RECENT_GAMES = gql`
@@ -595,6 +622,36 @@ const UPDATE_LEVELS = gql`
 			_id
 			title
 			description
+		}
+	} 
+`
+
+const UPDATE_QUESTIONS = gql`
+	mutation updateQuestions($questionsToUpdate: [QuestionInput!]!, $gameId: String!) {
+		updateQuestions(questionsToUpdate: $questionsToUpdate, gameId: $gameId) {
+			_id
+			sequence
+			title
+			description
+			timeLimit
+			points
+			lives
+			hints {
+				_id
+				description
+				timeToReveal
+			}
+			gameType
+			toAnswer
+			exampleSolutionCode
+			exampleSolutionDescription
+			correctChoice
+			incorrectChoices
+			matchings {
+				_id
+				pairOne
+				pairTwo
+			}
 		}
 	} 
 `

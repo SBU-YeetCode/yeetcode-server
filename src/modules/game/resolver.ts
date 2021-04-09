@@ -126,4 +126,16 @@ export default class GameResolver {
 		)
 		return allLevels
 	}
+
+	@Mutation((returns) => [Question])
+	async updateQuestions(
+		@Arg('questionsToUpdate', () => [Question]) questionsToUpdate: Question[],
+		@Arg('gameId') gameId: string
+	) {
+		let allQuestions = await this.gameService.updateQuestions(
+			questionsToUpdate,
+			gameId
+		)
+		return allQuestions
+	}
 }
