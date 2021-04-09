@@ -94,6 +94,20 @@ export default class GameService {
 	}
 
 	public async updateLevels(levelsToUpdate: Level[], gameId: string) {
-		const game = await this.gameModel.findById(gameId)
+		var game = await this.gameModel.findById(gameId)
+		if (!game)
+			throw new Error(`Game could not be found with ID: ${gameId}`)
+		const oldLevelArray = game.levels
+		if (!oldLevelArray)
+		 	throw new Error(`Levels could not be found with ID: ${gameId}`)
+		for (var i = 0; i < oldLevelArray.length; i++) {
+			for (var j = 0; j < levelsToUpdate.length; j++) {
+				if (oldLevelArray[i]._id.equals(levelsToUpdate[j]._id))
+					oldLevelArray[i] = levelsToUpdate[j]
+			}
+		}
+		const newGame = await game.save()
+		if (!newGame) throw new Error('Error updating levels')
+		return game.levels
 	}
 }
