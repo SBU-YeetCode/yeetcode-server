@@ -1,18 +1,22 @@
 import { ObjectType, InputType, Field, Int } from 'type-graphql'
-import { prop } from '@typegoose/typegoose'
+import { prop, modelOptions } from '@typegoose/typegoose'
 import { ObjectId } from 'mongodb'
 import { DateScalar } from '../../utils/scalars'
 import { Min, Max } from 'class-validator'
+import IsValidUser from '../../modules/validators/isValidUser'
+import IsValidGame from '../../modules/validators/isValidGame'
 
 @ObjectType()
 @InputType('CommentInput')
 export class CommentInput {
 	@prop()
 	@Field()
+	@IsValidGame()
 	gameId: string
 
 	@prop()
 	@Field()
+	@IsValidUser()
 	userId: string
 
 	@prop()
@@ -21,12 +25,18 @@ export class CommentInput {
 
 	@prop({ type: Number })
 	@Field(() => Int)
-	@Min(1)
+	@Min(0)
 	@Max(5)
 	rating: number
 }
 
 @ObjectType()
+@modelOptions({schemaOptions: {
+	timestamps: {
+		createdAt: 'dateCreated',
+		updatedAt: 'lastUpdated'
+	}
+}})
 export class Comment extends CommentInput {
 	@Field()
 	readonly _id!: ObjectId

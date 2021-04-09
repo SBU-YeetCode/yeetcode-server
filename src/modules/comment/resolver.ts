@@ -63,7 +63,7 @@ export default class CommentResolver {
 	@canEdit()
 	@Mutation((returns) => Comment)
 	async createComment(
-		@Arg('userId') userId: ObjectId,
+		@Arg('userId') _: ObjectId,
 		@Arg('comment') comment: CommentInput
 	) {
 		const newComment = await this.commentService.createComment(comment)

@@ -3,10 +3,9 @@ import {
 	ArgsType,
 	Field,
 	ObjectType,
-	InputType,
 	Int,
 } from 'type-graphql'
-import { Game, Level } from '../../entities'
+import { Game } from '../../entities'
 import { PaginatedResponse } from '../utils/pagination'
 import { Min, Max } from 'class-validator'
 
@@ -49,10 +48,4 @@ export class GetFilterGamesInput {
 
 	@Field(() => SORT_OPTIONS, { nullable: true })
 	sort: SORT_OPTIONS | null
-}
-
-@InputType()
-export class UpdateLevels {
-	@Field(() => [Level])
-	levels: Level[]
 }

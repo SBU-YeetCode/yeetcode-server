@@ -12,7 +12,7 @@ import { Service } from 'typedi'
 import { Game, Level, Stage, Question, SubGameRoadmap } from '../../entities'
 import GameService from './service'
 import { LANGUAGES, SORT_OPTIONS, GetFilterGamesInput } from './input'
-import { PaginatedGameResponse, UpdateLevels } from './input'
+import { PaginatedGameResponse } from './input'
 import { PaginationInput } from '../utils/pagination'
 import { GameInput } from '../../entities/game/game'
 import { isLoggedIn } from '../middleware/isLoggedIn'
@@ -117,7 +117,7 @@ export default class GameResolver {
 
 	@Mutation((returns) => [Level])
 	async updateLevels(
-		@Arg('levelsToUpdate') levelsToUpdate: UpdateLevels,
+		@Arg('levelsToUpdate', () => [Level]) levelsToUpdate: Level[],
 		@Arg('gameId') gameId: string
 	) {
 		let allLevels = await this.gameService.updateLevels(
@@ -125,5 +125,29 @@ export default class GameResolver {
 			gameId
 		)
 		return allLevels
+	}
+
+	@Mutation((returns) => [Question])
+	async updateQuestions(
+		@Arg('questionsToUpdate', () => [Question]) questionsToUpdate: Question[],
+		@Arg('gameId') gameId: string
+	) {
+		let allQuestions = await this.gameService.updateQuestions(
+			questionsToUpdate,
+			gameId
+		)
+		return allQuestions
+	}
+
+	@Mutation((returns) => [Stage])
+	async updateStages(
+		@Arg('stagesToUpdate', () => [Stage]) stagesToUpdate: Stage[],
+		@Arg('gameId') gameId: string
+	) {
+		let allStages = await this.gameService.updateStages(
+			stagesToUpdate,
+			gameId
+		)
+		return allStages
 	}
 }

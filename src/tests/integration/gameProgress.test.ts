@@ -1,23 +1,21 @@
 import { ApolloServer, gql } from 'apollo-server-express'
 import { createTestClient } from 'apollo-server-testing'
 import { GraphQLSchema } from 'graphql'
-import { Game, GameProgress, Level, Question, Stage } from '../../entities'
-import { PaginatedGameResponse } from '../../modules/game/input'
+import { Game, GameProgress } from '../../entities'
 import { GameMongooseModel } from '../../modules/game/model'
 import { GameProgressMongooseModel } from '../../modules/gameProgress/model'
+import buildGameProgress from '../../modules/gameProgress/utils/buildGameProgress'
 import { UserMongooseModel } from '../../modules/user/model'
 import { buildSchema } from '../../utils'
 import { createGame } from '../data/game-builder'
 import { createGameProgress } from '../data/gameProgress-builder'
 import { createLevel } from '../data/level-builder'
-import { createQuestion } from '../data/question-builder'
-import { createStage } from '../data/stage-builder'
 import { createUser } from '../data/user-builder'
 import {
 	clearDatabase,
 	closeDatabase,
 	connect,
-	populateDatabase,
+	populateDatabase
 } from '../utils'
 
 afterEach(async (done) => {
@@ -148,6 +146,60 @@ describe('Game Progress', () => {
 		})
 		expect(res.data?.getUserRecentGames.length).toEqual(0)
 	})
+
+	it('should create a new game progress in the database', async () => {
+		const user = createUser({})
+		const game = createGame({
+			levels: [createLevel()],
+			createdBy: user._id.toHexString(),
+		})
+
+		await populateDatabase(UserMongooseModel, [user])
+		await populateDatabase(GameMongooseModel, [game])
+
+		const graphqlSchema = await buildSchema()
+		const server = new ApolloServer({
+			schema: graphqlSchema,
+			context: () => ({
+				req: { user },
+			}),
+		}) as any
+
+		const { query } = createTestClient(server)
+
+		const res = await query({
+			query: CREATE_GAME_PROGRESS,
+			variables: {
+				userId: user._id,
+				gameId: game._id.toHexString(),
+			},
+		})
+		const {questions, stages, ...expected} = buildGameProgress(game, user._id.toHexString())
+		const toMatch = res?.data?.createGameProgress
+		expect ({...toMatch, levels: Array.from(toMatch.levels)}).toEqual(expected)
+	})
+
+	it('should delete the game progress', async () => {
+		const user = createUser({})
+		const gameProgress = createGameProgress({userId: user._id.toHexString()})
+		await populateDatabase(UserMongooseModel, [user])
+		await populateDatabase(GameProgressMongooseModel, [gameProgress])
+
+		const graphqlSchema = await buildSchema()
+		const server = new ApolloServer({
+			schema: graphqlSchema,
+			context: () => ({
+				req: { user },
+			}),
+		}) as any
+
+		const { query } = createTestClient(server)
+
+		const res = await query({query: DELETE_GAME_PROGRESS, variables: {userId: user._id, gameProgressId: gameProgress._id.toHexString()}})
+		expect(res?.data?.deleteGameProgress.amountDeleted).toBe(1)
+		expect(res?.data?.deleteGameProgress.success).toBeTruthy()
+
+	})
 })
 
 const GET_USER_RECENT_GAMES = gql`
@@ -156,6 +208,8 @@ const GET_USER_RECENT_GAMES = gql`
 			userId
 			completedAt
 			isCompleted
+			codingLanguage
+			totalPoints
 			startedAt
 			gameId
 		}
@@ -169,7 +223,38 @@ const GET_USER_COMPLETED_GAMES = gql`
 			completedAt
 			isCompleted
 			startedAt
+			codingLanguage
+			totalPoints
 			gameId
+		}
+	}
+`
+
+const CREATE_GAME_PROGRESS = gql`
+
+	mutation createGameProgress($userId: ObjectId!, $gameId: String!) {
+		createGameProgress(userId: $userId, gameId:$gameId) {
+			userId
+			completedAt
+			codingLanguage
+			totalPoints
+			isCompleted
+			gameId
+			levels {
+				completed
+				levelId
+			}
+
+		}
+	}
+
+`
+
+const DELETE_GAME_PROGRESS = gql`
+	mutation deleteGameProgress($userId: ObjectId!, $gameProgressId: String!) {
+		deleteGameProgress(userId: $userId, gameProgressId: $gameProgressId) {
+			amountDeleted
+			success
 		}
 	}
 `

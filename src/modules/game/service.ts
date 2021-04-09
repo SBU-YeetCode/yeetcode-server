@@ -1,14 +1,9 @@
 import { ObjectId } from 'mongodb'
 import { Service } from 'typedi'
-import { Game, Level } from '../../entities'
+import { Game, Level, Question, Stage } from '../../entities'
 import { GameInput } from '../../entities/game/game'
 import { PaginationInput } from '../utils/pagination'
-import {
-	LANGUAGES,
-	PaginatedGameResponse,
-	SORT_OPTIONS,
-	UpdateLevels,
-} from './input'
+import { LANGUAGES, PaginatedGameResponse, SORT_OPTIONS } from './input'
 import GameModel from './model'
 import UserModel from '../user/model'
 
@@ -98,7 +93,57 @@ export default class GameService {
 		else return game.roadmap
 	}
 
-	public async updateLevels(levelsToUpdate: UpdateLevels, gameId: string) {
-		const levelArray = await this.gameModel.findById(gameId)
+	public async updateLevels(levelsToUpdate: Level[], gameId: string) {
+		var game = await this.gameModel.findById(gameId)
+		if (!game)
+			throw new Error(`Game could not be found with ID: ${gameId}`)
+		const oldLevelArray = game.levels
+		if (!oldLevelArray)
+		 	throw new Error(`Levels could not be found with ID: ${gameId}`)
+		for (var i = 0; i < oldLevelArray.length; i++) {
+			for (var j = 0; j < levelsToUpdate.length; j++) {
+				if (oldLevelArray[i]._id.equals(levelsToUpdate[j]._id))
+					oldLevelArray[i] = levelsToUpdate[j]
+			}
+		}
+		const newGame = await game.save()
+		if (!newGame) throw new Error('Error updating levels')
+		return game.levels
+	}
+
+	public async updateQuestions(questionsToUpdate: Question[], gameId: string) {
+		var game = await this.gameModel.findById(gameId)
+		if (!game)
+			throw new Error(`Game could not be found with ID: ${gameId}`)
+		const oldQuestionArray = game.questions
+		if (!oldQuestionArray)
+		 	throw new Error(`Questions could not be found with ID: ${gameId}`)
+		for (var i = 0; i < oldQuestionArray.length; i++) {
+			for (var j = 0; j < questionsToUpdate.length; j++) {
+				if (oldQuestionArray[i]._id.equals(questionsToUpdate[j]._id))
+					oldQuestionArray[i] = questionsToUpdate[j]
+			}
+		}
+		const newGame = await game.save()
+		if (!newGame) throw new Error('Error updating questions')
+		return game.questions
+	}
+
+	public async updateStages(stagesToUpdate: Stage[], gameId: string) {
+		var game = await this.gameModel.findById(gameId)
+		if (!game)
+			throw new Error(`Game could not be found with ID: ${gameId}`)
+		const oldStageArray = game.stages
+		if (!oldStageArray)
+		 	throw new Error(`Stages could not be found with ID: ${gameId}`)
+		for (var i = 0; i < oldStageArray.length; i++) {
+			for (var j = 0; j < stagesToUpdate.length; j++) {
+				if (oldStageArray[i]._id.equals(stagesToUpdate[j]._id))
+					oldStageArray[i] = stagesToUpdate[j]
+			}
+		}
+		const newGame = await game.save()
+		if (!newGame) throw new Error('Error updating stages')
+		return game.stages
 	}
 }

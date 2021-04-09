@@ -5,14 +5,12 @@ import { ObjectId } from 'mongodb'
 @InputType('StageProgressInput')
 @ObjectType()
 export class StageProgress {
-	@Field()
-	readonly _id: ObjectId
-
 	@prop()
 	@Field()
-	levelId: string
+	stageId: string
 
 	@prop({ type: Boolean })
 	@Field(() => Boolean)
 	completed: boolean
 }
+

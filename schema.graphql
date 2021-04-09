@@ -24,6 +24,12 @@ input CommentInput {
 """Date Type for GraphQL"""
 scalar Date
 
+type Deleted {
+  amountDeleted: Int!
+  err: String
+  success: Boolean!
+}
+
 type Game {
   _id: ObjectId!
   codingLanguage: String!
@@ -67,26 +73,16 @@ input GameInput {
 
 type GameProgress {
   _id: ObjectId!
-  completedAt: Date!
+  codingLanguage: String!
+  completedAt: Date
   game: Game!
   gameId: String!
   isCompleted: Boolean!
-  levels: [LevelProgress!]!
-  questions: [QuestionProgress!]!
-  stages: [StageProgress!]!
+  levels: [LevelProgress!]
+  questions: [QuestionProgress!]
+  stages: [StageProgress!]
   startedAt: Date!
-  userId: String!
-}
-
-input GameProgressInput {
-  _id: ObjectId!
-  completedAt: Date!
-  gameId: String!
-  isCompleted: Boolean!
-  levels: [LevelProgressInput!]!
-  questions: [QuestionProgressInput!]!
-  stages: [StageProgressInput!]!
-  startedAt: Date!
+  totalPoints: Int!
   userId: String!
 }
 
@@ -123,13 +119,6 @@ input LevelInput {
 }
 
 type LevelProgress {
-  _id: ObjectId!
-  completed: Boolean!
-  levelId: String!
-}
-
-input LevelProgressInput {
-  _id: ObjectId!
   completed: Boolean!
   levelId: String!
 }
@@ -149,10 +138,13 @@ input MatchingInput {
 type Mutation {
   createComment(comment: CommentInput!, userId: ObjectId!): Comment!
   createGame(game: GameInput!): Game!
-  createGameProgress(gameprogress: GameProgressInput!): GameProgress!
+  createGameProgress(gameId: String!, userId: ObjectId!): GameProgress!
   createUser(user: UserInput!): User!
+  deleteGameProgress(gameProgressId: String!, userId: ObjectId!): Deleted!
   deleteUser(userId: ObjectId!): User!
-  updateLevels(gameId: String!, levelsToUpdate: UpdateLevels!): [Level!]!
+  updateLevels(gameId: String!, levelsToUpdate: [LevelInput!]!): [Level!]!
+  updateQuestions(gameId: String!, questionsToUpdate: [QuestionInput!]!): [Question!]!
+  updateStages(gameId: String!, stagesToUpdate: [StageInput!]!): [Stage!]!
   updateUser(newAvatar: String, newLargePicture: String, newName: String, newUsername: String, userId: ObjectId!): User!
 }
 
@@ -262,19 +254,10 @@ input QuestionInput {
 }
 
 type QuestionProgress {
-  _id: ObjectId!
   completed: Boolean!
   livesLeft: Int!
   pointsReceived: Int!
-  questionid: String!
-}
-
-input QuestionProgressInput {
-  _id: ObjectId!
-  completed: Boolean!
-  livesLeft: Int!
-  pointsReceived: Int!
-  questionid: String!
+  questionId: String!
 }
 
 enum SORT_OPTIONS {
@@ -296,15 +279,8 @@ input StageInput {
 }
 
 type StageProgress {
-  _id: ObjectId!
   completed: Boolean!
-  levelId: String!
-}
-
-input StageProgressInput {
-  _id: ObjectId!
-  completed: Boolean!
-  levelId: String!
+  stageId: String!
 }
 
 type SubGameRoadmap {
@@ -319,10 +295,6 @@ input SubGameRoadmapInput {
   kind: String!
   refId: String!
   sequence: String!
-}
-
-input UpdateLevels {
-  levels: [LevelInput!]!
 }
 
 type User {

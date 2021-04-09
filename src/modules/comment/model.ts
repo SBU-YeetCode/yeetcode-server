@@ -10,6 +10,11 @@ export const CommentMongooseModel = getModelForClass(Comment)
 
 @Service()
 export default class CommentModel {
+
+	async exists(q: any) {
+		return CommentMongooseModel.exists(q)
+	}
+
 	async getById(_id: ObjectId): Promise<Comment | null> {
 		// Use mongoose as usual
 		return CommentMongooseModel.findById(_id).lean().exec()
