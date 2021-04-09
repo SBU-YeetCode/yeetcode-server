@@ -24,6 +24,12 @@ input CommentInput {
 """Date Type for GraphQL"""
 scalar Date
 
+type Deleted {
+  amountDeleted: Int!
+  err: String
+  success: Boolean!
+}
+
 type Game {
   _id: ObjectId!
   codingLanguage: String!
@@ -67,6 +73,7 @@ input GameInput {
 
 type GameProgress {
   _id: ObjectId!
+  codingLanguage: String!
   completedAt: Date
   game: Game!
   gameId: String!
@@ -75,6 +82,7 @@ type GameProgress {
   questions: [QuestionProgress!]
   stages: [StageProgress!]
   startedAt: Date!
+  totalPoints: Int!
   userId: String!
 }
 
@@ -132,6 +140,7 @@ type Mutation {
   createGame(game: GameInput!): Game!
   createGameProgress(gameId: String!, userId: ObjectId!): GameProgress!
   createUser(user: UserInput!): User!
+  deleteGameProgress(gameProgressId: String!, userId: ObjectId!): Deleted!
   deleteUser(userId: ObjectId!): User!
   updateLevels(gameId: String!, levelsToUpdate: [LevelInput!]!): [Level!]!
   updateUser(newAvatar: String, newLargePicture: String, newName: String, newUsername: String, userId: ObjectId!): User!

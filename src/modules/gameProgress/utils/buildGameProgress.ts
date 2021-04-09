@@ -42,5 +42,7 @@ export default function buildGameProgress(game: Game, userId: string): GameProgr
 		levels: levels,
 		stages: stages,
 		questions: questions,
+		totalPoints: 0,
+		codingLanguage: game.codingLanguage
 	}
 }

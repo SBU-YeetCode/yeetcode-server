@@ -15,6 +15,8 @@ export const createGameProgress = (
 		isCompleted: faker.datatype.boolean(),
 		startedAt: faker.date.recent().toISOString(),
 		userId: 'user123',
+		codingLanguage: 'javascript',
+		totalPoints: 0,
 		...gameProgress,
 	}
 }

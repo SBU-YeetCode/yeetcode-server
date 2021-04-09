@@ -1,11 +1,10 @@
-import { ObjectType, Field, Int, InputType } from 'type-graphql'
+import { ObjectType, Field, Int, InputType, registerEnumType } from 'type-graphql'
 import { modelOptions, prop } from '@typegoose/typegoose'
 import { ObjectId } from 'mongodb'
 import { LevelProgress } from './levelProgress'
 import { StageProgress } from './stageProgress'
 import { QuestionProgress } from './questionProgress'
 import { DateScalar } from '../../utils/scalars'
-
 @InputType('GameProgressInput')
 @ObjectType()
 export class GameProgressInput {
@@ -36,6 +35,14 @@ export class GameProgressInput {
 	@prop({ type: () => [QuestionProgress], default: [] })
 	@Field(() => [QuestionProgress], { defaultValue: [] })
 	questions: QuestionProgress[]
+	
+	@prop({default: 0})
+	@Field(() => Int)
+	totalPoints: number
+
+	@prop({type: String})
+	@Field()
+	codingLanguage: string
 }
 
 @ObjectType()

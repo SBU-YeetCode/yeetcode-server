@@ -27,7 +27,7 @@ export default class GameProgressModel {
 		return newGameProgress
 	}
 
-	async getGameProgresses(where: any, sort: any) {
+	async getGameProgresses(where?: any, sort?: any) {
 		const games = await GameProgressMongooseModel.find(where)
 			.sort(sort)
 			.lean()
@@ -36,6 +36,6 @@ export default class GameProgressModel {
 	}
 
 	async deleteMany(query: any) {
-		return await GameProgressMongooseModel.deleteMany({ query }).exec()
+		return await GameProgressMongooseModel.deleteMany(query).exec()
 	}
 }

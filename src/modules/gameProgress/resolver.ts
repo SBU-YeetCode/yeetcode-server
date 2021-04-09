@@ -1,21 +1,17 @@
 import { ObjectId } from 'mongodb'
 import {
-	Query,
-	Resolver,
 	Arg,
-	Mutation,
-	InputType,
-	UseMiddleware,
-	FieldResolver,
-	Root,
-	Args,
+	Args, FieldResolver, Mutation, Query,
+	Resolver,
+	Root
 } from 'type-graphql'
 import { Service } from 'typedi'
-import { GameProgress, Game } from '../../entities'
-import {CreateGameProgress} from './input'
-import GameProgressService from './service'
+import { Game, GameProgress } from '../../entities'
 import GameService from '../game/service'
 import { canEdit } from '../middleware/canEdit'
+import { Deleted } from '../utils/deleted'
+import { CreateGameProgress, DeleteGameProgress } from './input'
+import GameProgressService from './service'
 
 @Service() // Dependencies injection
 @Resolver((of) => GameProgress)
@@ -61,6 +57,15 @@ export default class GameProgressResolver {
 	async createGameProgress(@Args() {gameId, userId}: CreateGameProgress) {
 		const newGameProgress = await this.gameprogressService.createGameProgress(
 			userId.toHexString(), gameId
+		)
+		return newGameProgress
+	}
+	
+	@canEdit()
+	@Mutation((returns) => Deleted)
+	async deleteGameProgress(@Args() {gameProgressId, userId}: DeleteGameProgress) {
+		const newGameProgress = await this.gameprogressService.deleteGameProgress(
+			userId, gameProgressId
 		)
 		return newGameProgress
 	}
