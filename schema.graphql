@@ -140,7 +140,7 @@ type Mutation {
   createGame(game: GameInput!): Game!
   createGameProgress(gameId: String!, userId: ObjectId!): GameProgress!
   createUser(user: UserInput!): User!
-  deleteGame(gameId: String!): Deleted!
+  deleteGame(gameId: String!, userId: ObjectId!): Deleted!
   deleteGameProgress(gameProgressId: String!, userId: ObjectId!): Deleted!
   deleteUser(userId: ObjectId!): Deleted!
   updateLevels(gameId: String!, levelsToUpdate: [LevelInput!]!): [Level!]!

@@ -1,12 +1,26 @@
 import { ApolloServer, gql } from 'apollo-server-express'
 import { createTestClient } from 'apollo-server-testing'
 import { GraphQLSchema } from 'graphql'
-import { Game, Level, Question, Stage, SubGameRoadmap } from '../../entities'
+import {
+	Game,
+	Level,
+	Question,
+	Stage,
+	SubGameRoadmap,
+	User,
+	Comment,
+	GameProgress,
+} from '../../entities'
+import { CommentMongooseModel } from '../../modules/comment/model'
 import { PaginatedGameResponse } from '../../modules/game/input'
 import { GameMongooseModel } from '../../modules/game/model'
+import { GameProgressMongooseModel } from '../../modules/gameProgress/model'
 import { UserMongooseModel } from '../../modules/user/model'
+import { Deleted } from '../../modules/utils/deleted'
 import { buildSchema } from '../../utils'
+import { createComment } from '../data/comment-builder'
 import { createGame } from '../data/game-builder'
+import { createGameProgress } from '../data/gameProgress-builder'
 import { createLevel } from '../data/level-builder'
 import { createQuestion } from '../data/question-builder'
 import { createStage } from '../data/stage-builder'
@@ -400,7 +414,7 @@ describe('Game', () => {
 		}
 		// Get the second level in the game and update it
 		const levelsToUpdate = [game.levels[1]]
-		levelsToUpdate[0].description = "updated description"
+		levelsToUpdate[0].description = 'updated description'
 		// Send data to db
 		await populateDatabase(GameMongooseModel, games)
 		const server = new ApolloServer({ schema: graphqlSchema }) as any
@@ -413,7 +427,9 @@ describe('Game', () => {
 				gameId: game._id.toHexString(),
 			},
 		})
-		expect(res.data?.updateLevels[1].description).toEqual(levelsToUpdate[0].description)
+		expect(res.data?.updateLevels[1].description).toEqual(
+			levelsToUpdate[0].description
+		)
 	})
 
 	it('should update a question in db', async () => {
@@ -427,7 +443,7 @@ describe('Game', () => {
 		}
 		// Get the second question in the game and update it
 		const questionsToUpdate = [game.questions[1]]
-		questionsToUpdate[0].description = "updated description"
+		questionsToUpdate[0].description = 'updated description'
 		// Send data to db
 		await populateDatabase(GameMongooseModel, games)
 		const server = new ApolloServer({ schema: graphqlSchema }) as any
@@ -440,7 +456,9 @@ describe('Game', () => {
 				gameId: game._id.toHexString(),
 			},
 		})
-		expect(res.data?.updateQuestions[1].description).toEqual(questionsToUpdate[0].description)
+		expect(res.data?.updateQuestions[1].description).toEqual(
+			questionsToUpdate[0].description
+		)
 	})
 
 	it('should update a stage in db', async () => {
@@ -454,7 +472,7 @@ describe('Game', () => {
 		}
 		// Get the second stage in the game and update it
 		const stagesToUpdate = [game.stages[1]]
-		stagesToUpdate[0].description = "updated description"
+		stagesToUpdate[0].description = 'updated description'
 		// Send data to db
 		await populateDatabase(GameMongooseModel, games)
 		const server = new ApolloServer({ schema: graphqlSchema }) as any
@@ -467,9 +485,58 @@ describe('Game', () => {
 				gameId: game._id.toHexString(),
 			},
 		})
-		expect(res.data?.updateStages[1].description).toEqual(stagesToUpdate[0].description)
+		expect(res.data?.updateStages[1].description).toEqual(
+			stagesToUpdate[0].description
+		)
+	})
+
+	it('should delete game in db', async () => {
+		// Create user
+		const user = createUser({})
+		const server = new ApolloServer({
+			schema: graphqlSchema,
+			context: { req: { user } },
+		}) as any
+		// Create 3 games
+		const games: Game[] = []
+		for (var i = 0; i < 3; i++) games.push(createGame({}))
+		// 1 game owned by user
+		games[0].createdBy = user._id.toHexString()
+		// Create 6 comments
+		const comments: Comment[] = []
+		for (var i = 0; i < 6; i++) comments.push(createComment({}))
+		// 2 comments on game
+		comments[2].gameId = games[0]._id.toHexString()
+		comments[3].gameId = games[0]._id.toHexString()
+		// Create 4 game progresses
+		const gameProgresses: GameProgress[] = []
+		for (var i = 0; i < 4; i++) gameProgresses.push(createGameProgress({}))
+		// 2 games progresses on game
+		gameProgresses[0].gameId = games[0]._id.toHexString()
+		gameProgresses[1].gameId = games[0]._id.toHexString()
+		await populateDatabase(UserMongooseModel, [user])
+		await populateDatabase(GameMongooseModel, games)
+		await populateDatabase(CommentMongooseModel, comments)
+		await populateDatabase(GameProgressMongooseModel, gameProgresses)
+		const { mutate } = createTestClient(server)
+		const res = await mutate<{ deleteGame: Deleted }>({
+			mutation: DELETE_GAME,
+			variables: { userId: user._id, gameId: games[0]._id.toHexString() },
+		})
+		expect(res.data?.deleteGame.amountDeleted).toEqual(5)
+		expect(res.data?.deleteGame.success).toEqual(true)
 	})
 })
+
+const DELETE_GAME = gql`
+	mutation deleteGame($userId: ObjectId!, $gameId: String!) {
+		deleteGame(userId: $userId, gameId: $gameId) {
+			success
+			amountDeleted
+			err
+		}
+	}
+`
 
 const GET_USER_RECENT_GAMES = gql`
 	query getUserRecentGames($userId: String!) {
@@ -650,12 +717,18 @@ const UPDATE_LEVELS = gql`
 			title
 			description
 		}
-	} 
+	}
 `
 
 const UPDATE_QUESTIONS = gql`
-	mutation updateQuestions($questionsToUpdate: [QuestionInput!]!, $gameId: String!) {
-		updateQuestions(questionsToUpdate: $questionsToUpdate, gameId: $gameId) {
+	mutation updateQuestions(
+		$questionsToUpdate: [QuestionInput!]!
+		$gameId: String!
+	) {
+		updateQuestions(
+			questionsToUpdate: $questionsToUpdate
+			gameId: $gameId
+		) {
 			_id
 			sequence
 			title
@@ -680,7 +753,7 @@ const UPDATE_QUESTIONS = gql`
 				pairTwo
 			}
 		}
-	} 
+	}
 `
 
 const UPDATE_STAGES = gql`
@@ -690,5 +763,5 @@ const UPDATE_STAGES = gql`
 			title
 			description
 		}
-	} 
+	}
 `

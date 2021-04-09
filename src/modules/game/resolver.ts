@@ -156,8 +156,14 @@ export default class GameResolver {
 
 	@Mutation(() => Deleted)
 	@canEdit()
-	async deleteGame(@Arg('gameId') gameId: string) {
-		const deletedObj = await this.gameService.deleteGame(gameId)
+	async deleteGame(
+		@Arg('gameId') gameId: string,
+		@Arg('userId') userId: ObjectId
+	) {
+		const deletedObj = await this.gameService.deleteGame(
+			gameId,
+			userId.toHexString()
+		)
 		return deletedObj
 	}
 }

@@ -154,15 +154,20 @@ export default class GameService {
 	 * Deletes the game as well as all comments and game progress related to game
 	 * @param gameId String id of game to be deleted
 	 */
-	public async deleteGame(gameId: string) {
+	public async deleteGame(gameId: string, userId: string) {
 		const toReturn: Deleted = {
 			success: false,
 			err: null,
 			amountDeleted: 0,
 		}
 		try {
+			// Check if game exists
 			const gameExists = await this.gameModel.findById(gameId)
 			if (!gameExists) throw new Error('Game not found')
+
+			// Check if user owns game
+			if (gameExists.createdBy !== userId)
+				throw new Error('Game is not owned by specified user')
 
 			// Delete game comments
 			const commentsDeleted = await this.commentModel.deleteMany({

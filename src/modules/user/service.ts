@@ -137,7 +137,8 @@ export default class UserService {
 		}
 		for (var i = 0; i < gamesToDelete.length; i++) {
 			const gameDeletion = await this.gameService.deleteGame(
-				gamesToDelete[i]._id.toHexString()
+				gamesToDelete[i]._id.toHexString(),
+				userId.toHexString()
 			)
 			deleteTotal.amountDeleted += gameDeletion.amountDeleted
 			if (!gameDeletion.success) {
