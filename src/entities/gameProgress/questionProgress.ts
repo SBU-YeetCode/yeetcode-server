@@ -4,13 +4,10 @@ import { ObjectId } from 'mongodb'
 
 @InputType('QuestionProgressInput')
 @ObjectType()
-export class QuestionProgress {
-	@Field()
-	readonly _id: ObjectId
-
+export class QuestionProgress{
 	@prop()
 	@Field()
-	questionid: string
+	questionId: string
 
 	@prop({ type: Boolean })
 	@Field(() => Boolean)
@@ -24,3 +21,4 @@ export class QuestionProgress {
 	@Field(() => Int)
 	pointsReceived: number
 }
+

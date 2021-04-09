@@ -5,8 +5,6 @@ import { ObjectId } from 'mongodb'
 @InputType('LevelProgressInput')
 @ObjectType()
 export class LevelProgress {
-	@Field()
-	readonly _id: ObjectId
 
 	@prop()
 	@Field()
@@ -16,3 +14,5 @@ export class LevelProgress {
 	@Field(() => Boolean)
 	completed: boolean
 }
+
+
