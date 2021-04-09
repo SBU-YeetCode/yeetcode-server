@@ -3,7 +3,7 @@ import { Service } from 'typedi'
 import { Game, Level, Question, Stage } from '../../entities'
 import { GameInput } from '../../entities/game/game'
 import { PaginationInput } from '../utils/pagination'
-import { LANGUAGES, PaginatedGameResponse, SORT_OPTIONS } from './input'
+import { LANGUAGES, PaginatedGameResponse, SORT_OPTIONS, UpdateGame } from './input'
 import GameModel from './model'
 import CommentModel from '../comment/model'
 import GameProgressModel from '../gameProgress/model'
@@ -94,6 +94,21 @@ export default class GameService {
 		if (!game) throw new Error('Game not found')
 		if (!game.roadmap) throw new Error('Roadmap not found')
 		else return game.roadmap
+	}
+
+	public async updateGame(newGameData: UpdateGame) {
+		const { newCodingLanguage, newTitle, newDifficulty, newTags, newDescription } = newGameData
+		const oldGame = await this.gameModel.findById(newGameData.gameId.toHexString())
+		if (!oldGame)
+			throw new Error(`Game could not be found with ID: ${newGameData.gameId}`)
+		if (newCodingLanguage) oldGame.codingLanguage = newCodingLanguage
+		if (newTitle) oldGame.title = newTitle
+		if (newDifficulty) oldGame.difficulty = newDifficulty
+		if (newTags) oldGame.tags = newTags
+		if (newDescription) oldGame.description = newDescription
+		const updatedGame = await oldGame.save()
+		if (!updatedGame) throw new Error('Error updating levels')
+		return updatedGame.toObject() as Game
 	}
 
 	public async updateLevels(levelsToUpdate: Level[], gameId: string) {

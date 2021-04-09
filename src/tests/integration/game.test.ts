@@ -2,7 +2,7 @@ import { ApolloServer, gql } from 'apollo-server-express'
 import { createTestClient } from 'apollo-server-testing'
 import { GraphQLSchema } from 'graphql'
 import { Game, Level, Question, Stage, SubGameRoadmap } from '../../entities'
-import { PaginatedGameResponse } from '../../modules/game/input'
+import { PaginatedGameResponse, UpdateGame } from '../../modules/game/input'
 import { GameMongooseModel } from '../../modules/game/model'
 import { UserMongooseModel } from '../../modules/user/model'
 import { buildSchema } from '../../utils'
@@ -469,6 +469,36 @@ describe('Game', () => {
 		})
 		expect(res.data?.updateStages[1].description).toEqual(stagesToUpdate[0].description)
 	})
+
+	it('should update game in db', async () => {
+		const graphqlSchema = await buildSchema()
+		// Create game
+		let games: Game[] = []
+		games.push(createGame({}))
+		// Get the game and edit the title
+		const game = games[0]
+		await populateDatabase(GameMongooseModel, games)
+		const server = new ApolloServer({ schema: graphqlSchema }) as any
+		const newGameInfo: Required<UpdateGame> = {
+			gameId: game._id,
+			newCodingLanguage: 'python',
+			newTitle: 'new game title',
+			newDifficulty: game.difficulty,
+			newTags: game.tags,
+			newDescription: 'new desc'
+		}
+		game.codingLanguage = newGameInfo.newCodingLanguage
+		game.title = newGameInfo.newTitle
+		game.dateCreated = newGameInfo.newDescription
+		const { mutate } = createTestClient(server)
+		const res = await mutate<{ updateGame: Game }>({
+			mutation: UPDATE_GAME,
+			variables: { ...newGameInfo },
+		})
+		expect(res.data?.updateGame.codingLanguage).toEqual(newGameInfo.newCodingLanguage)
+		expect(res.data?.updateGame.title).toEqual(newGameInfo.newTitle)
+		expect(res.data?.updateGame.description).toEqual(newGameInfo.newDescription)
+	})
 })
 
 const GET_USER_RECENT_GAMES = gql`
@@ -691,4 +721,31 @@ const UPDATE_STAGES = gql`
 			description
 		}
 	} 
+`
+
+const UPDATE_GAME = gql`
+	mutation updateGame(
+		$gameId: ObjectId!
+		$newCodingLanguage: String!
+		$newTitle: String!
+		$newDifficulty: String!
+		$newTags: [String!]!
+		$newDescription: String!
+	) {
+		updateGame(
+			gameId: $gameId
+			newCodingLanguage: $newCodingLanguage
+			newTitle: $newTitle
+			newDifficulty: $newDifficulty
+			newTags: $newTags
+			newDescription: $newDescription
+		) {
+			_id
+			codingLanguage
+			title
+			difficulty
+			tags
+			description
+		}
+	}
 `
