@@ -126,4 +126,28 @@ export default class GameResolver {
 		)
 		return allLevels
 	}
+
+	@Mutation((returns) => [Question])
+	async updateQuestions(
+		@Arg('questionsToUpdate', () => [Question]) questionsToUpdate: Question[],
+		@Arg('gameId') gameId: string
+	) {
+		let allQuestions = await this.gameService.updateQuestions(
+			questionsToUpdate,
+			gameId
+		)
+		return allQuestions
+	}
+
+	@Mutation((returns) => [Stage])
+	async updateStages(
+		@Arg('stagesToUpdate', () => [Stage]) stagesToUpdate: Stage[],
+		@Arg('gameId') gameId: string
+	) {
+		let allStages = await this.gameService.updateStages(
+			stagesToUpdate,
+			gameId
+		)
+		return allStages
+	}
 }
