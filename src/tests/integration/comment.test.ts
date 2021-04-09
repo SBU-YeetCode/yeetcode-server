@@ -4,6 +4,9 @@ import { ObjectId } from 'mongodb'
 import { CommentMongooseModel } from '../../modules/comment/model'
 import { buildSchema } from '../../utils'
 import { createComment } from '../data/comment-builder'
+import { createGame } from '../data/game-builder'
+import { createUser } from '../data/user-builder'
+import { createGameProgress } from '../data/gameProgress-builder'
 import {
 	clearDatabase,
 	closeDatabase,
@@ -12,6 +15,9 @@ import {
 } from '../utils'
 import { Comment } from '../../entities'
 import { PaginatedCommentResponse } from '../../modules/comment/input'
+import { GameMongooseModel } from '../../modules/game/model'
+import { UserMongooseModel } from '../../modules/user/model'
+import { GameProgressMongooseModel } from '../../modules/gameProgress/model'
 
 beforeAll(async (done) => {
 	await connect()
@@ -123,6 +129,65 @@ describe('Comment', () => {
 		})
 		expect(res.data?.getUserReviews.length).toEqual(0)
 	})
+
+	it('should create a new comment in db', async () => {
+		const game = createGame({})
+		const user = createUser({})
+		const comment = createComment({
+			gameId: game._id.toHexString(),
+			userId: user._id.toHexString(),
+		})
+		const gameProgress = createGameProgress({
+			gameId: game._id.toHexString(),
+			userId: user._id.toHexString(),
+			isCompleted: true,
+		})
+		const { _id, dateCreated, lastUpdated, ...commentToSend } = comment
+		await populateDatabase(GameMongooseModel, [game])
+		await populateDatabase(UserMongooseModel, [user])
+		await populateDatabase(GameProgressMongooseModel, [gameProgress])
+		const graphqlSchema = await buildSchema()
+		const server = new ApolloServer({
+			schema: graphqlSchema,
+			context: () => ({
+				req: { user },
+			}),
+		}) as any
+
+		const { query } = createTestClient(server)
+		const res = await query({
+			query: CREATE_COMMENT,
+			variables: {
+				userId: user._id,
+				comment: commentToSend,
+			},
+		})
+		expect(res?.data?.createComment).toEqual(commentToSend)
+	})
+
+	it('should throw an error when creating comment without valid args', async () => {
+		const user = createUser({})
+		const comment = createComment({})
+		const { _id, dateCreated, lastUpdated, ...commentToSend } = comment
+		await populateDatabase(UserMongooseModel, [user])
+		const graphqlSchema = await buildSchema()
+		const server = new ApolloServer({
+			schema: graphqlSchema,
+			context: () => ({
+				req: { user },
+			}),
+		}) as any
+
+		const { query } = createTestClient(server)
+		const res = await query({
+			query: CREATE_COMMENT,
+			variables: {
+				userId: user._id,
+				comment: commentToSend,
+			},
+		})
+		expect(res?.errors?.length).toBeGreaterThan(0)
+	})
 })
 
 const GET_USER_COMMENTS = gql`
@@ -165,6 +230,17 @@ const GET_GAME_COMMENTS = gql`
 			}
 			nextCursor
 			hasMore
+		}
+	}
+`
+
+const CREATE_COMMENT = gql`
+	mutation createComment($userId: ObjectId!, $comment: CommentInput!) {
+		createComment(userId: $userId, comment: $comment) {
+			gameId
+			userId
+			review
+			rating
 		}
 	}
 `

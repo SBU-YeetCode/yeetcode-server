@@ -8,6 +8,10 @@ export const GameProgressMongooseModel = getModelForClass(GameProgress)
 
 @Service()
 export default class GameProgressModel {
+	async exists(q: any) {
+		return GameProgressMongooseModel.exists(q)
+	}
+
 	async getById(_id: ObjectId): Promise<GameProgress | null> {
 		// Use mongoose as usual
 		return GameProgressMongooseModel.findById(_id).lean().exec()
