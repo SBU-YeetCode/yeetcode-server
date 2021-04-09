@@ -8,13 +8,14 @@ import {
 	UseMiddleware,
 	FieldResolver,
 	Root,
+	Args,
 } from 'type-graphql'
 import { Service } from 'typedi'
 import { GameProgress, Game } from '../../entities'
-import { isLoggedIn } from '../middleware/isLoggedIn'
-import { GameProgressMongooseModel } from './model'
+import {CreateGameProgress} from './input'
 import GameProgressService from './service'
 import GameService from '../game/service'
+import { canEdit } from '../middleware/canEdit'
 
 @Service() // Dependencies injection
 @Resolver((of) => GameProgress)
@@ -55,11 +56,11 @@ export default class GameProgressResolver {
 		return userCreatedGames
 	}
 
-	@UseMiddleware(isLoggedIn)
+	@canEdit()
 	@Mutation((returns) => GameProgress)
-	async createGameProgress(@Arg('gameprogress') gameprogress: GameProgress) {
+	async createGameProgress(@Args() {gameId, userId}: CreateGameProgress) {
 		const newGameProgress = await this.gameprogressService.createGameProgress(
-			gameprogress
+			userId.toHexString(), gameId
 		)
 		return newGameProgress
 	}

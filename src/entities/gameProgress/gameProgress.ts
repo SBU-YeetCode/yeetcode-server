@@ -1,5 +1,5 @@
 import { ObjectType, Field, Int, InputType } from 'type-graphql'
-import { prop } from '@typegoose/typegoose'
+import { modelOptions, prop } from '@typegoose/typegoose'
 import { ObjectId } from 'mongodb'
 import { LevelProgress } from './levelProgress'
 import { StageProgress } from './stageProgress'
@@ -8,10 +8,7 @@ import { DateScalar } from '../../utils/scalars'
 
 @InputType('GameProgressInput')
 @ObjectType()
-export class GameProgress {
-	@Field()
-	readonly _id: ObjectId
-
+export class GameProgressInput {
 	@prop()
 	@Field()
 	userId: string
@@ -20,27 +17,40 @@ export class GameProgress {
 	@Field()
 	gameId: string
 
-	@prop({ type: Date })
-	@Field(() => DateScalar)
-	startedAt: string
+	@prop({ type: Date, required: false})
+	@Field(() => DateScalar, {nullable: true})
+	completedAt?: string | null
 
-	@prop({ type: Date })
-	@Field(() => DateScalar)
-	completedAt: string
-
-	@prop()
+	@prop({ default: false })
 	@Field()
 	isCompleted: boolean
 
-	@prop({ type: () => [LevelProgress] })
-	@Field(() => [LevelProgress])
+	@prop({ type: () => [LevelProgress], default: [] })
+	@Field(() => [LevelProgress], { defaultValue: [] })
 	levels: LevelProgress[]
 
-	@prop({ type: () => [StageProgress] })
-	@Field(() => [StageProgress])
+	@prop({ type: () => [StageProgress], default: [] })
+	@Field(() => [StageProgress], { defaultValue: [] })
 	stages: StageProgress[]
 
-	@prop({ type: () => [QuestionProgress] })
-	@Field(() => [QuestionProgress])
+	@prop({ type: () => [QuestionProgress], default: [] })
+	@Field(() => [QuestionProgress], { defaultValue: [] })
 	questions: QuestionProgress[]
+}
+
+@ObjectType()
+@modelOptions({
+	schemaOptions: {
+		timestamps: {
+			createdAt: 'startedAt',
+		},
+	},
+})
+export class GameProgress extends GameProgressInput {
+	@Field()
+	readonly _id: ObjectId
+
+	@prop({ type: Date })
+	@Field(() => DateScalar)
+	startedAt: string
 }

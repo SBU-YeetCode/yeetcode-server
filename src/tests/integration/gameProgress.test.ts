@@ -13,6 +13,7 @@ import { createLevel } from '../data/level-builder'
 import { createQuestion } from '../data/question-builder'
 import { createStage } from '../data/stage-builder'
 import { createUser } from '../data/user-builder'
+import buildGameProgress from '../../modules/gameProgress/utils/buildGameProgress'
 import {
 	clearDatabase,
 	closeDatabase,
@@ -148,6 +149,38 @@ describe('Game Progress', () => {
 		})
 		expect(res.data?.getUserRecentGames.length).toEqual(0)
 	})
+
+	it('should create a new game progress in the database', async () => {
+		const user = createUser({})
+		const game = createGame({
+			levels: [createLevel()],
+			createdBy: user._id.toHexString(),
+		})
+
+		await populateDatabase(UserMongooseModel, [user])
+		await populateDatabase(GameMongooseModel, [game])
+
+		const graphqlSchema = await buildSchema()
+		const server = new ApolloServer({
+			schema: graphqlSchema,
+			context: () => ({
+				req: { user },
+			}),
+		}) as any
+
+		const { query } = createTestClient(server)
+
+		const res = await query({
+			query: CREATE_GAME_PROGRESS,
+			variables: {
+				userId: user._id,
+				gameId: game._id.toHexString(),
+			},
+		})
+		const {questions, stages, ...expected} = buildGameProgress(game, user._id.toHexString())
+		const toMatch = res?.data?.createGameProgress
+		expect ({...toMatch, levels: Array.from(toMatch.levels)}).toEqual(expected)
+	})
 })
 
 const GET_USER_RECENT_GAMES = gql`
@@ -172,4 +205,22 @@ const GET_USER_COMPLETED_GAMES = gql`
 			gameId
 		}
 	}
+`
+
+const CREATE_GAME_PROGRESS = gql`
+
+	mutation createGameProgress($userId: ObjectId!, $gameId: String!) {
+		createGameProgress(userId: $userId, gameId:$gameId) {
+			userId
+			completedAt
+			isCompleted
+			gameId
+			levels {
+				completed
+				levelId
+			}
+
+		}
+	}
+
 `

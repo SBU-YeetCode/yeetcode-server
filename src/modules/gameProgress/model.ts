@@ -1,7 +1,7 @@
 import { getModelForClass, DocumentType } from '@typegoose/typegoose'
 import { ObjectId } from 'mongodb'
 import { Service } from 'typedi'
-import { GameProgress } from '../../entities'
+import { GameProgress, GameProgressInput } from '../../entities'
 
 // This generates the mongoose model for us
 export const GameProgressMongooseModel = getModelForClass(GameProgress)
@@ -21,7 +21,7 @@ export default class GameProgressModel {
 		return GameProgressMongooseModel.findById(_id).exec()
 	}
 
-	async createGameProgress(GameProgress: GameProgress) {
+	async createGameProgress(GameProgress: GameProgressInput) {
 		let newGameProgress = new GameProgressMongooseModel(GameProgress)
 		await newGameProgress.save()
 		return newGameProgress
