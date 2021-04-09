@@ -22,4 +22,8 @@ export default class UserModel {
 		await newUser.save()
 		return newUser
 	}
+
+	async deleteUser(userId: string) {
+		return UserMongooseModel.deleteOne({ _id: userId })
+	}
 }

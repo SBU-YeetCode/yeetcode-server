@@ -11,11 +11,13 @@ import {
 import { Service } from 'typedi'
 import { Game, Level, Stage, Question, SubGameRoadmap } from '../../entities'
 import GameService from './service'
-import { LANGUAGES, SORT_OPTIONS, GetFilterGamesInput } from './input'
+import { LANGUAGES, SORT_OPTIONS, GetFilterGamesInput, UpdateGame } from './input'
 import { PaginatedGameResponse } from './input'
 import { PaginationInput } from '../utils/pagination'
 import { GameInput } from '../../entities/game/game'
 import { isLoggedIn } from '../middleware/isLoggedIn'
+import { Deleted } from '../utils/deleted'
+import { canEdit } from '../middleware/canEdit'
 
 @Service() // Dependencies injection
 @Resolver((of) => Game)
@@ -115,6 +117,12 @@ export default class GameResolver {
 		return newGame
 	}
 
+	@Mutation((returns) => Game)
+	async updateGame(@Args() newGameData: UpdateGame) {
+		const updatedGame = await this.gameService.updateGame(newGameData)
+		return updatedGame
+	}
+
 	@Mutation((returns) => [Level])
 	async updateLevels(
 		@Arg('levelsToUpdate', () => [Level]) levelsToUpdate: Level[],
@@ -129,7 +137,8 @@ export default class GameResolver {
 
 	@Mutation((returns) => [Question])
 	async updateQuestions(
-		@Arg('questionsToUpdate', () => [Question]) questionsToUpdate: Question[],
+		@Arg('questionsToUpdate', () => [Question])
+		questionsToUpdate: Question[],
 		@Arg('gameId') gameId: string
 	) {
 		let allQuestions = await this.gameService.updateQuestions(
@@ -149,5 +158,18 @@ export default class GameResolver {
 			gameId
 		)
 		return allStages
+	}
+
+	@Mutation(() => Deleted)
+	@canEdit()
+	async deleteGame(
+		@Arg('gameId') gameId: string,
+		@Arg('userId') userId: ObjectId
+	) {
+		const deletedObj = await this.gameService.deleteGame(
+			gameId,
+			userId.toHexString()
+		)
+		return deletedObj
 	}
 }

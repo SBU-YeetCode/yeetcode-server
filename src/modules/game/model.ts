@@ -2,6 +2,7 @@ import { DocumentType, getModelForClass } from '@typegoose/typegoose'
 import { Types } from 'mongoose'
 import { Service } from 'typedi'
 import { Game } from '../../entities'
+import { ObjectId } from 'mongodb'
 import { GameInput } from '../../entities/game/game'
 import { cursorMatch, PaginationInput } from '../utils/pagination'
 import { LANGUAGES, PaginatedGameResponse, SORT_OPTIONS } from './input'
@@ -138,5 +139,9 @@ export default class GameModel {
 			.lean()
 			.exec()
 		return games
+	}
+
+	async deleteGame(query: any) {
+		return await GameMongooseModel.deleteOne(query).exec()
 	}
 }

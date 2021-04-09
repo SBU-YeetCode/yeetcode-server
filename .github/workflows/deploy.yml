@@ -1,9 +1,9 @@
-name: Run tests
+name: Deploy
 on:
     push:
         branches: master
 jobs:
-   deploy:
+    deploy:
         runs-on: ubuntu-latest
         steps:
             - name: Deploy Yeetcode Server

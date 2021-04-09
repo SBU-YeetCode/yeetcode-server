@@ -1,14 +1,25 @@
 import { ObjectId } from 'mongodb'
 import { Service } from 'typedi'
 import { User } from '../../entities'
+import CommentModel from '../comment/model'
 import { LANGUAGES } from '../game/input'
+import GameModel from '../game/model'
+import GameService from '../game/service'
+import GameProgressModel from '../gameProgress/model'
+import { Deleted } from '../utils/deleted'
 import { PaginationInput } from '../utils/pagination'
 import { PaginatedUserResponse, UpdateUserInput } from './input'
 import UserModel, { UserMongooseModel } from './model'
 
 @Service() // Dependencies injection
 export default class UserService {
-	constructor(private readonly userModel: UserModel) {}
+	constructor(
+		private readonly userModel: UserModel,
+		private readonly commentModel: CommentModel,
+		private readonly gameModel: GameModel,
+		private readonly gameService: GameService,
+		private readonly gameProgressModel: GameProgressModel
+	) {}
 	public async getById(id: ObjectId) {
 		const user = await this.userModel.getById(id)
 		if (!user) throw new Error('No user found')
@@ -40,7 +51,7 @@ export default class UserService {
 			language = 'total'
 			sorter['points.total'] = sort_descending
 		}
-		aggregateArray.push({ $sort: { ...sorter, _id: -1 } })
+		aggregateArray.push({ $sort: { ...sorter, _id: sort_descending } })
 		// Apply cursor if one exists
 		const langBulder = `points.${language}`
 		if (userCursor) {
@@ -113,6 +124,50 @@ export default class UserService {
 	}
 
 	public async deleteUser(userId: ObjectId) {
-		// Delete comments and games? If delete games, should comments made on those games be deleted too?
+		const userExists = await this.userModel.getById(userId)
+		if (!userExists) throw new Error('User not found')
+		// Delete/get games made by user
+		const gamesToDelete = await this.gameModel.getGames({
+			createdBy: userId,
+		})
+		const deleteTotal: Deleted = {
+			success: true,
+			err: null,
+			amountDeleted: 0,
+		}
+		for (var i = 0; i < gamesToDelete.length; i++) {
+			const gameDeletion = await this.gameService.deleteGame(
+				gamesToDelete[i]._id.toHexString(),
+				userId.toHexString()
+			)
+			deleteTotal.amountDeleted += gameDeletion.amountDeleted
+			if (!gameDeletion.success) {
+				deleteTotal.success = false
+				deleteTotal.err = gameDeletion.err
+			}
+		}
+		// Delete comments made by user
+		const commentDeletion = await this.commentModel.deleteMany({ userId })
+		if (commentDeletion.ok !== 1) {
+			deleteTotal.success = false
+			deleteTotal.err = 'Error deleting comments created by user'
+		} else deleteTotal.amountDeleted += commentDeletion.deletedCount!
+		// Delete game progress used by user
+		const gameProgressDeletion = await this.gameProgressModel.deleteMany({
+			userId,
+		})
+		if (gameProgressDeletion.ok !== 1) {
+			deleteTotal.success = false
+			deleteTotal.err = 'Error deleting game progress used by user'
+		} else deleteTotal.amountDeleted += gameProgressDeletion.deletedCount!
+		// Delete user account
+		const userDeletion = await this.userModel.deleteUser(
+			userId.toHexString()
+		)
+		if (userDeletion.ok !== 1) {
+			deleteTotal.success = false
+			deleteTotal.err = 'Error deleting user document'
+		} else deleteTotal.amountDeleted += userDeletion.deletedCount!
+		return deleteTotal
 	}
 }
