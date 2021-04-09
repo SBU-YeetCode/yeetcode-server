@@ -5,6 +5,7 @@ import CommentModel from '../comment/model'
 import { LANGUAGES } from '../game/input'
 import GameModel from '../game/model'
 import GameService from '../game/service'
+import GameProgressModel from '../gameProgress/model'
 import { Deleted } from '../utils/deleted'
 import { PaginationInput } from '../utils/pagination'
 import { PaginatedUserResponse, UpdateUserInput } from './input'
@@ -16,7 +17,8 @@ export default class UserService {
 		private readonly userModel: UserModel,
 		private readonly commentModel: CommentModel,
 		private readonly gameModel: GameModel,
-		private readonly gameService: GameService
+		private readonly gameService: GameService,
+		private readonly gameProgressModel: GameProgressModel
 	) {}
 	public async getById(id: ObjectId) {
 		const user = await this.userModel.getById(id)
@@ -49,7 +51,7 @@ export default class UserService {
 			language = 'total'
 			sorter['points.total'] = sort_descending
 		}
-		aggregateArray.push({ $sort: { ...sorter, _id: -1 } })
+		aggregateArray.push({ $sort: { ...sorter, _id: sort_descending } })
 		// Apply cursor if one exists
 		const langBulder = `points.${language}`
 		if (userCursor) {
@@ -149,6 +151,14 @@ export default class UserService {
 			deleteTotal.success = false
 			deleteTotal.err = 'Error deleting comments created by user'
 		} else deleteTotal.amountDeleted += commentDeletion.deletedCount!
+		// Delete game progress used by user
+		const gameProgressDeletion = await this.gameProgressModel.deleteMany({
+			userId,
+		})
+		if (gameProgressDeletion.ok !== 1) {
+			deleteTotal.success = false
+			deleteTotal.err = 'Error deleting game progress used by user'
+		} else deleteTotal.amountDeleted += gameProgressDeletion.deletedCount!
 		// Delete user account
 		const userDeletion = await this.userModel.deleteUser(
 			userId.toHexString()
