@@ -1,4 +1,4 @@
 export { GameProgress, GameProgressInput } from './gameProgress'
-export { LevelProgress, LevelProgressInput } from './levelProgress'
-export { QuestionProgress, QuestionProgressInput } from './questionProgress'
-export { StageProgress, StageProgressInput } from './stageProgress'
+export { LevelProgress } from './levelProgress'
+export { QuestionProgress } from './questionProgress'
+export { StageProgress } from './stageProgress'
