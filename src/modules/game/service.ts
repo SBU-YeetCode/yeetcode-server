@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb'
 import { Service } from 'typedi'
-import { Game, Level, Question } from '../../entities'
+import { Game, Level, Question, Stage } from '../../entities'
 import { GameInput } from '../../entities/game/game'
 import { PaginationInput } from '../utils/pagination'
 import { LANGUAGES, PaginatedGameResponse, SORT_OPTIONS } from './input'
@@ -127,5 +127,23 @@ export default class GameService {
 		const newGame = await game.save()
 		if (!newGame) throw new Error('Error updating questions')
 		return game.questions
+	}
+
+	public async updateStages(stagesToUpdate: Stage[], gameId: string) {
+		var game = await this.gameModel.findById(gameId)
+		if (!game)
+			throw new Error(`Game could not be found with ID: ${gameId}`)
+		const oldStageArray = game.stages
+		if (!oldStageArray)
+		 	throw new Error(`Stages could not be found with ID: ${gameId}`)
+		for (var i = 0; i < oldStageArray.length; i++) {
+			for (var j = 0; j < stagesToUpdate.length; j++) {
+				if (oldStageArray[i]._id.equals(stagesToUpdate[j]._id))
+					oldStageArray[i] = stagesToUpdate[j]
+			}
+		}
+		const newGame = await game.save()
+		if (!newGame) throw new Error('Error updating stages')
+		return game.stages
 	}
 }

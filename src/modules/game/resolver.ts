@@ -138,4 +138,16 @@ export default class GameResolver {
 		)
 		return allQuestions
 	}
+
+	@Mutation((returns) => [Stage])
+	async updateStages(
+		@Arg('stagesToUpdate', () => [Stage]) stagesToUpdate: Stage[],
+		@Arg('gameId') gameId: string
+	) {
+		let allStages = await this.gameService.updateStages(
+			stagesToUpdate,
+			gameId
+		)
+		return allStages
+	}
 }
