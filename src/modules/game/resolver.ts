@@ -11,7 +11,7 @@ import {
 import { Service } from 'typedi'
 import { Game, Level, Stage, Question, SubGameRoadmap } from '../../entities'
 import GameService from './service'
-import { LANGUAGES, SORT_OPTIONS, GetFilterGamesInput } from './input'
+import { LANGUAGES, SORT_OPTIONS, GetFilterGamesInput, UpdateGame } from './input'
 import { PaginatedGameResponse } from './input'
 import { PaginationInput } from '../utils/pagination'
 import { GameInput } from '../../entities/game/game'
@@ -115,6 +115,12 @@ export default class GameResolver {
 	async createGame(@Arg('game') game: GameInput) {
 		const newGame = await this.gameService.createGame(game)
 		return newGame
+	}
+
+	@Mutation((returns) => Game)
+	async updateGame(@Args() newGameData: UpdateGame) {
+		const updatedGame = await this.gameService.updateGame(newGameData)
+		return updatedGame
 	}
 
 	@Mutation((returns) => [Level])

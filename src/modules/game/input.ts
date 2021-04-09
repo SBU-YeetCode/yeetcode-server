@@ -8,6 +8,7 @@ import {
 import { Game } from '../../entities'
 import { PaginatedResponse } from '../utils/pagination'
 import { Min, Max } from 'class-validator'
+import { ObjectId } from 'mongodb'
 
 @ObjectType()
 export class PaginatedGameResponse extends PaginatedResponse(Game) {}
@@ -48,4 +49,25 @@ export class GetFilterGamesInput {
 
 	@Field(() => SORT_OPTIONS, { nullable: true })
 	sort: SORT_OPTIONS | null
+}
+
+@ArgsType()
+export class UpdateGame {
+	@Field()
+	readonly gameId!: ObjectId
+
+	@Field({ nullable: true })
+	newCodingLanguage?: string
+
+	@Field({ nullable: true })
+	newTitle?: string
+
+	@Field({ nullable: true })
+	newDifficulty?: string
+
+	@Field(() => [String], {nullable: true})
+	newTags?: string[]
+
+	@Field({ nullable: true })
+	newDescription?: string
 }
