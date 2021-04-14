@@ -16,7 +16,7 @@ export default async (app: express.Application) => {
 
 	// Sets various HTTP headers to help protect our app
 	app.use(helmet({
-		contentSecurityPolicy: PRODUCTION ? undefined : false
+		contentSecurityPolicy: false
 	}))
 
 	await sessionConfig(app)
