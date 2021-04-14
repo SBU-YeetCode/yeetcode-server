@@ -13,5 +13,7 @@ export default async () => {
 			},
 		},
 		context: ({ req, res }: any) => ({ req, res }),
+		introspection: true
+
 	})
 }

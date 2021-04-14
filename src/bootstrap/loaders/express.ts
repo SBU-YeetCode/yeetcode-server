@@ -5,9 +5,8 @@ import { config, PRODUCTION } from '../../config'
 import passportConfig from './passport'
 import sessionConfig from './session'
 
-export default async (app: express.Application) => {
-	// Body parser only needed during POST on the graphQL path
 
+export default async (app: express.Application) => {
 	// Lets us accept JSON as a return from clients
 	app.use(express.json())
 
@@ -16,7 +15,7 @@ export default async (app: express.Application) => {
 
 	// Sets various HTTP headers to help protect our app
 	app.use(helmet({
-		contentSecurityPolicy: PRODUCTION ? undefined : false
+		contentSecurityPolicy: false
 	}))
 
 	await sessionConfig(app)
