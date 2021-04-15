@@ -1,13 +1,13 @@
 import * as faker from 'faker'
 import { ObjectId } from 'mongodb'
-import { SubGameRoadmap } from '../../entities'
+import { Roadmap } from '../../entities'
 
-export const createSubGameRoadmap = (question?: Partial<SubGameRoadmap>): SubGameRoadmap => {
+export const createRoadmap = (roadmap?: Partial<Roadmap>): Roadmap => {
 	return {
 		_id: new ObjectId(),
-        refId: 'testing123',
-        sequence: '0',
-        kind: 'question',
-		...SubGameRoadmap,
+		parent: new ObjectId(),
+		sequence: 0,
+		kind: 'question',
+		...roadmap,
 	}
 }

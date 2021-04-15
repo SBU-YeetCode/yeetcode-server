@@ -7,7 +7,7 @@ import {
 	Level,
 	Question,
 	Stage,
-	SubGameRoadmap,
+	Roadmap,
 	Comment,
 } from '../../entities'
 import { CommentMongooseModel } from '../../modules/comment/model'
@@ -23,7 +23,7 @@ import { createGameProgress } from '../data/gameProgress-builder'
 import { createLevel } from '../data/level-builder'
 import { createQuestion } from '../data/question-builder'
 import { createStage } from '../data/stage-builder'
-import { createSubGameRoadmap } from '../data/subgameroadmap-builder'
+import { createRoadmap } from '../data/subgameroadmap-builder'
 import { createUser } from '../data/user-builder'
 import {
 	clearDatabase,
@@ -385,7 +385,7 @@ describe('Game', () => {
 		const game = games[0]
 		for (let i = 0; i < 3; i++) {
 			// Generate roadmap
-			game.roadmap.push(createSubGameRoadmap({}))
+			game.roadmap.push(createRoadmap({}))
 		}
 		// Get the id of roadmap in the game
 		const roadmapIdToCheck = game.roadmap[0]._id.toHexString()
@@ -394,7 +394,7 @@ describe('Game', () => {
 		const server = new ApolloServer({ schema: graphqlSchema }) as any
 		// use the test server to create a query function
 		const { query } = createTestClient(server)
-		const res = await query<{ getRoadmap: SubGameRoadmap[] }>({
+		const res = await query<{ getRoadmap: Roadmap[] }>({
 			query: GET_ROADMAP,
 			variables: { gameId: game._id.toHexString() },
 		})
@@ -736,7 +736,7 @@ const GET_ROADMAP = gql`
 	query getRoadmap($gameId: String!) {
 		getRoadmap(gameId: $gameId) {
 			_id
-			refId
+			parent
 			sequence
 			kind
 		}

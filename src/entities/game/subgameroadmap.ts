@@ -2,28 +2,66 @@ import { prop } from '@typegoose/typegoose'
 import { ObjectId } from 'mongodb'
 import { Field, InputType, ObjectType, Int } from 'type-graphql'
 
-@InputType('SubGameRoadmapInput')
+@InputType('RoadmapInput')
 @ObjectType()
-export class SubGameRoadmap {
+export class Roadmap {
 	@Field()
 	readonly _id!: ObjectId
 
 	@prop()
-	@Field()
-	refId!: string
+	@Field({ nullable: true })
+	parent!: ObjectId
 
 	@prop()
-	@Field()
-	sequence!: string
+	@Field(() => Int)
+	sequence!: number
 
 	@prop()
 	@Field()
 	kind!: string
-
-	// @prop({ type: SubGameRoadmap })
-	// @Field(() => [SubGameRoadmap])
-	// matchings: SubGameRoadmap[]
 }
+
+// const tempLevelId = new ObjectId()
+
+// const temp: Roadmap[] = [
+// 	{
+// 		_id: tempLevelId,
+// 		sequence: 0,
+// 		kind: 'Level',
+// 		parent: null,
+// 	},
+// 	{
+// 		_id: new ObjectId(),
+// 		sequence: 0,
+// 		kind: 'Stage',
+// 		parent: tempLevelId, //
+// 	},
+// 	{
+// 		_id: new ObjectId(),
+// 		sequence: 1,
+// 		kind: 'Question',
+// 		parent: tempLevelId, //
+// 	},
+// 	{
+// 		_id: new ObjectId(),
+// 		sequence: 1,
+// 		kind: 'Level',
+// 		parent: null,
+// 	},
+// 	{
+// 		_id: new ObjectId(),
+// 		sequence: 2,
+// 		kind: 'Stage',
+// 		parent: tempLevelId, //
+// 	},
+// ]
+
+// interface Roadmap {
+// 	_id: ObjectId
+// 	sequence: number
+// 	kind: 'Level' | 'Stage' | 'Question'
+// 	parent: ObjectId | null
+// }
 
 /**
  *  roadmap: [LevelRoadmap]
