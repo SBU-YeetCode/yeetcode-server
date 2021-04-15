@@ -8,7 +8,7 @@ export default async (config: Config) => {
 	const server = await loaders(app)
 	await server.start()
 	server.applyMiddleware({
-		cors: { origin: config.clientOrigin, credentials: true },
+		cors: { origin: [config.clientOrigin, 'http://localhost:3000'], credentials: true },
 		app,
 		path: config.graphqlPath,
 		// Health check on /.well-known/apollo/server-health
