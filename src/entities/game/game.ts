@@ -5,7 +5,7 @@ import { DateScalar } from '../../utils/scalars'
 import { Level } from './level'
 import { Question } from './question'
 import { Stage } from './stage'
-import { SubGameRoadmap } from './subgameroadmap'
+import { Roadmap } from './subgameroadmap'
 
 @ObjectType()
 @InputType('GameInput')
@@ -75,9 +75,9 @@ export class GameInput {
 	@Field(() => [Question])
 	questions: Question[]
 
-	@prop({ type: SubGameRoadmap })
-	@Field(() => [SubGameRoadmap])
-	roadmap: SubGameRoadmap[]
+	@prop({ type: Roadmap })
+	@Field(() => [Roadmap])
+	roadmap: Roadmap[]
 }
 
 @ObjectType()

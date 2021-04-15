@@ -9,9 +9,14 @@ import {
 	FieldResolver,
 } from 'type-graphql'
 import { Service } from 'typedi'
-import { Game, Level, Stage, Question, SubGameRoadmap } from '../../entities'
+import { Game, Level, Stage, Question, Roadmap } from '../../entities'
 import GameService from './service'
-import { LANGUAGES, SORT_OPTIONS, GetFilterGamesInput, UpdateGame } from './input'
+import {
+	LANGUAGES,
+	SORT_OPTIONS,
+	GetFilterGamesInput,
+	UpdateGame,
+} from './input'
 import { PaginatedGameResponse } from './input'
 import { PaginationInput } from '../utils/pagination'
 import { GameInput } from '../../entities/game/game'
@@ -104,7 +109,7 @@ export default class GameResolver {
 		return question
 	}
 
-	@Query((returns) => [SubGameRoadmap])
+	@Query((returns) => [Roadmap])
 	async getRoadmap(@Arg('gameId') gameId: string) {
 		const roadmap = await this.gameService.getRoadmap(gameId)
 		return roadmap

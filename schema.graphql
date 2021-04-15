@@ -44,7 +44,7 @@ type Game {
   playCount: Int!
   questions: [Question!]!
   rating: Float!
-  roadmap: [SubGameRoadmap!]!
+  roadmap: [Roadmap!]!
   stages: [Stage!]!
   tags: [String!]!
   title: String!
@@ -64,7 +64,7 @@ input GameInput {
   playCount: Int!
   questions: [QuestionInput!]!
   rating: Float!
-  roadmap: [SubGameRoadmapInput!]!
+  roadmap: [RoadmapInput!]!
   stages: [StageInput!]!
   tags: [String!]!
   title: String!
@@ -209,7 +209,7 @@ type Query {
   getLevel(gameId: String!, levelId: String!): Level!
   getMe: User
   getQuestion(gameId: String!, questionId: String!): Question!
-  getRoadmap(gameId: String!): [SubGameRoadmap!]!
+  getRoadmap(gameId: String!): [Roadmap!]!
   getSearch(amount: Int = 10, cursor: String, query: String!): PaginatedGameResponse!
   getStage(gameId: String!, stageId: String!): Stage!
   getUser(id: ObjectId!): User
@@ -262,6 +262,20 @@ type QuestionProgress {
   questionId: String!
 }
 
+type Roadmap {
+  _id: ObjectId!
+  kind: String!
+  parent: ObjectId
+  sequence: Int!
+}
+
+input RoadmapInput {
+  _id: ObjectId!
+  kind: String!
+  parent: ObjectId
+  sequence: Int!
+}
+
 enum SORT_OPTIONS {
   NEWEST
   PLAY_COUNT
@@ -283,20 +297,6 @@ input StageInput {
 type StageProgress {
   completed: Boolean!
   stageId: String!
-}
-
-type SubGameRoadmap {
-  _id: ObjectId!
-  kind: String!
-  refId: String!
-  sequence: String!
-}
-
-input SubGameRoadmapInput {
-  _id: ObjectId!
-  kind: String!
-  refId: String!
-  sequence: String!
 }
 
 type User {
