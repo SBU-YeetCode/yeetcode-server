@@ -30,6 +30,14 @@ type Deleted {
   success: Boolean!
 }
 
+enum GAMETYPE {
+  FILLINBLANK
+  LIVECODING
+  MATCHING
+  MULTIPLECHOICE
+  SPOTTHEBUG
+}
+
 type Game {
   _id: ObjectId!
   codingLanguage: String!
@@ -40,32 +48,12 @@ type Game {
   description: String!
   difficulty: String!
   lastUpdated: Date!
-  levels: [Level!]!
+  levels: [LevelObject!]!
   playCount: Int!
-  questions: [Question!]!
+  questions: [QuestionObject!]!
   rating: Float!
-  roadmap: [Roadmap!]!
-  stages: [Stage!]!
-  tags: [String!]!
-  title: String!
-  totalStars: Int!
-}
-
-input GameInput {
-  codingLanguage: String!
-  commentCount: Int!
-  commentsRef: [String!]!
-  createdBy: String!
-  dateCreated: Date!
-  description: String!
-  difficulty: String!
-  lastUpdated: Date!
-  levels: [LevelInput!]!
-  playCount: Int!
-  questions: [QuestionInput!]!
-  rating: Float!
-  roadmap: [RoadmapInput!]!
-  stages: [StageInput!]!
+  roadmap: [RoadmapObject!]!
+  stages: [StageObject!]!
   tags: [String!]!
   title: String!
   totalStars: Int!
@@ -106,13 +94,18 @@ enum LANGUAGES {
   PYTHON
 }
 
-type Level {
+input Level {
   _id: ObjectId!
   description: String!
   title: String!
 }
 
 input LevelInput {
+  description: String!
+  title: String!
+}
+
+type LevelObject {
   _id: ObjectId!
   description: String!
   title: String!
@@ -137,16 +130,20 @@ input MatchingInput {
 
 type Mutation {
   createComment(comment: CommentInput!, userId: ObjectId!): Comment!
-  createGame(game: GameInput!): Game!
+  createGame(codingLanguage: String, description: String, difficulty: String, tags: [String!], title: String): Game!
   createGameProgress(gameId: String!, userId: ObjectId!): GameProgress!
+  createLevel(gameId: String!, level: LevelInput!): LevelObject!
+  createQuestion(gameId: String!, question: QuestionInput!): QuestionObject!
+  createStage(gameId: String!, stage: StageInput!): StageObject!
   createUser(user: UserInput!): User!
   deleteGame(gameId: String!, userId: ObjectId!): Deleted!
   deleteGameProgress(gameProgressId: String!, userId: ObjectId!): Deleted!
   deleteUser(userId: ObjectId!): Deleted!
   updateGame(gameId: ObjectId!, newCodingLanguage: String, newDescription: String, newDifficulty: String, newTags: [String!], newTitle: String): Game!
-  updateLevels(gameId: String!, levelsToUpdate: [LevelInput!]!): [Level!]!
-  updateQuestions(gameId: String!, questionsToUpdate: [QuestionInput!]!): [Question!]!
-  updateStages(gameId: String!, stagesToUpdate: [StageInput!]!): [Stage!]!
+  updateLevels(gameId: String!, levelsToUpdate: [Level!]!): [LevelObject!]!
+  updateQuestions(gameId: String!, questionsToUpdate: [Question!]!): [QuestionObject!]!
+  updateRoadmap(gameId: String!, roadmap: [RoadmapInput!]!): [RoadmapObject!]!
+  updateStages(gameId: String!, stagesToUpdate: [Stage!]!): [StageObject!]!
   updateUser(newAvatar: String, newLargePicture: String, newName: String, newUsername: String, userId: ObjectId!): User!
 }
 
@@ -206,12 +203,12 @@ type Query {
   getGameComments(amount: Int = 10, cursor: String, gameId: String!): PaginatedCommentResponse!
   getGameProgress(id: ObjectId!): GameProgress
   getLeaderboard(amount: Int = 10, cursor: String, language: LANGUAGES): PaginatedUserResponse!
-  getLevel(gameId: String!, levelId: String!): Level!
+  getLevel(gameId: String!, levelId: String!): LevelObject!
   getMe: User
-  getQuestion(gameId: String!, questionId: String!): Question!
-  getRoadmap(gameId: String!): [Roadmap!]!
+  getQuestion(gameId: String!, questionId: String!): QuestionObject!
+  getRoadmap(gameId: String!): [RoadmapObject!]!
   getSearch(amount: Int = 10, cursor: String, query: String!): PaginatedGameResponse!
-  getStage(gameId: String!, stageId: String!): Stage!
+  getStage(gameId: String!, stageId: String!): StageObject!
   getUser(id: ObjectId!): User
   getUserCompletedGames(userId: String!): [GameProgress!]!
   getUserCreatedGames(userId: String!): [Game!]!
@@ -219,37 +216,51 @@ type Query {
   getUserReviews(userId: String!): [Comment!]!
 }
 
-type Question {
+input Question {
   _id: ObjectId!
   correctChoice: String!
   description: String!
   exampleSolutionCode: String!
   exampleSolutionDescription: String!
-  gameType: String!
-  hints: [Hint!]!
+  gameType: GAMETYPE!
+  hints: [HintInput!]!
   incorrectChoices: [String!]!
   lives: Int!
-  matchings: [Matching!]!
+  matchings: [MatchingInput!]!
   points: Int!
-  sequence: String!
   timeLimit: Int!
   title: String!
   toAnswer: String!
 }
 
 input QuestionInput {
-  _id: ObjectId!
   correctChoice: String!
   description: String!
   exampleSolutionCode: String!
   exampleSolutionDescription: String!
-  gameType: String!
+  gameType: GAMETYPE!
   hints: [HintInput!]!
   incorrectChoices: [String!]!
   lives: Int!
   matchings: [MatchingInput!]!
   points: Int!
-  sequence: String!
+  timeLimit: Int!
+  title: String!
+  toAnswer: String!
+}
+
+type QuestionObject {
+  _id: ObjectId!
+  correctChoice: String!
+  description: String!
+  exampleSolutionCode: String!
+  exampleSolutionDescription: String!
+  gameType: GAMETYPE!
+  hints: [Hint!]!
+  incorrectChoices: [String!]!
+  lives: Int!
+  matchings: [Matching!]!
+  points: Int!
   timeLimit: Int!
   title: String!
   toAnswer: String!
@@ -262,17 +273,18 @@ type QuestionProgress {
   questionId: String!
 }
 
-type Roadmap {
-  _id: ObjectId!
+input RoadmapInput {
   kind: String!
   parent: ObjectId
+  refId: String!
   sequence: Int!
 }
 
-input RoadmapInput {
+type RoadmapObject {
   _id: ObjectId!
   kind: String!
   parent: ObjectId
+  refId: String!
   sequence: Int!
 }
 
@@ -282,13 +294,18 @@ enum SORT_OPTIONS {
   RATING
 }
 
-type Stage {
+input Stage {
   _id: ObjectId!
   description: String!
   title: String!
 }
 
 input StageInput {
+  description: String!
+  title: String!
+}
+
+type StageObject {
   _id: ObjectId!
   description: String!
   title: String!

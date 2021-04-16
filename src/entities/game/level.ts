@@ -4,10 +4,7 @@ import { ObjectId } from 'mongodb'
 
 @InputType('LevelInput')
 @ObjectType()
-export class Level {
-	@Field()
-	readonly _id!: ObjectId
-
+export class LevelInput {
 	@prop()
 	@Field()
 	title: string
@@ -15,4 +12,11 @@ export class Level {
 	@prop()
 	@Field()
 	description: string
+}
+
+@InputType()
+@ObjectType('LevelObject')
+export class Level extends LevelInput {
+	@Field()
+	readonly _id!: ObjectId
 }

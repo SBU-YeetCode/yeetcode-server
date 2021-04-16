@@ -4,10 +4,7 @@ import { ObjectId } from 'mongodb'
 
 @InputType('StageInput')
 @ObjectType()
-export class Stage {
-	@Field()
-	readonly _id!: ObjectId
-
+export class StageInput {
 	@prop()
 	@Field()
 	title: string
@@ -15,4 +12,11 @@ export class Stage {
 	@prop()
 	@Field()
 	description: string
+}
+
+@InputType()
+@ObjectType('StageObject')
+export class Stage extends StageInput {
+	@Field()
+	readonly _id!: ObjectId
 }

@@ -65,9 +65,27 @@ export class UpdateGame {
 	@Field({ nullable: true })
 	newDifficulty?: string
 
-	@Field(() => [String], {nullable: true})
+	@Field(() => [String], { nullable: true })
 	newTags?: string[]
 
 	@Field({ nullable: true })
 	newDescription?: string
+}
+
+@ArgsType()
+export class NewGame {
+	@Field({ nullable: true })
+	codingLanguage: string
+
+	@Field({ nullable: true })
+	title: string
+
+	@Field({ nullable: true })
+	difficulty: string
+
+	@Field(() => [String], { nullable: true })
+	tags: string[]
+
+	@Field({ nullable: true })
+	description: string
 }

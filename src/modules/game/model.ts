@@ -1,5 +1,5 @@
 import { DocumentType, getModelForClass } from '@typegoose/typegoose'
-import { Types } from 'mongoose'
+import { Types, UpdateQuery } from 'mongoose'
 import { Service } from 'typedi'
 import { Game } from '../../entities'
 import { ObjectId } from 'mongodb'
@@ -12,6 +12,11 @@ export const GameMongooseModel = getModelForClass(Game)
 
 @Service()
 export default class GameModel {
+	async updateById(_id: string, query: UpdateQuery<DocumentType<Game>>) {
+		const res = GameMongooseModel.updateOne({ _id }, query)
+		return res
+	}
+
 	async getById(_id: string): Promise<Game | null> {
 		// Use mongoose as usual
 		return GameMongooseModel.findById(_id).lean().exec()

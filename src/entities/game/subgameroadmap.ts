@@ -4,10 +4,7 @@ import { Field, InputType, ObjectType, Int } from 'type-graphql'
 
 @InputType('RoadmapInput')
 @ObjectType()
-export class Roadmap {
-	@Field()
-	readonly _id!: ObjectId
-
+export class RoadmapInput {
 	@prop()
 	@Field({ nullable: true })
 	parent!: ObjectId
@@ -17,8 +14,19 @@ export class Roadmap {
 	sequence!: number
 
 	@prop()
-	@Field()
+	@Field(() => String)
 	kind!: string
+
+	@prop()
+	@Field(() => String)
+	refId: string
+}
+
+@InputType()
+@ObjectType('RoadmapObject')
+export class Roadmap extends RoadmapInput {
+	@Field()
+	readonly _id!: ObjectId
 }
 
 // const tempLevelId = new ObjectId()

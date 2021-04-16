@@ -8,6 +8,7 @@ export const createRoadmap = (roadmap?: Partial<Roadmap>): Roadmap => {
 		parent: new ObjectId(),
 		sequence: 0,
 		kind: 'question',
+		refId: new ObjectId().toHexString(),
 		...roadmap,
 	}
 }
