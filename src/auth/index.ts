@@ -36,11 +36,13 @@ export default function (passport: passport.PassportStatic) {
 		})
 	})
 	// @ts-ignore
-	passport.deserializeUser((serializedUser: Partial<User> & { id: ObjectId }, done) => {
-		UserMongooseModel.findOne({ _id: serializedUser.id }, (err, user) =>
-			done(err, user)
-		)
-	})
+	passport.deserializeUser(
+		(serializedUser: Partial<User> & { id: ObjectId }, done) => {
+			UserMongooseModel.findOne({ _id: serializedUser.id }, (err, user) =>
+				done(err, user)
+			)
+		}
+	)
 
 	router.get(
 		'/google',

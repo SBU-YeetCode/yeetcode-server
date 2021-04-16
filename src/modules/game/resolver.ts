@@ -7,15 +7,27 @@ import {
 	Args,
 	UseMiddleware,
 	FieldResolver,
+	Ctx,
 } from 'type-graphql'
 import { Service } from 'typedi'
-import { Game, Level, Stage, Question, Roadmap } from '../../entities'
+import {
+	Game,
+	Level,
+	Stage,
+	Question,
+	Roadmap,
+	LevelInput,
+	StageInput,
+	QuestionInput,
+	RoadmapInput,
+} from '../../entities'
 import GameService from './service'
 import {
 	LANGUAGES,
 	SORT_OPTIONS,
 	GetFilterGamesInput,
 	UpdateGame,
+	NewGame,
 } from './input'
 import { PaginatedGameResponse } from './input'
 import { PaginationInput } from '../utils/pagination'
@@ -117,8 +129,9 @@ export default class GameResolver {
 
 	@UseMiddleware(isLoggedIn)
 	@Mutation((returns) => Game)
-	async createGame(@Arg('game') game: GameInput) {
-		const newGame = await this.gameService.createGame(game)
+	async createGame(@Args() game: NewGame, @Ctx() { req }: Context) {
+		const userId = req.user._id.toHexString() as string
+		const newGame = await this.gameService.createGame(game, userId)
 		return newGame
 	}
 
@@ -126,6 +139,14 @@ export default class GameResolver {
 	async updateGame(@Args() newGameData: UpdateGame) {
 		const updatedGame = await this.gameService.updateGame(newGameData)
 		return updatedGame
+	}
+
+	@Mutation((returns) => [Roadmap])
+	async updateRoadmap(
+		@Arg('roadmap', () => [RoadmapInput]) roadmap: Roadmap[],
+		@Arg('gameId') gameId: string
+	) {
+		return this.gameService.updateRoadmap(roadmap, gameId)
 	}
 
 	@Mutation((returns) => [Level])
@@ -138,6 +159,36 @@ export default class GameResolver {
 			gameId
 		)
 		return allLevels
+	}
+
+	@Mutation((returns) => Level)
+	async createLevel(
+		@Arg('level', () => LevelInput) level: LevelInput,
+		@Arg('gameId') gameId: string
+	) {
+		let newLevel = await this.gameService.createLevel(level, gameId)
+		return newLevel
+	}
+
+	@Mutation((returns) => Question)
+	async createQuestion(
+		@Arg('question', () => QuestionInput) question: QuestionInput,
+		@Arg('gameId') gameId: string
+	) {
+		let newQuestion = await this.gameService.createQuestion(
+			question,
+			gameId
+		)
+		return newQuestion
+	}
+
+	@Mutation((returns) => Stage)
+	async createStage(
+		@Arg('stage', () => StageInput) stage: StageInput,
+		@Arg('gameId') gameId: string
+	) {
+		let newStage = await this.gameService.createStage(stage, gameId)
+		return newStage
 	}
 
 	@Mutation((returns) => [Question])

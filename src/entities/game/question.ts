@@ -1,19 +1,29 @@
 import { prop } from '@typegoose/typegoose'
 import { ObjectId } from 'mongodb'
-import { Field, InputType, ObjectType, Int } from 'type-graphql'
+import {
+	Field,
+	InputType,
+	ObjectType,
+	Int,
+	registerEnumType,
+} from 'type-graphql'
 import { Hint } from './hint'
 import { Matching } from './matching'
 
+export enum GAMETYPE {
+	LIVECODING = 'LIVECODING',
+	MULTIPLECHOICE = 'MULTIPLECHOICE',
+	FILLINBLANK = 'FILLINBLANK',
+	MATCHING = 'MATCHING',
+	SPOTTHEBUG = 'SPOTTHEBUG',
+}
+
+registerEnumType(GAMETYPE, {
+	name: 'GAMETYPE',
+})
 @InputType('QuestionInput')
 @ObjectType()
-export class Question {
-	@Field()
-	readonly _id!: ObjectId
-
-	@prop()
-	@Field()
-	sequence!: string
-
+export class QuestionInput {
 	@prop()
 	@Field()
 	title!: string
@@ -39,8 +49,8 @@ export class Question {
 	hints: Hint[]
 
 	@prop()
-	@Field()
-	gameType!: string
+	@Field(() => GAMETYPE)
+	gameType!: GAMETYPE
 
 	@prop()
 	@Field()
@@ -65,4 +75,11 @@ export class Question {
 	@prop({ type: Matching })
 	@Field(() => [Matching])
 	matchings: Matching[]
+}
+
+@InputType()
+@ObjectType('QuestionObject')
+export class Question extends QuestionInput {
+	@Field()
+	readonly _id!: ObjectId
 }

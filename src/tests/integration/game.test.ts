@@ -706,7 +706,6 @@ const GET_QUESTION = gql`
 	query getQuestion($questionId: String!, $gameId: String!) {
 		getQuestion(questionId: $questionId, gameId: $gameId) {
 			_id
-			sequence
 			title
 			description
 			timeLimit
@@ -744,7 +743,7 @@ const GET_ROADMAP = gql`
 `
 
 const UPDATE_LEVELS = gql`
-	mutation updateLevels($levelsToUpdate: [LevelInput!]!, $gameId: String!) {
+	mutation updateLevels($levelsToUpdate: [Level!]!, $gameId: String!) {
 		updateLevels(levelsToUpdate: $levelsToUpdate, gameId: $gameId) {
 			_id
 			title
@@ -755,7 +754,7 @@ const UPDATE_LEVELS = gql`
 
 const UPDATE_QUESTIONS = gql`
 	mutation updateQuestions(
-		$questionsToUpdate: [QuestionInput!]!
+		$questionsToUpdate: [Question!]!
 		$gameId: String!
 	) {
 		updateQuestions(
@@ -763,7 +762,6 @@ const UPDATE_QUESTIONS = gql`
 			gameId: $gameId
 		) {
 			_id
-			sequence
 			title
 			description
 			timeLimit
@@ -790,7 +788,7 @@ const UPDATE_QUESTIONS = gql`
 `
 
 const UPDATE_STAGES = gql`
-	mutation updateStages($stagesToUpdate: [StageInput!]!, $gameId: String!) {
+	mutation updateStages($stagesToUpdate: [Stage!]!, $gameId: String!) {
 		updateStages(stagesToUpdate: $stagesToUpdate, gameId: $gameId) {
 			_id
 			title

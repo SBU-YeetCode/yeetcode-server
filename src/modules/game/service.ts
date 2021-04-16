@@ -1,9 +1,24 @@
 import { ObjectId } from 'mongodb'
 import { Service } from 'typedi'
-import { Game, Level, Question, Stage } from '../../entities'
+import {
+	Game,
+	Level,
+	Question,
+	Stage,
+	LevelInput,
+	QuestionInput,
+	StageInput,
+	Roadmap,
+} from '../../entities'
 import { GameInput } from '../../entities/game/game'
 import { PaginationInput } from '../utils/pagination'
-import { LANGUAGES, PaginatedGameResponse, SORT_OPTIONS, UpdateGame } from './input'
+import {
+	LANGUAGES,
+	PaginatedGameResponse,
+	SORT_OPTIONS,
+	UpdateGame,
+	NewGame,
+} from './input'
 import GameModel from './model'
 import CommentModel from '../comment/model'
 import GameProgressModel from '../gameProgress/model'
@@ -16,13 +31,29 @@ export default class GameService {
 		private readonly gameProgressModel: GameProgressModel,
 		private readonly commentModel: CommentModel
 	) {}
+
 	public async getById(id: string) {
 		const game = await this.gameModel.getById(id)
 		if (!game) throw new Error('No game found')
 		return game
 	}
 
-	public async createGame(game: GameInput) {
+	public async createGame(gameInput: NewGame, userId: string) {
+		const game: GameInput = {
+			...gameInput,
+			commentCount: 0,
+			commentsRef: [],
+			createdBy: userId,
+			dateCreated: new Date().toISOString(),
+			lastUpdated: new Date().toISOString(),
+			totalStars: 0,
+			roadmap: [],
+			questions: [],
+			levels: [],
+			stages: [],
+			playCount: 0,
+			rating: 0,
+		}
 		const newGame = await this.gameModel.createGame(game)
 		if (!game) throw new Error('Unable to create game')
 		return newGame
@@ -97,10 +128,20 @@ export default class GameService {
 	}
 
 	public async updateGame(newGameData: UpdateGame) {
-		const { newCodingLanguage, newTitle, newDifficulty, newTags, newDescription } = newGameData
-		const oldGame = await this.gameModel.findById(newGameData.gameId.toHexString())
+		const {
+			newCodingLanguage,
+			newTitle,
+			newDifficulty,
+			newTags,
+			newDescription,
+		} = newGameData
+		const oldGame = await this.gameModel.findById(
+			newGameData.gameId.toHexString()
+		)
 		if (!oldGame)
-			throw new Error(`Game could not be found with ID: ${newGameData.gameId}`)
+			throw new Error(
+				`Game could not be found with ID: ${newGameData.gameId}`
+			)
 		if (newCodingLanguage) oldGame.codingLanguage = newCodingLanguage
 		if (newTitle) oldGame.title = newTitle
 		if (newDifficulty) oldGame.difficulty = newDifficulty
@@ -109,6 +150,66 @@ export default class GameService {
 		const updatedGame = await oldGame.save()
 		if (!updatedGame) throw new Error('Error updating levels')
 		return updatedGame.toObject() as Game
+	}
+
+	public async createLevel(level: LevelInput, gameId: string) {
+		const _id = new ObjectId()
+		await this.gameModel.updateById(gameId, {
+			$push: {
+				levels: { ...level, _id },
+			},
+		})
+		const game = await this.gameModel.findById(gameId)
+		if (!game) throw new Error(`Game could not be found with ID: ${gameId}`)
+		console.log(_id)
+		const newLevel = game.levels.find(
+			(l) => l._id.toHexString() === _id.toHexString()
+		)
+		if (!newLevel) throw new Error('Could not create level')
+		return newLevel
+	}
+
+	public async createQuestion(question: QuestionInput, gameId: string) {
+		const _id = new ObjectId()
+		await this.gameModel.updateById(gameId, {
+			$push: {
+				questions: { ...question, _id },
+			},
+		})
+		const game = await this.gameModel.findById(gameId)
+		if (!game) throw new Error(`Game could not be found with ID: ${gameId}`)
+		const newQuestion = game.questions.find(
+			(l) => l._id.toHexString() === _id.toHexString()
+		)
+		if (!newQuestion) throw new Error('Could not create question')
+		return newQuestion
+	}
+
+	public async createStage(stage: StageInput, gameId: string) {
+		const _id = new ObjectId()
+		await this.gameModel.updateById(gameId, {
+			$push: {
+				stages: { ...stage, _id },
+			},
+		})
+		const game = await this.gameModel.findById(gameId)
+		if (!game) throw new Error(`Game could not be found with ID: ${gameId}`)
+		const newStage = game.stages.find(
+			(l) => l._id.toHexString() === _id.toHexString()
+		)
+		if (!newStage) throw new Error('Could not create stage')
+		return newStage
+	}
+
+	public async updateRoadmap(newRoadmap: Roadmap[], gameId: string) {
+		await this.gameModel.updateById(gameId, {
+			$set: {
+				roadmap: newRoadmap,
+			},
+		})
+		const game = await this.gameModel.findById(gameId)
+		if (!game) throw new Error(`Game could not be found with ID: ${gameId}`)
+		return game.roadmap
 	}
 
 	public async updateLevels(levelsToUpdate: Level[], gameId: string) {
