@@ -16,5 +16,6 @@ export const mongoDBConfig = {
 // Your Mongoose setup goes here
 export default async (): Promise<mongoose.Mongoose> => {
 	mongoose.set('useCreateIndex', true)
+	mongoose.set('debug', config.isDev)
 	return mongoose.connect(config.mongoDB.uri, mongoDBConfig)
 }

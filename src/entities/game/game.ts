@@ -9,7 +9,8 @@ import { Roadmap } from './subgameroadmap'
 
 @ObjectType()
 @InputType('GameInput')
-@Index({ title: 'text', description: 'text', tags: 'text', language: 'text' })
+@Index({ title: 'text', description: 'text', tags: 'text', codingLanguage: 'text' }, {background: false})
+@Index({playCount: 1}, {background: false})
 export class GameInput {
 	@prop()
 	@Field()
@@ -87,4 +88,5 @@ export class Game extends GameInput {
 }
 
 const GameModel = getModelForClass(Game)
+
 GameModel.syncIndexes()
