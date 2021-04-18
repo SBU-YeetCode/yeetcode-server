@@ -86,3 +86,7 @@ export class Game extends GameInput {
 	@Field()
 	readonly _id!: ObjectId
 }
+
+const GameModel = getModelForClass(Game)
+
+GameModel.syncIndexes()
