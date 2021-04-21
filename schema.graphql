@@ -202,6 +202,7 @@ type Query {
   getGame(id: String!): Game
   getGameComments(amount: Int = 10, cursor: String, gameId: String!): PaginatedCommentResponse!
   getGameProgress(id: ObjectId!): GameProgress
+  getGameProgressByUser(gameId: ObjectId!, userId: ObjectId!): GameProgress
   getLeaderboard(amount: Int = 10, cursor: String, language: LANGUAGES): PaginatedUserResponse!
   getLevel(gameId: String!, levelId: String!): LevelObject!
   getMe: User

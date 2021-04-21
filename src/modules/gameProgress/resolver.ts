@@ -36,6 +36,13 @@ export default class GameProgressResolver {
 		return GameProgress
 	}
 
+	@canEdit()
+	@Query((returns) => GameProgress, { nullable: true })
+	async getGameProgressByUser(@Arg('userId') userId: ObjectId, @Arg('gameId') gameId: ObjectId) {
+		const GameProgress = await this.gameprogressService.getByUserId(userId, gameId)
+		return GameProgress
+	}
+
 	@Query((returns) => [GameProgress])
 	async getUserCompletedGames(@Arg('userId') userId: string) {
 		const userCreatedGames = await this.gameprogressService.getUserCompletedGames(
