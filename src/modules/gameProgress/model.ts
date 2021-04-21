@@ -1,5 +1,5 @@
-import { getModelForClass, DocumentType } from '@typegoose/typegoose'
-import { ObjectId } from 'mongodb'
+import { getModelForClass, DocumentType, } from '@typegoose/typegoose'
+import { ObjectId, FilterQuery } from 'mongodb'
 import { Service } from 'typedi'
 import { GameProgress, GameProgressInput } from '../../entities'
 
@@ -8,6 +8,20 @@ export const GameProgressMongooseModel = getModelForClass(GameProgress)
 
 @Service()
 export default class GameProgressModel {
+	find = (
+		conditions: FilterQuery<DocumentType<GameProgress>>,
+		callback?:
+			| ((err: any, res: DocumentType<GameProgress>[]) => void)
+			| undefined
+	) => GameProgressMongooseModel.find(conditions, callback)
+
+	findOne = (
+		conditions: FilterQuery<DocumentType<GameProgress>>,
+		callback?:
+			| ((err: any, res: DocumentType<GameProgress>[]) => void)
+			| undefined
+	) => GameProgressMongooseModel.findOne(conditions, callback)
+
 	async exists(q: any) {
 		return GameProgressMongooseModel.exists(q)
 	}

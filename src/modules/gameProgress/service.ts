@@ -15,6 +15,15 @@ export default class GameProgressService {
 		return gameprogress
 	}
 
+	public async getByUserId(userId: ObjectId, gameId: ObjectId) {
+		const gameprogress = await this.gameprogressModel.findOne({
+			userId: userId.toHexString(),
+			gameId: gameId.toHexString()
+		}).lean().exec()
+		if(!gameprogress) throw new Error('Cant find game prgoress. Start first.')
+		return gameprogress
+	}
+
 	public async createGameProgress(userId: string, gameId: string) {
 		const exists = await this.gameprogressModel.exists({userId, gameId})
 		if(exists) throw new Error('This user already has an instance of the game being played. Please clear before starting new instance')
