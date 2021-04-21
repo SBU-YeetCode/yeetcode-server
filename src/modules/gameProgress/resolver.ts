@@ -24,7 +24,7 @@ export default class GameProgressResolver {
 	@FieldResolver(() => Game)
 	async game(@Root() gameProgress: GameProgress) {
 		const game = await this.gameService.getById(
-			gameProgress._id.toHexString()
+			gameProgress.gameId
 		)
 		return game
 	}
