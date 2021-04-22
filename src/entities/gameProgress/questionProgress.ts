@@ -1,10 +1,11 @@
 import { ObjectType, Field, Int, InputType } from 'type-graphql'
 import { prop } from '@typegoose/typegoose'
 import { ObjectId } from 'mongodb'
+import { DateScalar } from '../../utils/scalars'
 
 @InputType('QuestionProgressInput')
 @ObjectType()
-export class QuestionProgress{
+export class QuestionProgress {
 	@prop()
 	@Field()
 	questionId: string
@@ -20,5 +21,16 @@ export class QuestionProgress{
 	@prop({ type: () => Number })
 	@Field(() => Int)
 	pointsReceived: number
-}
 
+	@prop({ type: Date })
+	@Field(() => DateScalar)
+	dateStarted!: string
+
+	@prop({ type: Number, default: -1 })
+	@Field(() => Int, {
+		description:
+			'Number representing the index of the latest hint revealed',
+		defaultValue: -1,
+	})
+	hintsRevealed: number
+}

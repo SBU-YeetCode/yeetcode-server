@@ -269,6 +269,10 @@ type QuestionObject {
 
 type QuestionProgress {
   completed: Boolean!
+  dateStarted: Date!
+
+  """Number representing the index of the latest hint revealed"""
+  hintsRevealed: Int
   livesLeft: Int!
   pointsReceived: Int!
   questionId: String!
