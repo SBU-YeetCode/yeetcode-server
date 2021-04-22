@@ -86,7 +86,7 @@ export default class GameProgressService {
 			const user = await this.userModel.findById(userId)
 			if (!user) throw new Error('No user found')
 			// @ts-ignore
-			user.points[gameProgress.codingLanguage] =
+			user.points[gameProgress./* @ts-ignore */codingLanguage] = 
 				user.points[gameProgress.codingLanguage] -
 				gameProgress.totalPoints
 			user.save()
