@@ -22,9 +22,9 @@ export class QuestionProgress {
 	@Field(() => Int)
 	pointsReceived: number
 
-	@prop({ type: Date })
-	@Field(() => DateScalar)
-	dateStarted!: string
+	@prop({ type: Date, required: false })
+	@Field(() => DateScalar, { nullable: true })
+	dateStarted?: string | null
 
 	@prop({ type: Number, default: -1 })
 	@Field(() => Int, {

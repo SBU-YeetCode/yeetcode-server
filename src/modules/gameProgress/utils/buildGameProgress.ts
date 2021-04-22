@@ -6,7 +6,10 @@ import {
 	StageProgress,
 } from '../../../entities'
 
-export default function buildGameProgress(game: Game, userId: string): GameProgressInput {
+export default function buildGameProgress(
+	game: Game,
+	userId: string
+): GameProgressInput {
 	let questions: QuestionProgress[] = []
 	let stages: StageProgress[] = []
 	let levels: LevelProgress[] = []
@@ -17,6 +20,7 @@ export default function buildGameProgress(game: Game, userId: string): GameProgr
 			completed: false,
 			pointsReceived: 0,
 			livesLeft: question.lives,
+			hintsRevealed: -1,
 		})
 	}
 
@@ -43,6 +47,6 @@ export default function buildGameProgress(game: Game, userId: string): GameProgr
 		stages: stages,
 		questions: questions,
 		totalPoints: 0,
-		codingLanguage: game.codingLanguage
+		codingLanguage: game.codingLanguage,
 	}
 }
