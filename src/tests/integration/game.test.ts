@@ -15,7 +15,7 @@ import { PaginatedGameResponse, UpdateGame } from '../../modules/game/input'
 import { GameMongooseModel } from '../../modules/game/model'
 import { GameProgressMongooseModel } from '../../modules/gameProgress/model'
 import { UserMongooseModel } from '../../modules/user/model'
-import { Deleted } from '../../modules/utils/deleted'
+import { Deleted } from '../../modules/utils/output'
 import { buildSchema } from '../../utils'
 import { createComment } from '../data/comment-builder'
 import { createGame } from '../data/game-builder'
@@ -717,15 +717,31 @@ const GET_QUESTION = gql`
 				timeToReveal
 			}
 			gameType
-			toAnswer
-			exampleSolutionCode
-			exampleSolutionDescription
-			correctChoice
-			incorrectChoices
-			matchings {
-				_id
-				pairOne
-				pairTwo
+			multipleChoice {
+				prompt
+				correctChoice
+				incorrectChoices
+			}
+			fillInTheBlank {
+				prompt
+				solutions
+			}
+			spotTheBug {
+				prompt
+				bugLine
+				code
+			}
+			liveCoding {
+				prompt
+				exampleSolutionCode
+				exampleSolutionDescription
+			}
+			matching {
+				prompt
+				matching {
+					pairOne
+					pairTwo
+				}
 			}
 		}
 	}
@@ -773,15 +789,31 @@ const UPDATE_QUESTIONS = gql`
 				timeToReveal
 			}
 			gameType
-			toAnswer
-			exampleSolutionCode
-			exampleSolutionDescription
-			correctChoice
-			incorrectChoices
-			matchings {
-				_id
-				pairOne
-				pairTwo
+			multipleChoice {
+				prompt
+				correctChoice
+				incorrectChoices
+			}
+			fillInTheBlank {
+				prompt
+				solutions
+			}
+			spotTheBug {
+				prompt
+				bugLine
+				code
+			}
+			liveCoding {
+				prompt
+				exampleSolutionCode
+				exampleSolutionDescription
+			}
+			matching {
+				prompt
+				matching {
+					pairOne
+					pairTwo
+				}
 			}
 		}
 	}

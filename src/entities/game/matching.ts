@@ -2,6 +2,17 @@ import { prop } from '@typegoose/typegoose'
 import { Field, InputType, ObjectType, FieldResolver } from 'type-graphql'
 import { ObjectId } from 'mongodb'
 
+@InputType('MatchingCardInput')
+@ObjectType()
+export class MatchingCard {
+	@prop()
+	@Field()
+	pairOne: string
+
+	@prop()
+	@Field()
+	pairTwo: string
+}
 @InputType('MatchingInput')
 @ObjectType()
 export class Matching {
@@ -10,9 +21,9 @@ export class Matching {
 
 	@prop()
 	@Field()
-	pairOne: string
+	prompt!: string
 
-	@prop()
-	@Field()
-	pairTwo: string
+	@prop({ type: [MatchingCard] })
+	@Field(() => [MatchingCard])
+	matching: MatchingCard[]
 }

@@ -30,6 +30,18 @@ type Deleted {
   success: Boolean!
 }
 
+type FillInTheBlank {
+  _id: ObjectId!
+  prompt: [String!]!
+  solutions: [String!]!
+}
+
+input FillInTheBlankInput {
+  _id: ObjectId!
+  prompt: [String!]!
+  solutions: [String!]!
+}
+
 enum GAMETYPE {
   FILLINBLANK
   LIVECODING
@@ -116,16 +128,54 @@ type LevelProgress {
   levelId: String!
 }
 
+type LiveCoding {
+  _id: ObjectId!
+  exampleSolutionCode: String!
+  exampleSolutionDescription: String!
+  prompt: String!
+}
+
+input LiveCodingInput {
+  _id: ObjectId!
+  exampleSolutionCode: String!
+  exampleSolutionDescription: String!
+  prompt: String!
+}
+
 type Matching {
   _id: ObjectId!
+  matching: [MatchingCard!]!
+  prompt: String!
+}
+
+type MatchingCard {
+  pairOne: String!
+  pairTwo: String!
+}
+
+input MatchingCardInput {
   pairOne: String!
   pairTwo: String!
 }
 
 input MatchingInput {
   _id: ObjectId!
-  pairOne: String!
-  pairTwo: String!
+  matching: [MatchingCardInput!]!
+  prompt: String!
+}
+
+type MultipleChoice {
+  _id: ObjectId!
+  correctChoice: String!
+  incorrectChoices: [String!]!
+  prompt: String!
+}
+
+input MultipleChoiceInput {
+  _id: ObjectId!
+  correctChoice: String!
+  incorrectChoices: [String!]!
+  prompt: String!
 }
 
 type Mutation {
@@ -221,52 +271,49 @@ type Query {
 
 input Question {
   _id: ObjectId!
-  correctChoice: String!
   description: String!
-  exampleSolutionCode: String!
-  exampleSolutionDescription: String!
+  fillInTheBlank: FillInTheBlankInput
   gameType: GAMETYPE!
   hints: [HintInput!]!
-  incorrectChoices: [String!]!
+  liveCoding: LiveCodingInput
   lives: Int!
-  matchings: [MatchingInput!]!
+  matching: MatchingInput
+  multipleChoice: MultipleChoiceInput
   points: Int!
+  spotTheBug: SpotTheBugInput
   timeLimit: Int!
   title: String!
-  toAnswer: String!
 }
 
 input QuestionInput {
-  correctChoice: String!
   description: String!
-  exampleSolutionCode: String!
-  exampleSolutionDescription: String!
+  fillInTheBlank: FillInTheBlankInput
   gameType: GAMETYPE!
   hints: [HintInput!]!
-  incorrectChoices: [String!]!
+  liveCoding: LiveCodingInput
   lives: Int!
-  matchings: [MatchingInput!]!
+  matching: MatchingInput
+  multipleChoice: MultipleChoiceInput
   points: Int!
+  spotTheBug: SpotTheBugInput
   timeLimit: Int!
   title: String!
-  toAnswer: String!
 }
 
 type QuestionObject {
   _id: ObjectId!
-  correctChoice: String!
   description: String!
-  exampleSolutionCode: String!
-  exampleSolutionDescription: String!
+  fillInTheBlank: FillInTheBlank
   gameType: GAMETYPE!
   hints: [Hint!]!
-  incorrectChoices: [String!]!
+  liveCoding: LiveCoding
   lives: Int!
-  matchings: [Matching!]!
+  matching: Matching
+  multipleChoice: MultipleChoice
   points: Int!
+  spotTheBug: SpotTheBug
   timeLimit: Int!
   title: String!
-  toAnswer: String!
 }
 
 type QuestionProgress {
@@ -310,6 +357,20 @@ enum SORT_OPTIONS {
   NEWEST
   PLAY_COUNT
   RATING
+}
+
+type SpotTheBug {
+  _id: ObjectId!
+  bugLine: Int!
+  code: String!
+  prompt: String!
+}
+
+input SpotTheBugInput {
+  _id: ObjectId!
+  bugLine: Int!
+  code: String!
+  prompt: String!
 }
 
 input Stage {

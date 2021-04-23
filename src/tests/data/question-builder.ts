@@ -11,13 +11,13 @@ export const createQuestion = (question?: Partial<Question>): Question => {
 		points: faker.datatype.number(100),
 		lives: 3,
 		hints: [],
+		multipleChoice: {
+			_id: new ObjectId(),
+			correctChoice: 'Hello',
+			incorrectChoices: ['bye'],
+			prompt: 'adele sang this song',
+		},
 		gameType: GAMETYPE.MULTIPLECHOICE,
-		toAnswer: 'a',
-		exampleSolutionCode: 'example solution',
-		exampleSolutionDescription: 'example description',
-		correctChoice: 'a',
-		incorrectChoices: ['b'],
-		matchings: [],
 		...Question,
 	}
 }
