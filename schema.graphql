@@ -141,7 +141,7 @@ type Mutation {
   deleteUser(userId: ObjectId!): Deleted!
   updateGame(gameId: ObjectId!, newCodingLanguage: String, newDescription: String, newDifficulty: String, newTags: [String!], newTitle: String): Game!
   updateLevels(gameId: String!, levelsToUpdate: [Level!]!): [LevelObject!]!
-  updateQuestionProgress(gameId: String!, questionProgress: QuestionProgressInput!, userId: String!): QuestionProgress!
+  updateQuestionProgress(gameId: String!, questionProgress: QuestionProgressInput!, userId: ObjectId!): QuestionProgress!
   updateQuestions(gameId: String!, questionsToUpdate: [Question!]!): [QuestionObject!]!
   updateRoadmap(gameId: String!, roadmap: [RoadmapInput!]!): [RoadmapObject!]!
   updateStages(gameId: String!, stagesToUpdate: [Stage!]!): [StageObject!]!

@@ -91,12 +91,12 @@ export default class GameProgressResolver {
 	@canEdit()
 	@Mutation((returns) => QuestionProgress)
 	async updateQuestionProgress(
-		@Arg('userId') userId: string,
+		@Arg('userId') userId: ObjectId,
 		@Arg('gameId') gameId: string,
 		@Arg('questionProgress') questionProgress: QuestionProgress
 	) {
 		const updatedGameProgress = await this.gameProgressService.updateQuestionProgress(
-			userId,
+			userId.toHexString(),
 			gameId,
 			questionProgress
 		)
