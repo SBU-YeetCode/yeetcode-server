@@ -181,7 +181,7 @@ export default class GameProgressService {
 		switch (gameQuestion.gameType) {
 			case GAMETYPE.FILLINBLANK:
 				// Ensure fill in the blank is part of submitted question
-				if (!submittedAnswer.fillInTheBlank)
+				if (submittedAnswer.fillInTheBlank == null)
 					throw new Error(
 						`Submitted question is for ${GAMETYPE.FILLINBLANK} but did not recieve fillInTheBlank from mutation.`
 					)
@@ -210,7 +210,7 @@ export default class GameProgressService {
 				break
 			case GAMETYPE.MATCHING:
 				// Ensure matching is part of submitted question
-				if (!submittedAnswer.matching)
+				if (submittedAnswer.matching == null)
 					throw new Error(
 						`Submitted question is for ${GAMETYPE.MATCHING} but did not recieve matching from mutation.`
 					)
@@ -235,7 +235,7 @@ export default class GameProgressService {
 				break
 			case GAMETYPE.MULTIPLECHOICE:
 				// Ensure multiple choice is part of submitted question
-				if (!submittedAnswer.multipleChoice)
+				if (submittedAnswer.multipleChoice == null)
 					throw new Error(
 						`Submitted question is for ${GAMETYPE.MULTIPLECHOICE} but did not recieve multipleChoice from mutation.`
 					)
@@ -247,7 +247,7 @@ export default class GameProgressService {
 				break
 			case GAMETYPE.SPOTTHEBUG:
 				// Ensure spot the bug is part of submitted question
-				if (!submittedAnswer.spotTheBug)
+				if (submittedAnswer.spotTheBug == null)
 					throw new Error(
 						`Submitted question is for ${GAMETYPE.SPOTTHEBUG} but did not recieve spotTheBug from mutation.`
 					)
