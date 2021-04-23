@@ -189,7 +189,7 @@ type Mutation {
   deleteGame(gameId: String!, userId: ObjectId!): Deleted!
   deleteGameProgress(gameProgressId: String!, userId: ObjectId!): Deleted!
   deleteUser(userId: ObjectId!): Deleted!
-  submitQuestion(gameId: String!, questionId: String!, submittedAnswer: String!, userId: ObjectId!): SubmitQuestion!
+  submitQuestion(gameId: String!, questionId: String!, submittedAnswer: SubmittedAnswer!, userId: ObjectId!): SubmitQuestion!
   updateGame(gameId: ObjectId!, newCodingLanguage: String, newDescription: String, newDifficulty: String, newTags: [String!], newTitle: String): Game!
   updateLevels(gameId: String!, levelsToUpdate: [Level!]!): [LevelObject!]!
   updateQuestionProgress(gameId: String!, questionProgress: QuestionProgressInput!, userId: ObjectId!): QuestionProgress!
@@ -318,6 +318,7 @@ type QuestionObject {
 
 type QuestionProgress {
   completed: Boolean!
+  dateCompleted: Date
   dateStarted: Date
 
   """Number representing the index of the latest hint revealed"""
@@ -329,6 +330,7 @@ type QuestionProgress {
 
 input QuestionProgressInput {
   completed: Boolean!
+  dateCompleted: Date
   dateStarted: Date
 
   """Number representing the index of the latest hint revealed"""
@@ -397,6 +399,14 @@ type StageProgress {
 
 type SubmitQuestion {
   isCorrect: Boolean!
+}
+
+input SubmittedAnswer {
+  fillInTheBlank: [String!]
+  liveCoding: String
+  matching: [MatchingCardInput!]
+  multipleChoice: String
+  spotTheBug: String
 }
 
 type User {

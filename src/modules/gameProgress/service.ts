@@ -2,10 +2,17 @@ import { ObjectId } from 'mongodb'
 import { Service } from 'typedi'
 import GameModel from '../game/model'
 import GameProgressModel from './model'
-import { GameProgressInput, Game, User, QuestionProgress } from '../../entities'
+import {
+	GameProgressInput,
+	Game,
+	User,
+	QuestionProgress,
+	GAMETYPE,
+} from '../../entities'
 import buildGameProgress from './utils/buildGameProgress'
 import UserModel from '../user/model'
 import { Deleted } from '../utils/output'
+import { SubmittedAnswer } from './input'
 @Service() // Dependencies injection
 export default class GameProgressService {
 	constructor(
@@ -38,17 +45,25 @@ export default class GameProgressService {
 			throw new Error(
 				'This user already has an instance of the game being played. Please clear before starting new instance'
 			)
-		const game: Game = (await this.gameModel.getById(gameId)) as Game
+		const game = await this.gameModel.findById(gameId)
+		if (!game)
+			throw new Error(
+				`Game could not be found for the given ID: ${gameId}`
+			)
 		const buildedGameProgress: GameProgressInput = buildGameProgress(
-			game,
+			game as Game,
 			userId
 		)
 		const gameProgress = await this.gameprogressModel.createGameProgress(
 			buildedGameProgress
 		)
 		if (!gameProgress) throw new Error('Unable to create gameprogress')
+		// Update play count
+		game.playCount += 1
+		game.save()
 		return gameProgress
 	}
+
 	public async getUserRecentGames(userId: string) {
 		const userRecentGames = await this.gameprogressModel.getGameProgresses(
 			{
@@ -147,7 +162,7 @@ export default class GameProgressService {
 		userId: string,
 		gameId: string,
 		questionId: string,
-		submittedAnswer: string
+		submittedAnswer: SubmittedAnswer
 	) {
 		// Get game
 		const game = await this.gameModel.getById(gameId)
@@ -162,8 +177,94 @@ export default class GameProgressService {
 				`Question does not exist for the given ID: ${questionId}`
 			)
 		// Validate if question is correct
-		const isCorrect: boolean =
-			gameQuestion.correctChoice === submittedAnswer
+		let isCorrect: boolean = false
+		switch (gameQuestion.gameType) {
+			case GAMETYPE.FILLINBLANK:
+				// Ensure fill in the blank is part of submitted question
+				if (!submittedAnswer.fillInTheBlank)
+					throw new Error(
+						`Submitted question is for ${GAMETYPE.FILLINBLANK} but did not recieve fillInTheBlank from mutation.`
+					)
+				if (
+					submittedAnswer.fillInTheBlank.length !==
+					gameQuestion.fillInTheBlank?.solutions.length
+				)
+					break // Incorrect matching length, no need to check
+				// Loop through matching
+				isCorrect = true
+				for (
+					var i = 0;
+					i < submittedAnswer.fillInTheBlank.length;
+					i++
+				) {
+					if (
+						submittedAnswer.fillInTheBlank[i] !==
+						gameQuestion.fillInTheBlank?.solutions[i]
+					) {
+						isCorrect = false
+						break
+					}
+				}
+				break
+			case GAMETYPE.LIVECODING:
+				break
+			case GAMETYPE.MATCHING:
+				// Ensure matching is part of submitted question
+				if (!submittedAnswer.matching)
+					throw new Error(
+						`Submitted question is for ${GAMETYPE.MATCHING} but did not recieve matching from mutation.`
+					)
+				if (
+					submittedAnswer.matching.length !==
+					gameQuestion.matching?.matching.length
+				)
+					break // Incorrect matching length, no need to check
+				// Loop through matching
+				isCorrect = true
+				for (var i = 0; i < submittedAnswer.matching.length; i++) {
+					const cardOne = submittedAnswer.matching[i]
+					const cardTwo = gameQuestion.matching.matching[i]
+					if (
+						cardOne.pairOne !== cardTwo.pairOne ||
+						cardOne.pairTwo !== cardTwo.pairTwo
+					) {
+						isCorrect = false
+						break
+					}
+				}
+				break
+			case GAMETYPE.MULTIPLECHOICE:
+				// Ensure multiple choice is part of submitted question
+				if (!submittedAnswer.multipleChoice)
+					throw new Error(
+						`Submitted question is for ${GAMETYPE.MULTIPLECHOICE} but did not recieve multipleChoice from mutation.`
+					)
+				if (
+					submittedAnswer.multipleChoice ===
+					gameQuestion.multipleChoice?.correctChoice
+				)
+					isCorrect = true
+				break
+			case GAMETYPE.SPOTTHEBUG:
+				// Ensure spot the bug is part of submitted question
+				if (!submittedAnswer.spotTheBug)
+					throw new Error(
+						`Submitted question is for ${GAMETYPE.SPOTTHEBUG} but did not recieve spotTheBug from mutation.`
+					)
+				const submittedLine = parseInt(submittedAnswer.spotTheBug)
+				if (isNaN(submittedLine))
+					throw new Error(
+						`Line number recieved is not a number: ${submittedAnswer.spotTheBug}`
+					)
+				if (submittedLine == gameQuestion.spotTheBug?.bugLine)
+					isCorrect = true
+				break
+			default:
+				throw new Error(
+					`Unknown question type: ${gameQuestion.gameType}`
+				)
+		}
+
 		// Get game progress to update
 		const gameProgress = await this.gameprogressModel.findOne({
 			userId,
@@ -190,11 +291,13 @@ export default class GameProgressService {
 					) {
 						// Time limit exceeded
 						questionProgress.completed = true
+						questionProgress.dateCompleted = new Date().toISOString()
 						questionProgress.pointsReceived = 0
 					} else {
 						// Alter progress depending on if it was correct
 						if (isCorrect) {
 							questionProgress.completed = true
+							questionProgress.dateCompleted = new Date().toISOString()
 							// Calculate points gained
 							const percentElapsed =
 								(currentDate -
@@ -211,6 +314,7 @@ export default class GameProgressService {
 								questionProgress.livesLeft -= 1
 							// No more attempts can be made
 							if (questionProgress.livesLeft === 0) {
+								questionProgress.dateCompleted = new Date().toISOString()
 								questionProgress.completed = true
 								questionProgress.pointsReceived = 0
 							}

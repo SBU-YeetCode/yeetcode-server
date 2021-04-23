@@ -26,6 +26,10 @@ export class QuestionProgress {
 	@Field(() => DateScalar, { nullable: true })
 	dateStarted?: string | null
 
+	@prop({ type: Date, required: false })
+	@Field(() => DateScalar, { nullable: true })
+	dateCompleted?: string | null
+
 	@prop({ type: Number, default: -1 })
 	@Field(() => Int, {
 		description:

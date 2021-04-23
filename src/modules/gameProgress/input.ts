@@ -1,8 +1,9 @@
-import { ArgsType, Field } from 'type-graphql'
+import { ArgsType, Field, InputType } from 'type-graphql'
 import IsValidUser from '../validators/isValidUser'
 // import IsValidGameProgress from '../validators/isValidGameProgress'
 import IsValidGame from '../validators/isValidGame'
 import { ObjectId } from 'mongodb'
+import { MatchingCard } from '../../entities'
 
 @ArgsType()
 export class CreateGameProgress {
@@ -26,6 +27,24 @@ export class DeleteGameProgress {
 	gameProgressId: string
 }
 
+@InputType()
+export class SubmittedAnswer {
+	@Field(() => String, { nullable: true })
+	multipleChoice?: string
+
+	@Field(() => [String], { nullable: true })
+	fillInTheBlank?: string[]
+
+	@Field(() => String, { nullable: true })
+	spotTheBug?: string
+
+	@Field(() => String, { nullable: true })
+	liveCoding?: string
+
+	@Field(() => [MatchingCard], { nullable: true })
+	matching?: MatchingCard[]
+}
+
 @ArgsType()
 export class SubmitGameInput {
 	@IsValidUser()
@@ -39,6 +58,6 @@ export class SubmitGameInput {
 	@Field(() => String)
 	questionId: string
 
-	@Field(() => String)
-	submittedAnswer: string
+	@Field(() => SubmittedAnswer)
+	submittedAnswer: SubmittedAnswer
 }
