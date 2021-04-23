@@ -199,7 +199,7 @@ export default class GameProgressService {
 							const percentElapsed =
 								(currentDate -
 									new Date(
-										gameProgress.startedAt
+										questionProgress.dateStarted
 									).getTime()) /
 								gameQuestion.timeLimit
 							questionProgress.pointsReceived = Math.round(
