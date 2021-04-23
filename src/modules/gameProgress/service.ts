@@ -86,7 +86,7 @@ export default class GameProgressService {
 			const user = await this.userModel.findById(userId)
 			if (!user) throw new Error('No user found')
 			// @ts-ignore
-			user.points[gameProgress./* @ts-ignore */codingLanguage] = 
+			user.points[gameProgress./* @ts-ignore */ codingLanguage] =
 				user.points[gameProgress.codingLanguage] -
 				gameProgress.totalPoints
 			user.save()
@@ -121,6 +121,7 @@ export default class GameProgressService {
 				`User (ID: ${userId}) does not have game progress for the game with the following ID: ${gameId}`
 			)
 		// Check if question has been started
+		let progressReturn = {}
 		gameProgress.questions = gameProgress.questions.map((question) => {
 			if (question.questionId === questionProgress.questionId) {
 				// Check if question has been started
@@ -132,12 +133,13 @@ export default class GameProgressService {
 					// Question never started
 					question.dateStarted = new Date().toISOString()
 				}
+				progressReturn = question
 			}
 			return question
 		})
 		const newGameProgress = await gameProgress.save()
 		if (!newGameProgress)
 			throw new Error('Error updating question progress')
-		return gameProgress.questions
+		return progressReturn
 	}
 }
