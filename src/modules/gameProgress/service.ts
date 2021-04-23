@@ -5,7 +5,7 @@ import GameProgressModel from './model'
 import { GameProgressInput, Game, User, QuestionProgress } from '../../entities'
 import buildGameProgress from './utils/buildGameProgress'
 import UserModel from '../user/model'
-import { Deleted } from '../utils/deleted'
+import { Deleted } from '../utils/output'
 @Service() // Dependencies injection
 export default class GameProgressService {
 	constructor(
@@ -141,5 +141,86 @@ export default class GameProgressService {
 		if (!newGameProgress)
 			throw new Error('Error updating question progress')
 		return progressReturn
+	}
+
+	public async submitQuestion(
+		userId: string,
+		gameId: string,
+		questionId: string,
+		submittedAnswer: string
+	) {
+		// Get game
+		const game = await this.gameModel.getById(gameId)
+		if (!game)
+			throw new Error(`Game does not exist for the given ID: ${gameId}`)
+		// Get game question
+		const gameQuestion = game.questions.find(
+			(question) => question._id.toHexString() === questionId
+		)
+		if (!gameQuestion)
+			throw new Error(
+				`Question does not exist for the given ID: ${questionId}`
+			)
+		// Validate if question is correct
+		const isCorrect: boolean =
+			gameQuestion.correctChoice === submittedAnswer
+		// Get game progress to update
+		const gameProgress = await this.gameprogressModel.findOne({
+			userId,
+			gameId,
+		})
+		if (!gameProgress)
+			throw new Error(
+				`Game progress does not exist for the given user/game combination: User ID = ${userId}, Game ID = ${gameId}`
+			)
+		// Update game progress
+		const currentDate = new Date().getTime()
+		gameProgress.questions = gameProgress.questions.map(
+			(questionProgress) => {
+				if (questionProgress.questionId === questionId) {
+					// Ensure question is not already completed
+					if (questionProgress.completed) return questionProgress
+					// Ensure question has been started
+					if (!questionProgress.dateStarted) return questionProgress
+					// Ensure time limit is not exceeded
+					if (
+						currentDate -
+							new Date(questionProgress.dateStarted).getTime() >=
+						gameQuestion.timeLimit
+					) {
+						// Time limit exceeded
+						questionProgress.completed = true
+						questionProgress.pointsReceived = 0
+					} else {
+						// Alter progress depending on if it was correct
+						if (isCorrect) {
+							questionProgress.completed = true
+							// Calculate points gained
+							const percentElapsed =
+								(currentDate -
+									new Date(
+										gameProgress.startedAt
+									).getTime()) /
+								gameQuestion.timeLimit
+							questionProgress.pointsReceived = Math.round(
+								(1 - percentElapsed) * gameQuestion.points
+							)
+						} else {
+							// Update lives left if the question has limited lives
+							if (gameQuestion.lives !== -1)
+								questionProgress.livesLeft -= 1
+							// No more attempts can be made
+							if (questionProgress.livesLeft === 0) {
+								questionProgress.completed = true
+								questionProgress.pointsReceived = 0
+							}
+						}
+					}
+				}
+				return questionProgress
+			}
+		)
+		gameProgress.save()
+		return { isCorrect }
 	}
 }

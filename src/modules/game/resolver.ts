@@ -33,7 +33,7 @@ import { PaginatedGameResponse } from './input'
 import { PaginationInput } from '../utils/pagination'
 import { GameInput } from '../../entities/game/game'
 import { isLoggedIn } from '../middleware/isLoggedIn'
-import { Deleted } from '../utils/deleted'
+import { Deleted } from '../utils/output'
 import { canEdit } from '../middleware/canEdit'
 
 @Service() // Dependencies injection

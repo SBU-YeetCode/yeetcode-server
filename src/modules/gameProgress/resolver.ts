@@ -12,8 +12,12 @@ import { Service } from 'typedi'
 import { Game, GameProgress, QuestionProgress } from '../../entities'
 import GameService from '../game/service'
 import { canEdit } from '../middleware/canEdit'
-import { Deleted } from '../utils/deleted'
-import { CreateGameProgress, DeleteGameProgress } from './input'
+import { Deleted, SubmitQuestion } from '../utils/output'
+import {
+	CreateGameProgress,
+	DeleteGameProgress,
+	SubmitGameInput,
+} from './input'
 import GameProgressService from './service'
 
 @Service() // Dependencies injection
@@ -101,5 +105,19 @@ export default class GameProgressResolver {
 			questionProgress
 		)
 		return updatedGameProgress
+	}
+
+	@canEdit()
+	@Mutation((returns) => SubmitQuestion)
+	async submitQuestion(
+		@Args() { userId, gameId, questionId, submittedAnswer }: SubmitGameInput
+	) {
+		const submitted = (await this.gameProgressService.submitQuestion(
+			userId.toHexString(),
+			gameId,
+			questionId,
+			submittedAnswer
+		)) as SubmitQuestion
+		return submitted
 	}
 }

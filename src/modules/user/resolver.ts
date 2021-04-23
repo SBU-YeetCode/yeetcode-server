@@ -24,7 +24,7 @@ import { canEdit } from '../middleware/canEdit'
 import CommentService from '../comment/service'
 import GameService from '../game/service'
 import GameProgressService from '../gameProgress/service'
-import { Deleted } from '../utils/deleted'
+import { Deleted } from '../utils/output'
 
 @Service() // Dependencies injection
 @Resolver((of) => User)

@@ -139,6 +139,7 @@ type Mutation {
   deleteGame(gameId: String!, userId: ObjectId!): Deleted!
   deleteGameProgress(gameProgressId: String!, userId: ObjectId!): Deleted!
   deleteUser(userId: ObjectId!): Deleted!
+  submitQuestion(gameId: String!, questionId: String!, submittedAnswer: String!, userId: ObjectId!): SubmitQuestion!
   updateGame(gameId: ObjectId!, newCodingLanguage: String, newDescription: String, newDifficulty: String, newTags: [String!], newTitle: String): Game!
   updateLevels(gameId: String!, levelsToUpdate: [Level!]!): [LevelObject!]!
   updateQuestionProgress(gameId: String!, questionProgress: QuestionProgressInput!, userId: ObjectId!): QuestionProgress!
@@ -331,6 +332,10 @@ type StageObject {
 type StageProgress {
   completed: Boolean!
   stageId: String!
+}
+
+type SubmitQuestion {
+  isCorrect: Boolean!
 }
 
 type User {
