@@ -20,7 +20,7 @@ export default function buildGameProgress(
 			completed: false,
 			pointsReceived: 0,
 			livesLeft: question.lives,
-			hintsRevealed: -1,
+			hintsRevealed: [],
 		})
 	}
 
