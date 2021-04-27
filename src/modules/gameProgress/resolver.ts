@@ -120,4 +120,15 @@ export default class GameProgressResolver {
 		)) as SubmitQuestion
 		return submitted
 	}
+
+	@canEdit()
+	@Mutation((returns) => GameProgress)
+	async revealHints(
+		@Arg('userId') _: ObjectId,
+		@Arg('gameProgressId') gameProgressId: ObjectId,
+		@Arg('questionId') questionId: string
+	) {
+		const gameProgress = await this.gameProgressService.revealHints(gameProgressId, questionId)
+		return gameProgress
+	}
 }

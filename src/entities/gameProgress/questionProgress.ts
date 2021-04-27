@@ -30,11 +30,7 @@ export class QuestionProgress {
 	@Field(() => DateScalar, { nullable: true })
 	dateCompleted?: string | null
 
-	@prop({ type: Number, default: -1 })
-	@Field(() => Int, {
-		description:
-			'Number representing the index of the latest hint revealed',
-		defaultValue: -1,
-	})
-	hintsRevealed: number
+	@prop({ type: [String] })
+	@Field(() => [String] )
+	hintsRevealed: string[]
 }

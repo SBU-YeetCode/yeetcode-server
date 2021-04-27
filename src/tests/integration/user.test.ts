@@ -11,7 +11,7 @@ import {
 	UpdateUserInput,
 } from '../../modules/user/input'
 import { UserMongooseModel } from '../../modules/user/model'
-import { Deleted } from '../../modules/utils/deleted'
+import { Deleted } from '../../modules/utils/output'
 import { buildSchema } from '../../utils'
 import { createComment } from '../data/comment-builder'
 import { createGame } from '../data/game-builder'

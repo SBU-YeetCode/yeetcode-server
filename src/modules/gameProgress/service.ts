@@ -8,11 +8,13 @@ import {
 	User,
 	QuestionProgress,
 	GAMETYPE,
+	GameProgress,
 } from '../../entities'
 import buildGameProgress from './utils/buildGameProgress'
 import UserModel from '../user/model'
 import { Deleted } from '../utils/output'
 import { SubmittedAnswer } from './input'
+import { differenceInMilliseconds } from 'date-fns'
 @Service() // Dependencies injection
 export default class GameProgressService {
 	constructor(
@@ -326,5 +328,37 @@ export default class GameProgressService {
 		)
 		gameProgress.save()
 		return { isCorrect }
+	}
+
+	public async revealHints(gameProgressId: ObjectId, questionId: string) {
+		const gameProgress = await this.gameprogressModel.findById(
+			gameProgressId
+		)
+		if (!gameProgress) throw new Error('Cannot find game progress')
+		const game = await this.gameModel.getById(gameProgress.gameId)
+		const question = game?.questions.find(
+			(q) => q._id.toHexString() === questionId
+		)
+		const progress = gameProgress.questions.find(
+			(q) => q.questionId === questionId
+		)
+		if (!question || !progress) throw new Error('Error finding documents')
+		if (!progress.dateStarted || progress.dateCompleted)
+			throw new Error(
+				'Question not started yet or has already been completed'
+			)
+		for (const hint of question.hints.filter(
+			(h) => !progress.hintsRevealed.includes(h._id.toHexString())
+		)) {
+			const difference = differenceInMilliseconds(
+				new Date(),
+				new Date(progress.dateStarted)
+			)
+			if (difference >= hint.timeToReveal) {
+				progress.hintsRevealed.push(hint._id.toHexString())
+			}
+		}
+		await gameProgress.save()
+		return gameProgress
 	}
 }

@@ -22,7 +22,7 @@ import {
 import GameModel from './model'
 import CommentModel from '../comment/model'
 import GameProgressModel from '../gameProgress/model'
-import { Deleted } from '../utils/deleted'
+import { Deleted } from '../utils/output'
 
 @Service() // Dependencies injection
 export default class GameService {
