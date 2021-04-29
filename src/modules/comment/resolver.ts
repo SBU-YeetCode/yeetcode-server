@@ -1,23 +1,25 @@
 import { ObjectId } from 'mongodb'
 import {
-	Query,
-	Resolver,
 	Arg,
-	Mutation,
+
 	Args,
-	UseMiddleware,
-	Root,
-	FieldResolver,
+
+
+	FieldResolver, Mutation, Query,
+	Resolver,
+
+
+
+
+	Root
 } from 'type-graphql'
 import { Service } from 'typedi'
 import { Comment, CommentInput, User } from '../../entities'
-import { CommentMongooseModel } from './model'
-import { PaginationInput, PaginatedResponse } from '../utils/pagination'
-import CommentService from './service'
-import { PaginatedCommentResponse } from './input'
-import { isLoggedIn } from '../middleware/isLoggedIn'
 import { canEdit } from '../middleware/canEdit'
 import UserService from '../user/service'
+import { PaginationInput } from '../utils/pagination'
+import { PaginatedCommentResponse } from './input'
+import CommentService from './service'
 
 @Service() // Dependencies injection
 @Resolver((of) => Comment)
@@ -60,6 +62,12 @@ export default class CommentResolver {
 		return userComments
 	}
 
+	@Query((returns) => Comment, {nullable: true})
+	async getUserGameReview(@Arg('userId') id: string, @Arg('gameId') gameId: string) {
+		const userComments = await this.commentService.getUserGameComment(id, gameId)
+		return userComments
+	}
+
 	@canEdit()
 	@Mutation((returns) => Comment)
 	async createComment(
@@ -69,5 +77,4 @@ export default class CommentResolver {
 		const newComment = await this.commentService.createComment(comment)
 		return newComment
 	}
-	
 }
