@@ -28,32 +28,32 @@ export default class CommentService {
 		const game = await this.gameModel.findById(comment.gameId)
 		if (!game) throw new Error('Game not found')
 		if (commentExists) {
-			game.totalStars = game.totalStars + comment.rating - commentExists.rating
+			game.totalStars =
+				game.totalStars + comment.rating - commentExists.rating
 			game.rating = game.totalStars / game.commentCount
 			commentExists.rating = comment.rating
 			commentExists.review = comment.review
 			await commentExists.save()
 			await game.save()
 			return commentExists
-		} 
-		else {
-		const gameProgressCompleted = await this.gameProgressModel.exists({
-			userId: comment.userId,
-			gameId: comment.gameId,
-			isCompleted: true,
-		})
-		if (!gameProgressCompleted)
-			throw new Error(
-				'User has not completed the game they are trying to write a comment for'
-			)
-		const newComment = await this.commentModel.createComment(comment)
-		if (!newComment) throw new Error('Unable to create comment')
-		game!.commentCount = game!.commentCount + 1
-		game.totalStars = game.totalStars + comment.rating
-		game.rating = game.totalStars / game.commentCount
-		await game.save()
-		return newComment
-			}
+		} else {
+			const gameProgressCompleted = await this.gameProgressModel.exists({
+				userId: comment.userId,
+				gameId: comment.gameId,
+				isCompleted: true,
+			})
+			if (!gameProgressCompleted)
+				throw new Error(
+					'User has not completed the game they are trying to write a comment for'
+				)
+			const newComment = await this.commentModel.createComment(comment)
+			if (!newComment) throw new Error('Unable to create comment')
+			game!.commentCount = game!.commentCount + 1
+			game.totalStars = game.totalStars + comment.rating
+			game.rating = game.totalStars / game.commentCount
+			await game.save()
+			return newComment
+		}
 	}
 
 	public async getGameComments(
@@ -70,5 +70,14 @@ export default class CommentService {
 	public async getUserComments(id: string) {
 		const userComments = await this.commentModel.getUserComments(id)
 		return userComments
+	}
+
+	public async getUserGameComment(id: string, gameId: string) {
+		const userComment = await this.commentModel.findOne({
+			userId: id,
+			gameId
+		})
+		if(!userComment) return null
+		return userComment
 	}
 }
