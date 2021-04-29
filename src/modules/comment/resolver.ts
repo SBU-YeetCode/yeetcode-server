@@ -69,4 +69,5 @@ export default class CommentResolver {
 		const newComment = await this.commentService.createComment(comment)
 		return newComment
 	}
+	
 }
