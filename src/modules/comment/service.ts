@@ -40,11 +40,10 @@ export default class CommentService {
 			const gameProgressCompleted = await this.gameProgressModel.exists({
 				userId: comment.userId,
 				gameId: comment.gameId,
-				isCompleted: true,
 			})
 			if (!gameProgressCompleted)
 				throw new Error(
-					'User has not completed the game they are trying to write a comment for'
+					'User has not started the game they are trying to write a comment for'
 				)
 			const newComment = await this.commentModel.createComment(comment)
 			if (!newComment) throw new Error('Unable to create comment')
