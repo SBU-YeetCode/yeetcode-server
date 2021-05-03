@@ -253,12 +253,10 @@ export default class GameProgressService {
 					throw new Error(
 						`Submitted question is for ${GAMETYPE.SPOTTHEBUG} but did not recieve spotTheBug from mutation.`
 					)
-				const submittedLine = parseInt(submittedAnswer.spotTheBug)
-				if (isNaN(submittedLine))
-					throw new Error(
-						`Line number recieved is not a number: ${submittedAnswer.spotTheBug}`
-					)
-				if (submittedLine == gameQuestion.spotTheBug?.bugLine)
+				if (
+					submittedAnswer.spotTheBug ==
+					gameQuestion.spotTheBug?.bugLine
+				)
 					isCorrect = true
 				break
 			default:
