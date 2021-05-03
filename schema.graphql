@@ -182,6 +182,9 @@ type Mutation {
   createComment(comment: CommentInput!, userId: ObjectId!): Comment!
   createGame(codingLanguage: String, description: String, difficulty: String, tags: [String!], title: String): Game!
   createGameProgress(gameId: String!, userId: ObjectId!): GameProgress!
+
+  """Used to create a Level, Stage, or Question"""
+  createInstance(gameId: String!, kind: String!, roadmapId: String, title: String!, userId: ObjectId!): RoadmapObject!
   createLevel(gameId: String!, level: LevelInput!): LevelObject!
   createQuestion(gameId: String!, question: QuestionInput!): QuestionObject!
   createStage(gameId: String!, stage: StageInput!): StageObject!

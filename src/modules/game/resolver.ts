@@ -28,6 +28,7 @@ import {
 	GetFilterGamesInput,
 	UpdateGame,
 	NewGame,
+	NewInstance,
 } from './input'
 import { PaginatedGameResponse } from './input'
 import { PaginationInput } from '../utils/pagination'
@@ -189,6 +190,26 @@ export default class GameResolver {
 	) {
 		let newStage = await this.gameService.createStage(stage, gameId)
 		return newStage
+	}
+
+	/**
+	 * Create instance
+	 *  title, kind: "Question" | "stage" etc, --parentId--, sequence
+	 */
+	@Mutation((returns) => Roadmap, {
+		description: 'Used to create a Level, Stage, or Question',
+	})
+	async createInstance(
+		@Args() newInstance: NewInstance,
+		@Arg('gameId') gameId: string,
+		@Arg('userId') userId: ObjectId
+	) {
+		const updatedRoadmap = await this.gameService.createInstance(
+			newInstance,
+			gameId,
+			userId
+		)
+		return updatedRoadmap
 	}
 
 	@Mutation((returns) => [Question])

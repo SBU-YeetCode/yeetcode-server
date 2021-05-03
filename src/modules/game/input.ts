@@ -89,3 +89,18 @@ export class NewGame {
 	@Field({ nullable: true })
 	description: string
 }
+
+@ArgsType()
+export class NewInstance {
+	// @Field({ nullable: true })
+	// readonly parentId?: ObjectId
+
+	@Field()
+	title!: string
+
+	@Field()
+	kind!: string
+
+	@Field({ nullable: true })
+	roadmapId?: string
+}

@@ -18,11 +18,14 @@ import {
 	SORT_OPTIONS,
 	UpdateGame,
 	NewGame,
+	NewInstance,
 } from './input'
 import GameModel from './model'
 import CommentModel from '../comment/model'
 import GameProgressModel from '../gameProgress/model'
 import { Deleted } from '../utils/output'
+import { createQuestion as questionBuilder } from '../../tests/data/question-builder'
+import { createRoadmap } from '../../tests/data/subgameroadmap-builder'
 
 @Service() // Dependencies injection
 export default class GameService {
@@ -318,5 +321,144 @@ export default class GameService {
 		}
 		toReturn.success = true
 		return toReturn
+	}
+
+	public async createInstance(
+		newInstance: NewInstance,
+		gameId: string,
+		userId: ObjectId
+	) {
+		// Get game
+		const game = await this.gameModel.findById(gameId)
+		if (!game)
+			throw new Error(
+				`Game does not exist with the following ID: ${gameId}`
+			)
+		let currentIndex: number = -1
+		let subroadmap: Roadmap
+		switch (newInstance.kind) {
+			case 'Question':
+				if (!newInstance.roadmapId)
+					throw new Error(
+						'A Question cannot be added as a top level component.'
+					)
+				// Create a new question
+				const newQuestion = questionBuilder({
+					title: newInstance.title,
+				})
+				// Find current subroadmap
+				currentIndex = game.roadmap.findIndex(
+					(element) =>
+						element._id.toHexString() === newInstance.roadmapId
+				)
+				if (currentIndex === -1)
+					throw new Error(
+						`The roadmap could not be found for the given roadmapId arguement: ${newInstance.roadmapId}`
+					)
+				// Create subroadmap
+				subroadmap = createRoadmap({
+					sequence: currentIndex + 1,
+					kind: newInstance.kind,
+					refId: newQuestion._id.toHexString(),
+				})
+				// Add parentId to subroadmap
+				for (var i = currentIndex; i != -1; i--) {
+					if (game.roadmap[i].kind !== 'Question') {
+						subroadmap.parent = game.roadmap[i]._id
+						break
+					}
+				}
+				if (!subroadmap.parent)
+					throw new Error(
+						`A higher level type (Stage or Level) could not be found above where the Question is to be added. Questions must be added under Stages or Levels.`
+					)
+				// Insert question and subroadmap
+				game.questions.push(newQuestion)
+				game.roadmap = game.roadmap.map((element) => {
+					if (element.sequence >= currentIndex + 1) {
+						element.sequence += 1
+					}
+					return element
+				})
+				game.roadmap.splice(currentIndex + 1, 0, subroadmap)
+				break
+			case 'Stage':
+				if (!newInstance.roadmapId)
+					throw new Error(
+						'A Stage cannot be added as a top level component.'
+					)
+				// Create a stage
+				const newStage: Stage = {
+					_id: new ObjectId(),
+					title: newInstance.title,
+					description: 'Add your Stage description here...',
+				}
+				// Find current subroadmap
+				currentIndex = game.roadmap.findIndex(
+					(element) =>
+						element._id.toHexString() === newInstance.roadmapId
+				)
+				if (currentIndex === -1)
+					throw new Error(
+						`The roadmap could not be found for the given roadmapId arguement: ${newInstance.roadmapId}`
+					)
+				// Create subroadmap
+				subroadmap = createRoadmap({
+					sequence: currentIndex + 1,
+					kind: newInstance.kind,
+					refId: newStage._id.toHexString(),
+				})
+				// Add parentId to subroadmap
+				for (var i = currentIndex; i != -1; i--) {
+					if (
+						game.roadmap[i].kind !== 'Question' &&
+						game.roadmap[i].kind !== 'Stage'
+					) {
+						subroadmap.parent = game.roadmap[i]._id
+						break
+					}
+				}
+				if (!subroadmap.parent)
+					throw new Error(
+						`A higher level type (Level) could not be found above where the Stage is to be added. Stages must be added under Levels.`
+					)
+				// Insert stage and subroadmap
+				game.stages.push(newStage)
+				game.roadmap = game.roadmap.map((element) => {
+					if (element.sequence >= currentIndex + 1) {
+						element.sequence += 1
+					}
+					return element
+				})
+				game.roadmap.splice(currentIndex + 1, 0, subroadmap)
+				break
+			case 'Level':
+				const newLevel: Level = {
+					_id: new ObjectId(),
+					title: newInstance.title,
+					description: 'Add your level description here...',
+				}
+				// Create subroadmap
+				subroadmap = createRoadmap({
+					sequence: 0,
+					kind: newInstance.kind,
+					refId: newLevel._id.toHexString(),
+				})
+				// Insert level and subroadmap
+				game.levels.push(newLevel)
+				game.roadmap = game.roadmap.map((element) => {
+					element.sequence += 1
+					return element
+				})
+				game.roadmap.splice(0, 0, subroadmap)
+				break
+			default:
+				throw new Error(
+					`Cannot add unknown instance type: ${newInstance.kind}`
+				)
+		}
+		const savedGame = await game.save()
+		if (!savedGame) throw new Error('Error updating roadmap')
+		return game.roadmap
 	}
 }
