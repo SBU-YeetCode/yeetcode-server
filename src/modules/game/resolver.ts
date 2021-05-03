@@ -192,10 +192,7 @@ export default class GameResolver {
 		return newStage
 	}
 
-	/**
-	 * Create instance
-	 *  title, kind: "Question" | "stage" etc, --parentId--, sequence
-	 */
+	@canEdit()
 	@Mutation((returns) => Roadmap, {
 		description: 'Used to create a Level, Stage, or Question',
 	})

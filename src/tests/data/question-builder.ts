@@ -13,11 +13,11 @@ export const createQuestion = (question?: Partial<Question>): Question => {
 		hints: [],
 		multipleChoice: {
 			_id: new ObjectId(),
-			correctChoice: 'Hello',
-			incorrectChoices: ['bye'],
-			prompt: 'adele sang this song',
+			correctChoice: 'Correct Choice',
+			incorrectChoices: [],
+			prompt: 'Example Prompt',
 		},
 		gameType: GAMETYPE.MULTIPLECHOICE,
-		...Question,
+		...question,
 	}
 }

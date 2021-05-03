@@ -345,6 +345,9 @@ export default class GameService {
 				// Create a new question
 				const newQuestion = questionBuilder({
 					title: newInstance.title,
+					description: 'Add a description for the question here...',
+					points: 50,
+					timeLimit: 60000,
 				})
 				// Find current subroadmap
 				currentIndex = game.roadmap.findIndex(
@@ -443,7 +446,9 @@ export default class GameService {
 					sequence: 0,
 					kind: newInstance.kind,
 					refId: newLevel._id.toHexString(),
+					parent: undefined,
 				})
+				currentIndex = -1
 				// Insert level and subroadmap
 				game.levels.push(newLevel)
 				game.roadmap = game.roadmap.map((element) => {
@@ -459,6 +464,6 @@ export default class GameService {
 		}
 		const savedGame = await game.save()
 		if (!savedGame) throw new Error('Error updating roadmap')
-		return game.roadmap
+		return game.roadmap[currentIndex + 1]
 	}
 }
