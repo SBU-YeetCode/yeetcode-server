@@ -13,8 +13,8 @@ export class SpotTheBug {
 	prompt!: string
 
 	@prop()
-	@Field(() => Int)
-	bugLine!: number
+	@Field()
+	bugLine!: string
 
 	@prop()
 	@Field(() => String)

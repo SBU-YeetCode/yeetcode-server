@@ -364,14 +364,14 @@ enum SORT_OPTIONS {
 
 type SpotTheBug {
   _id: ObjectId!
-  bugLine: Int!
+  bugLine: String!
   code: String!
   prompt: String!
 }
 
 input SpotTheBugInput {
   _id: ObjectId!
-  bugLine: Int!
+  bugLine: String!
   code: String!
   prompt: String!
 }
