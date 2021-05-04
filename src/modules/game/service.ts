@@ -1,31 +1,16 @@
 import { ObjectId } from 'mongodb'
 import { Service } from 'typedi'
-import {
-	Game,
-	Level,
-	Question,
-	Stage,
-	LevelInput,
-	QuestionInput,
-	StageInput,
-	Roadmap,
-} from '../../entities'
+import { Game, Level, Question, Stage, LevelInput, QuestionInput, StageInput, Roadmap } from '../../entities'
 import { GameInput } from '../../entities/game/game'
 import { PaginationInput } from '../utils/pagination'
-import {
-	LANGUAGES,
-	PaginatedGameResponse,
-	SORT_OPTIONS,
-	UpdateGame,
-	NewGame,
-	NewInstance,
-} from './input'
+import { LANGUAGES, PaginatedGameResponse, SORT_OPTIONS, UpdateGame, NewGame, NewInstance } from './input'
 import GameModel from './model'
 import CommentModel from '../comment/model'
 import GameProgressModel from '../gameProgress/model'
 import { Deleted } from '../utils/output'
 import { createQuestion as questionBuilder } from '../../tests/data/question-builder'
 import { createRoadmap } from '../../tests/data/subgameroadmap-builder'
+import { DocumentType } from '@typegoose/typegoose'
 
 @Service() // Dependencies injection
 export default class GameService {
@@ -68,12 +53,7 @@ export default class GameService {
 		sortDir: number | null,
 		pagination: PaginationInput
 	): Promise<PaginatedGameResponse> {
-		const games = await this.gameModel.getFilterGames(
-			language,
-			sortDir,
-			sort,
-			pagination
-		)
+		const games = await this.gameModel.getFilterGames(language, sortDir, sort, pagination)
 		return games
 	}
 
@@ -82,10 +62,7 @@ export default class GameService {
 		return games
 	}
 
-	public async getSearch(
-		query: string,
-		pagination: PaginationInput
-	): Promise<PaginatedGameResponse> {
+	public async getSearch(query: string, pagination: PaginationInput): Promise<PaginatedGameResponse> {
 		const results = await this.gameModel.search(query, pagination)
 		return results
 	}
@@ -95,8 +72,7 @@ export default class GameService {
 		if (!game) throw new Error('Game not found')
 		const gameLevels = game.levels
 		for (var i = 0; i < gameLevels.length; i++) {
-			if (gameLevels[i]._id.toHexString() === levelId)
-				return gameLevels[i]
+			if (gameLevels[i]._id.toHexString() === levelId) return gameLevels[i]
 		}
 		throw new Error('Level not found')
 	}
@@ -106,8 +82,7 @@ export default class GameService {
 		if (!game) throw new Error('Game not found')
 		const gameStages = game.stages
 		for (var i = 0; i < gameStages.length; i++) {
-			if (gameStages[i]._id.toHexString() === stageId)
-				return gameStages[i]
+			if (gameStages[i]._id.toHexString() === stageId) return gameStages[i]
 		}
 		throw new Error('Stage not found')
 	}
@@ -117,8 +92,7 @@ export default class GameService {
 		if (!game) throw new Error('Game not found')
 		const gameQuestions = game.questions
 		for (var i = 0; i < gameQuestions.length; i++) {
-			if (gameQuestions[i]._id.toHexString() === questionId)
-				return gameQuestions[i]
+			if (gameQuestions[i]._id.toHexString() === questionId) return gameQuestions[i]
 		}
 		throw new Error('Question not found')
 	}
@@ -131,20 +105,9 @@ export default class GameService {
 	}
 
 	public async updateGame(newGameData: UpdateGame) {
-		const {
-			newCodingLanguage,
-			newTitle,
-			newDifficulty,
-			newTags,
-			newDescription,
-		} = newGameData
-		const oldGame = await this.gameModel.findById(
-			newGameData.gameId.toHexString()
-		)
-		if (!oldGame)
-			throw new Error(
-				`Game could not be found with ID: ${newGameData.gameId}`
-			)
+		const { newCodingLanguage, newTitle, newDifficulty, newTags, newDescription } = newGameData
+		const oldGame = await this.gameModel.findById(newGameData.gameId.toHexString())
+		if (!oldGame) throw new Error(`Game could not be found with ID: ${newGameData.gameId}`)
 		if (newCodingLanguage) oldGame.codingLanguage = newCodingLanguage
 		if (newTitle) oldGame.title = newTitle
 		if (newDifficulty) oldGame.difficulty = newDifficulty
@@ -165,9 +128,7 @@ export default class GameService {
 		const game = await this.gameModel.findById(gameId)
 		if (!game) throw new Error(`Game could not be found with ID: ${gameId}`)
 		console.log(_id)
-		const newLevel = game.levels.find(
-			(l) => l._id.toHexString() === _id.toHexString()
-		)
+		const newLevel = game.levels.find((l) => l._id.toHexString() === _id.toHexString())
 		if (!newLevel) throw new Error('Could not create level')
 		return newLevel
 	}
@@ -181,9 +142,7 @@ export default class GameService {
 		})
 		const game = await this.gameModel.findById(gameId)
 		if (!game) throw new Error(`Game could not be found with ID: ${gameId}`)
-		const newQuestion = game.questions.find(
-			(l) => l._id.toHexString() === _id.toHexString()
-		)
+		const newQuestion = game.questions.find((l) => l._id.toHexString() === _id.toHexString())
 		if (!newQuestion) throw new Error('Could not create question')
 		return newQuestion
 	}
@@ -197,9 +156,7 @@ export default class GameService {
 		})
 		const game = await this.gameModel.findById(gameId)
 		if (!game) throw new Error(`Game could not be found with ID: ${gameId}`)
-		const newStage = game.stages.find(
-			(l) => l._id.toHexString() === _id.toHexString()
-		)
+		const newStage = game.stages.find((l) => l._id.toHexString() === _id.toHexString())
 		if (!newStage) throw new Error('Could not create stage')
 		return newStage
 	}
@@ -219,12 +176,10 @@ export default class GameService {
 		var game = await this.gameModel.findById(gameId)
 		if (!game) throw new Error(`Game could not be found with ID: ${gameId}`)
 		const oldLevelArray = game.levels
-		if (!oldLevelArray)
-			throw new Error(`Levels could not be found with ID: ${gameId}`)
+		if (!oldLevelArray) throw new Error(`Levels could not be found with ID: ${gameId}`)
 		for (var i = 0; i < oldLevelArray.length; i++) {
 			for (var j = 0; j < levelsToUpdate.length; j++) {
-				if (oldLevelArray[i]._id.equals(levelsToUpdate[j]._id))
-					oldLevelArray[i] = levelsToUpdate[j]
+				if (oldLevelArray[i]._id.equals(levelsToUpdate[j]._id)) oldLevelArray[i] = levelsToUpdate[j]
 			}
 		}
 		const newGame = await game.save()
@@ -232,19 +187,14 @@ export default class GameService {
 		return game.levels
 	}
 
-	public async updateQuestions(
-		questionsToUpdate: Question[],
-		gameId: string
-	) {
+	public async updateQuestions(questionsToUpdate: Question[], gameId: string) {
 		var game = await this.gameModel.findById(gameId)
 		if (!game) throw new Error(`Game could not be found with ID: ${gameId}`)
 		const oldQuestionArray = game.questions
-		if (!oldQuestionArray)
-			throw new Error(`Questions could not be found with ID: ${gameId}`)
+		if (!oldQuestionArray) throw new Error(`Questions could not be found with ID: ${gameId}`)
 		for (var i = 0; i < oldQuestionArray.length; i++) {
 			for (var j = 0; j < questionsToUpdate.length; j++) {
-				if (oldQuestionArray[i]._id.equals(questionsToUpdate[j]._id))
-					oldQuestionArray[i] = questionsToUpdate[j]
+				if (oldQuestionArray[i]._id.equals(questionsToUpdate[j]._id)) oldQuestionArray[i] = questionsToUpdate[j]
 			}
 		}
 		const newGame = await game.save()
@@ -256,12 +206,10 @@ export default class GameService {
 		var game = await this.gameModel.findById(gameId)
 		if (!game) throw new Error(`Game could not be found with ID: ${gameId}`)
 		const oldStageArray = game.stages
-		if (!oldStageArray)
-			throw new Error(`Stages could not be found with ID: ${gameId}`)
+		if (!oldStageArray) throw new Error(`Stages could not be found with ID: ${gameId}`)
 		for (var i = 0; i < oldStageArray.length; i++) {
 			for (var j = 0; j < stagesToUpdate.length; j++) {
-				if (oldStageArray[i]._id.equals(stagesToUpdate[j]._id))
-					oldStageArray[i] = stagesToUpdate[j]
+				if (oldStageArray[i]._id.equals(stagesToUpdate[j]._id)) oldStageArray[i] = stagesToUpdate[j]
 			}
 		}
 		const newGame = await game.save()
@@ -285,23 +233,20 @@ export default class GameService {
 			if (!gameExists) throw new Error('Game not found')
 
 			// Check if user owns game
-			if (gameExists.createdBy !== userId)
-				throw new Error('Game is not owned by specified user')
+			if (gameExists.createdBy !== userId) throw new Error('Game is not owned by specified user')
 
 			// Delete game comments
 			const commentsDeleted = await this.commentModel.deleteMany({
 				gameId,
 			})
-			if (commentsDeleted.ok !== 1)
-				throw new Error('Error deleting comments on game')
+			if (commentsDeleted.ok !== 1) throw new Error('Error deleting comments on game')
 			toReturn.amountDeleted += commentsDeleted.deletedCount!
 
 			// Delete game progress
 			const progressDeleted = await this.gameProgressModel.deleteMany({
 				gameId,
 			})
-			if (progressDeleted.ok !== 1)
-				throw new Error('Error deleting game progress for game')
+			if (progressDeleted.ok !== 1) throw new Error('Error deleting game progress for game')
 			toReturn.amountDeleted += progressDeleted.deletedCount!
 
 			// Delete game
@@ -323,25 +268,15 @@ export default class GameService {
 		return toReturn
 	}
 
-	public async createInstance(
-		newInstance: NewInstance,
-		gameId: string,
-		userId: ObjectId
-	) {
+	public async createInstance(newInstance: NewInstance, gameId: string, userId: ObjectId) {
 		// Get game
 		const game = await this.gameModel.findById(gameId)
-		if (!game)
-			throw new Error(
-				`Game does not exist with the following ID: ${gameId}`
-			)
+		if (!game) throw new Error(`Game does not exist with the following ID: ${gameId}`)
 		let currentIndex: number = -1
 		let subroadmap: Roadmap
 		switch (newInstance.kind) {
 			case 'Question':
-				if (!newInstance.roadmapId)
-					throw new Error(
-						'A Question cannot be added as a top level component.'
-					)
+				if (!newInstance.roadmapId) throw new Error('A Question cannot be added as a top level component.')
 				// Create a new question
 				const newQuestion = questionBuilder({
 					title: newInstance.title,
@@ -350,10 +285,7 @@ export default class GameService {
 					timeLimit: 60000,
 				})
 				// Find current subroadmap
-				currentIndex = game.roadmap.findIndex(
-					(element) =>
-						element._id.toHexString() === newInstance.roadmapId
-				)
+				currentIndex = game.roadmap.findIndex((element) => element._id.toHexString() === newInstance.roadmapId)
 				if (currentIndex === -1)
 					throw new Error(
 						`The roadmap could not be found for the given roadmapId arguement: ${newInstance.roadmapId}`
@@ -386,10 +318,7 @@ export default class GameService {
 				game.roadmap.splice(currentIndex + 1, 0, subroadmap)
 				break
 			case 'Stage':
-				if (!newInstance.roadmapId)
-					throw new Error(
-						'A Stage cannot be added as a top level component.'
-					)
+				if (!newInstance.roadmapId) throw new Error('A Stage cannot be added as a top level component.')
 				// Create a stage
 				const newStage: Stage = {
 					_id: new ObjectId(),
@@ -397,10 +326,7 @@ export default class GameService {
 					description: 'Add your Stage description here...',
 				}
 				// Find current subroadmap
-				currentIndex = game.roadmap.findIndex(
-					(element) =>
-						element._id.toHexString() === newInstance.roadmapId
-				)
+				currentIndex = game.roadmap.findIndex((element) => element._id.toHexString() === newInstance.roadmapId)
 				if (currentIndex === -1)
 					throw new Error(
 						`The roadmap could not be found for the given roadmapId arguement: ${newInstance.roadmapId}`
@@ -413,10 +339,7 @@ export default class GameService {
 				})
 				// Add parentId to subroadmap
 				for (var i = currentIndex; i != -1; i--) {
-					if (
-						game.roadmap[i].kind !== 'Question' &&
-						game.roadmap[i].kind !== 'Stage'
-					) {
+					if (game.roadmap[i].kind !== 'Question' && game.roadmap[i].kind !== 'Stage') {
 						subroadmap.parent = game.roadmap[i]._id
 						break
 					}
@@ -458,12 +381,105 @@ export default class GameService {
 				game.roadmap.splice(0, 0, subroadmap)
 				break
 			default:
-				throw new Error(
-					`Cannot add unknown instance type: ${newInstance.kind}`
-				)
+				throw new Error(`Cannot add unknown instance type: ${newInstance.kind}`)
 		}
 		const savedGame = await game.save()
 		if (!savedGame) throw new Error('Error updating roadmap')
 		return game.roadmap[currentIndex + 1]
+	}
+
+	/**
+	 *
+	 * Stage 1 - seq 1
+	 * Q 1 - seq 2
+	 * Q 2 - seq 3
+	 * Q 3 - seq 4
+	 * Q 4 - seq 5
+	 * Stage 2 - seq 6
+	 */
+
+	// Returns a game where the specified stage and questions nested inside the stage are deleted, as well as instances of them in the roadmap
+	private deleteStageHelper(game: DocumentType<Game>, stageRoadmapId: string): DocumentType<Game> {
+		// Get stage roadmap
+		const roadmapInstance = game.roadmap.find((e) => e._id.toHexString() === stageRoadmapId)
+		if (!roadmapInstance) throw new Error('Roadmap could not be found for the given stage roadmapId.')
+		// Get all questions in roadmap that are nested inside stage
+		const questionRoadmaps = game.roadmap.filter((e) => e.parent.toHexString() === stageRoadmapId)
+		// Delete stage
+		game.stages = game.stages.filter((e) => e._id.toHexString() !== roadmapInstance.refId)
+		// Delete questions
+		game.questions = game.questions.filter((e) => {
+			for (var i = 0; i < questionRoadmaps.length; i++) {
+				if (e._id.toHexString() === questionRoadmaps[i].refId) return false
+			}
+			return true
+		})
+		// Delete stage roadmap
+		game.roadmap = game.roadmap.filter((e) => e._id !== roadmapInstance._id)
+		// Delete questions in roadmap
+		game.roadmap = game.roadmap.filter((e) => {
+			for (var i = 0; i < questionRoadmaps.length; i++) {
+				if (e._id === questionRoadmaps[i]._id) return false
+			}
+			return true
+		})
+		// Adjust sequences in roadmap
+		const seqeunceAdjustment = 1 + questionRoadmaps.length
+		game.roadmap = game.roadmap.map((e) => {
+			if (e.sequence >= roadmapInstance.sequence + seqeunceAdjustment) e.sequence -= seqeunceAdjustment
+			return e
+		})
+		return game
+	}
+
+	public async deleteInstance(roadmapId: string, gameId: string, userId: ObjectId) {
+		// Get game
+		let game = await this.gameModel.findById(gameId)
+		if (!game) throw new Error(`Game does not exist with the following ID: ${gameId}`)
+		const roadmapInstance = game.roadmap.find((e) => e._id.toHexString() === roadmapId)
+		if (!roadmapInstance) throw new Error('Roadmap could not be found for the given roadmapId.')
+		let amountDeleted = 0
+		if (roadmapInstance.kind === 'Question') {
+			// Delete question
+			game.questions = game.questions.filter((e) => {
+				if (e._id.toHexString() !== roadmapInstance.refId) return e
+			})
+			// Adjust sequences in roadmap
+			game.roadmap = game.roadmap.map((e) => {
+				if (e.sequence > roadmapInstance.sequence) {
+					e.sequence -= 1
+				}
+				return e
+			})
+			// Remove roadmapInstance from roadmap
+			game.roadmap = game.roadmap.filter((e) => e._id !== roadmapInstance._id)
+		} else if (roadmapInstance.kind === 'Stage') {
+			// Delete stage and questions
+			game = this.deleteStageHelper(game, roadmapId)
+		} else if (roadmapInstance.kind === 'Level') {
+			// Find and delete all stages nested under level
+			const nestedStages = game.roadmap.filter((e) => e.parent === roadmapInstance._id)
+			for (var i = 0; i < nestedStages.length; i++) {
+				game = this.deleteStageHelper(game, nestedStages[i]._id.toHexString())
+			}
+			// Delete the Level
+			game.levels = game.levels.filter((e) => {
+				if (e._id.toHexString() !== roadmapInstance.refId) return e
+			})
+			// Adjust sequences after deleting level
+			game.roadmap = game.roadmap.map((e) => {
+				if (e.sequence > roadmapInstance.sequence) {
+					e.sequence -= 1
+				}
+				return e
+			})
+			// Remove roadmapInstance from roadmap
+			game.roadmap = game.roadmap.filter((e) => e._id !== roadmapInstance._id)
+		} else {
+			throw new Error(`Roadmap has unknown kind value: ${roadmapInstance.kind}`)
+		}
+		const savedGame = await game.save()
+		if (!savedGame) throw new Error('Error updating roadmap')
+		return game.roadmap
 	}
 }

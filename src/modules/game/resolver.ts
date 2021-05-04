@@ -1,14 +1,5 @@
 import { ObjectId } from 'mongodb'
-import {
-	Query,
-	Resolver,
-	Arg,
-	Mutation,
-	Args,
-	UseMiddleware,
-	FieldResolver,
-	Ctx,
-} from 'type-graphql'
+import { Query, Resolver, Arg, Mutation, Args, UseMiddleware, FieldResolver, Ctx } from 'type-graphql'
 import { Service } from 'typedi'
 import {
 	Game,
@@ -22,14 +13,7 @@ import {
 	RoadmapInput,
 } from '../../entities'
 import GameService from './service'
-import {
-	LANGUAGES,
-	SORT_OPTIONS,
-	GetFilterGamesInput,
-	UpdateGame,
-	NewGame,
-	NewInstance,
-} from './input'
+import { LANGUAGES, SORT_OPTIONS, GetFilterGamesInput, UpdateGame, NewGame, NewInstance } from './input'
 import { PaginatedGameResponse } from './input'
 import { PaginationInput } from '../utils/pagination'
 import { GameInput } from '../../entities/game/game'
@@ -53,29 +37,19 @@ export default class GameResolver {
 		@Args() { language, sort, sortDir }: GetFilterGamesInput,
 		@Args() pagination: PaginationInput
 	) {
-		const filterGames = await this.gameService.getFilterGames(
-			language,
-			sort,
-			sortDir,
-			pagination
-		)
+		const filterGames = await this.gameService.getFilterGames(language, sort, sortDir, pagination)
 		return filterGames
 	}
 
 	@Query((returns) => PaginatedGameResponse)
-	async getSearch(
-		@Arg('query') query: string,
-		@Args() pagination: PaginationInput
-	): Promise<PaginatedGameResponse> {
+	async getSearch(@Arg('query') query: string, @Args() pagination: PaginationInput): Promise<PaginatedGameResponse> {
 		const searchResult = await this.gameService.getSearch(query, pagination)
 		return searchResult
 	}
 
 	@Query((returns) => [Game])
 	async getUserCreatedGames(@Arg('userId') userId: string) {
-		const userCreatedGames = await this.gameService.getUserCreatedGames(
-			userId
-		)
+		const userCreatedGames = await this.gameService.getUserCreatedGames(userId)
 		return userCreatedGames
 	}
 
@@ -96,28 +70,19 @@ export default class GameResolver {
 	// }
 
 	@Query((returns) => Level)
-	async getLevel(
-		@Arg('levelId') levelId: string,
-		@Arg('gameId') gameId: string
-	) {
+	async getLevel(@Arg('levelId') levelId: string, @Arg('gameId') gameId: string) {
 		const level = await this.gameService.getLevel(levelId, gameId)
 		return level
 	}
 
 	@Query((returns) => Stage)
-	async getStage(
-		@Arg('stageId') stageId: string,
-		@Arg('gameId') gameId: string
-	) {
+	async getStage(@Arg('stageId') stageId: string, @Arg('gameId') gameId: string) {
 		const stage = await this.gameService.getStage(stageId, gameId)
 		return stage
 	}
 
 	@Query((returns) => Question)
-	async getQuestion(
-		@Arg('questionId') questionId: string,
-		@Arg('gameId') gameId: string
-	) {
+	async getQuestion(@Arg('questionId') questionId: string, @Arg('gameId') gameId: string) {
 		const question = await this.gameService.getQuestion(questionId, gameId)
 		return question
 	}
@@ -143,51 +108,30 @@ export default class GameResolver {
 	}
 
 	@Mutation((returns) => [Roadmap])
-	async updateRoadmap(
-		@Arg('roadmap', () => [RoadmapInput]) roadmap: Roadmap[],
-		@Arg('gameId') gameId: string
-	) {
+	async updateRoadmap(@Arg('roadmap', () => [RoadmapInput]) roadmap: Roadmap[], @Arg('gameId') gameId: string) {
 		return this.gameService.updateRoadmap(roadmap, gameId)
 	}
 
 	@Mutation((returns) => [Level])
-	async updateLevels(
-		@Arg('levelsToUpdate', () => [Level]) levelsToUpdate: Level[],
-		@Arg('gameId') gameId: string
-	) {
-		let allLevels = await this.gameService.updateLevels(
-			levelsToUpdate,
-			gameId
-		)
+	async updateLevels(@Arg('levelsToUpdate', () => [Level]) levelsToUpdate: Level[], @Arg('gameId') gameId: string) {
+		let allLevels = await this.gameService.updateLevels(levelsToUpdate, gameId)
 		return allLevels
 	}
 
 	@Mutation((returns) => Level)
-	async createLevel(
-		@Arg('level', () => LevelInput) level: LevelInput,
-		@Arg('gameId') gameId: string
-	) {
+	async createLevel(@Arg('level', () => LevelInput) level: LevelInput, @Arg('gameId') gameId: string) {
 		let newLevel = await this.gameService.createLevel(level, gameId)
 		return newLevel
 	}
 
 	@Mutation((returns) => Question)
-	async createQuestion(
-		@Arg('question', () => QuestionInput) question: QuestionInput,
-		@Arg('gameId') gameId: string
-	) {
-		let newQuestion = await this.gameService.createQuestion(
-			question,
-			gameId
-		)
+	async createQuestion(@Arg('question', () => QuestionInput) question: QuestionInput, @Arg('gameId') gameId: string) {
+		let newQuestion = await this.gameService.createQuestion(question, gameId)
 		return newQuestion
 	}
 
 	@Mutation((returns) => Stage)
-	async createStage(
-		@Arg('stage', () => StageInput) stage: StageInput,
-		@Arg('gameId') gameId: string
-	) {
+	async createStage(@Arg('stage', () => StageInput) stage: StageInput, @Arg('gameId') gameId: string) {
 		let newStage = await this.gameService.createStage(stage, gameId)
 		return newStage
 	}
@@ -201,12 +145,21 @@ export default class GameResolver {
 		@Arg('gameId') gameId: string,
 		@Arg('userId') userId: ObjectId
 	) {
-		const updatedRoadmap = await this.gameService.createInstance(
-			newInstance,
-			gameId,
-			userId
-		)
+		const updatedRoadmap = await this.gameService.createInstance(newInstance, gameId, userId)
 		return updatedRoadmap
+	}
+
+	@canEdit()
+	@Mutation(() => [Roadmap], {
+		description: 'Used to delete a Level, Stage, or Question',
+	})
+	async deleteInstance(
+		@Arg('roadmapId', { description: 'The _id of the instance in the Roadmap to be deleted' }) roadmapId: string,
+		@Arg('gameId') gameId: string,
+		@Arg('userId') userId: ObjectId
+	) {
+		const newRoadmap = await this.gameService.deleteInstance(roadmapId, gameId, userId)
+		return newRoadmap
 	}
 
 	@Mutation((returns) => [Question])
@@ -215,35 +168,20 @@ export default class GameResolver {
 		questionsToUpdate: Question[],
 		@Arg('gameId') gameId: string
 	) {
-		let allQuestions = await this.gameService.updateQuestions(
-			questionsToUpdate,
-			gameId
-		)
+		let allQuestions = await this.gameService.updateQuestions(questionsToUpdate, gameId)
 		return allQuestions
 	}
 
 	@Mutation((returns) => [Stage])
-	async updateStages(
-		@Arg('stagesToUpdate', () => [Stage]) stagesToUpdate: Stage[],
-		@Arg('gameId') gameId: string
-	) {
-		let allStages = await this.gameService.updateStages(
-			stagesToUpdate,
-			gameId
-		)
+	async updateStages(@Arg('stagesToUpdate', () => [Stage]) stagesToUpdate: Stage[], @Arg('gameId') gameId: string) {
+		let allStages = await this.gameService.updateStages(stagesToUpdate, gameId)
 		return allStages
 	}
 
 	@Mutation(() => Deleted)
 	@canEdit()
-	async deleteGame(
-		@Arg('gameId') gameId: string,
-		@Arg('userId') userId: ObjectId
-	) {
-		const deletedObj = await this.gameService.deleteGame(
-			gameId,
-			userId.toHexString()
-		)
+	async deleteGame(@Arg('gameId') gameId: string, @Arg('userId') userId: ObjectId) {
+		const deletedObj = await this.gameService.deleteGame(gameId, userId.toHexString())
 		return deletedObj
 	}
 }
