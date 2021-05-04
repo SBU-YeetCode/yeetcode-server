@@ -191,6 +191,15 @@ type Mutation {
   createUser(user: UserInput!): User!
   deleteGame(gameId: String!, userId: ObjectId!): Deleted!
   deleteGameProgress(gameProgressId: String!, userId: ObjectId!): Deleted!
+
+  """Used to delete a Level, Stage, or Question"""
+  deleteInstance(
+    gameId: String!
+
+    """The _id of the instance in the Roadmap to be deleted"""
+    roadmapId: String!
+    userId: ObjectId!
+  ): [RoadmapObject!]!
   deleteUser(userId: ObjectId!): Deleted!
   revealHints(gameProgressId: ObjectId!, questionId: String!, userId: ObjectId!): GameProgress!
   submitQuestion(gameId: String!, questionId: String!, submittedAnswer: SubmittedAnswer!, userId: ObjectId!): SubmitQuestion!
