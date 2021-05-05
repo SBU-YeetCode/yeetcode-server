@@ -388,23 +388,13 @@ export default class GameService {
 		return game.roadmap[currentIndex + 1]
 	}
 
-	/**
-	 *
-	 * Stage 1 - seq 1
-	 * Q 1 - seq 2
-	 * Q 2 - seq 3
-	 * Q 3 - seq 4
-	 * Q 4 - seq 5
-	 * Stage 2 - seq 6
-	 */
-
 	// Returns a game where the specified stage and questions nested inside the stage are deleted, as well as instances of them in the roadmap
 	private deleteStageHelper(game: DocumentType<Game>, stageRoadmapId: string): DocumentType<Game> {
 		// Get stage roadmap
 		const roadmapInstance = game.roadmap.find((e) => e._id.toHexString() === stageRoadmapId)
 		if (!roadmapInstance) throw new Error('Roadmap could not be found for the given stage roadmapId.')
 		// Get all questions in roadmap that are nested inside stage
-		const questionRoadmaps = game.roadmap.filter((e) => e.parent.toHexString() === stageRoadmapId)
+		const questionRoadmaps = game.roadmap.filter((e) => e.parent?.toHexString() === stageRoadmapId)
 		// Delete stage
 		game.stages = game.stages.filter((e) => e._id.toHexString() !== roadmapInstance.refId)
 		// Delete questions

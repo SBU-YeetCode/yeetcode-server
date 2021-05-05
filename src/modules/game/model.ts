@@ -45,7 +45,7 @@ export default class GameModel {
 		}
 		if (language) {
 			aggregateArray.push({
-				$match: { codingLanguage: language.toString() },
+				$match: { codingLanguage: language.toUpperCase() },
 			})
 		}
 		let sorter: any = {}
