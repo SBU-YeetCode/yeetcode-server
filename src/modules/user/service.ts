@@ -26,6 +26,12 @@ export default class UserService {
 		return user
 	}
 
+	public async getByUsername(username: string) {
+		const user = await this.userModel.getByUsername(username)
+		if (!user) throw new Error('No user found')
+		return user
+	}
+
 	public async createUser(user: User) {
 		const newUser = await this.userModel.createUser(user)
 		if (!user) throw new Error('Unable to create user')
@@ -39,8 +45,7 @@ export default class UserService {
 		const sort_descending = -1
 		let aggregateArray = []
 		let userCursor: User | null = null
-		if (pagination.cursor)
-			userCursor = await this.getById(new ObjectId(pagination.cursor))
+		if (pagination.cursor) userCursor = await this.getById(new ObjectId(pagination.cursor))
 		let sorter: any = {}
 		let match: any = {}
 		// Sort by points depending on language
@@ -91,9 +96,7 @@ export default class UserService {
 		}
 		return {
 			hasMore,
-			nextCursor: hasMore
-				? nodes[nodes.length - 1]._id.toHexString()
-				: null,
+			nextCursor: hasMore ? nodes[nodes.length - 1]._id.toHexString() : null,
 			nodes,
 		}
 	}
@@ -101,17 +104,13 @@ export default class UserService {
 	public async updateUser(newUserData: UpdateUserInput) {
 		const { newName, newUsername, newAvatar, newLargePicture } = newUserData
 		const oldUser = await this.userModel.findById(newUserData.userId)
-		if (!oldUser)
-			throw new Error(
-				`User could not be found with ID: ${newUserData.userId}`
-			)
+		if (!oldUser) throw new Error(`User could not be found with ID: ${newUserData.userId}`)
 		// If setting a username, ensure it is unique
 		if (newUsername) {
 			const usernameTaken = await UserMongooseModel.exists({
 				username: newUsername,
 			})
-			if (usernameTaken)
-				throw new Error(`Username already taken: ${newUsername}`)
+			if (usernameTaken) throw new Error(`Username already taken: ${newUsername}`)
 		}
 		// Begin updating
 		if (newName) oldUser.name = newName
@@ -161,9 +160,7 @@ export default class UserService {
 			deleteTotal.err = 'Error deleting game progress used by user'
 		} else deleteTotal.amountDeleted += gameProgressDeletion.deletedCount!
 		// Delete user account
-		const userDeletion = await this.userModel.deleteUser(
-			userId.toHexString()
-		)
+		const userDeletion = await this.userModel.deleteUser(userId.toHexString())
 		if (userDeletion.ok !== 1) {
 			deleteTotal.success = false
 			deleteTotal.err = 'Error deleting user document'

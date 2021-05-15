@@ -1,23 +1,10 @@
 import { ObjectId } from 'mongodb'
-import {
-	Query,
-	Resolver,
-	Arg,
-	Mutation,
-	Ctx,
-	Args,
-	FieldResolver,
-	Root,
-} from 'type-graphql'
+import { Query, Resolver, Arg, Mutation, Ctx, Args, FieldResolver, Root } from 'type-graphql'
 import { Service } from 'typedi'
 import { Comment, User, Game, GameProgress } from '../../entities'
 import { isLoggedIn } from '../middleware/isLoggedIn'
 import { PaginationInput } from '../utils/pagination'
-import {
-	GetLeaderboardInput,
-	PaginatedUserResponse,
-	UpdateUserInput,
-} from './input'
+import { GetLeaderboardInput, PaginatedUserResponse, UpdateUserInput } from './input'
 import { UserMongooseModel } from './model'
 import UserService from './service'
 import { canEdit } from '../middleware/canEdit'
@@ -43,23 +30,17 @@ export default class UserResolver {
 
 	@FieldResolver(() => [GameProgress])
 	async gamesRecent(@Root() user: User) {
-		return await this.gameProgressService.getUserRecentGames(
-			user._id.toHexString()
-		)
+		return await this.gameProgressService.getUserRecentGames(user._id.toHexString())
 	}
 
 	@FieldResolver(() => [GameProgress])
 	async gamesCompleted(@Root() user: User) {
-		return await this.gameProgressService.getUserCompletedGames(
-			user._id.toHexString()
-		)
+		return await this.gameProgressService.getUserCompletedGames(user._id.toHexString())
 	}
 
 	@FieldResolver(() => [Game])
 	async gamesCreated(@Root() user: User) {
-		return await this.gameService.getUserCreatedGames(
-			user._id.toHexString()
-		)
+		return await this.gameService.getUserCreatedGames(user._id.toHexString())
 	}
 
 	@Query((returns) => User, { nullable: true })
@@ -76,15 +57,15 @@ export default class UserResolver {
 		return user
 	}
 
+	@Query((returns) => User, { nullable: true })
+	async getUserByUsername(@Arg('username') username: string) {
+		const user = await this.userService.getByUsername(username)
+		return user
+	}
+
 	@Query((returns) => PaginatedUserResponse)
-	async getLeaderboard(
-		@Args() { language }: GetLeaderboardInput,
-		@Args() pagination: PaginationInput
-	) {
-		const users = await this.userService.getLeaderboard(
-			language,
-			pagination
-		)
+	async getLeaderboard(@Args() { language }: GetLeaderboardInput, @Args() pagination: PaginationInput) {
+		const users = await this.userService.getLeaderboard(language, pagination)
 		return users
 	}
 

@@ -13,6 +13,11 @@ export default class UserModel {
 		return UserMongooseModel.findById(_id).lean().exec()
 	}
 
+	async getByUsername(username: string) {
+		// Use mongoose as usual
+		return UserMongooseModel.findOne({ username }).lean().exec()
+	}
+
 	async findById(_id: ObjectId): Promise<DocumentType<User> | null> {
 		return UserMongooseModel.findById(_id).exec()
 	}
