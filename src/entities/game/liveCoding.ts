@@ -19,4 +19,12 @@ export class LiveCoding {
 	@prop()
 	@Field()
 	exampleSolutionDescription!: string
+
+	@prop()
+	@Field({ description: 'The expected stdout' })
+	expectedOutput!: string
+
+	@prop()
+	@Field()
+	stdin!: string
 }

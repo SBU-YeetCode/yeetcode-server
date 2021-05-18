@@ -1,15 +1,7 @@
 import { ApolloServer, gql } from 'apollo-server-express'
 import { createTestClient } from 'apollo-server-testing'
 import { GraphQLSchema } from 'graphql'
-import {
-	Game,
-	GameProgress,
-	Level,
-	Question,
-	Stage,
-	Roadmap,
-	Comment,
-} from '../../entities'
+import { Game, GameProgress, Level, Question, Stage, Roadmap, Comment } from '../../entities'
 import { CommentMongooseModel } from '../../modules/comment/model'
 import { PaginatedGameResponse, UpdateGame } from '../../modules/game/input'
 import { GameMongooseModel } from '../../modules/game/model'
@@ -25,12 +17,7 @@ import { createQuestion } from '../data/question-builder'
 import { createStage } from '../data/stage-builder'
 import { createRoadmap } from '../data/subgameroadmap-builder'
 import { createUser } from '../data/user-builder'
-import {
-	clearDatabase,
-	closeDatabase,
-	connect,
-	populateDatabase,
-} from '../utils'
+import { clearDatabase, closeDatabase, connect, populateDatabase } from '../utils'
 
 // beforeEach(async () => {
 // 	await populateDatabase(WcifMongooseModel, [wcif1])
@@ -76,14 +63,7 @@ describe('Game', () => {
 			query: GET_USER_CREATED_GAMES,
 			variables: { userId: user._id.toHexString() },
 		})
-		const {
-			_id,
-			questions,
-			stages,
-			levels,
-			roadmap,
-			...gamesToMatch
-		} = games[1]
+		const { _id, questions, stages, levels, roadmap, ...gamesToMatch } = games[1]
 		expect(res.data?.getUserCreatedGames.length).toEqual(1)
 		expect(res.data?.getUserCreatedGames[0]).toEqual(gamesToMatch)
 	})
@@ -220,7 +200,7 @@ describe('Game', () => {
 		for (let i = 0; i < 15; i++) {
 			games.push(
 				createGame({
-					codingLanguage: i < 10 ? 'javascript' : 'c',
+					codingLanguage: i < 10 ? 'JAVASCRIPT' : 'C',
 					rating: i,
 				})
 			)
@@ -239,31 +219,18 @@ describe('Game', () => {
 			},
 		})
 		const expected = games
-			.filter((g) => g.codingLanguage === 'javascript')
+			.filter((g) => g.codingLanguage === 'JAVASCRIPT')
 			.sort(
 				(a: Game, b: Game) =>
-					b.rating - a.rating ||
-					parseInt(b._id.toHexString()) -
-						parseInt(b._id.toHexString())
+					b.rating - a.rating || parseInt(b._id.toHexString()) - parseInt(b._id.toHexString())
 			)
 			.map((g) => {
-				const {
-					_id,
-					questions,
-					stages,
-					levels,
-					roadmap,
-					...gameToMatch
-				} = g
+				const { _id, questions, stages, levels, roadmap, ...gameToMatch } = g
 				return { ...gameToMatch, _id: _id.toHexString() }
 			})
-		expect(res?.data?.getFilterGames.nodes).toEqual(
-			expected.slice(0, expected.length - 1)
-		)
+		expect(res?.data?.getFilterGames.nodes).toEqual(expected.slice(0, expected.length - 1))
 		expect(res?.data?.getFilterGames.hasMore).toBeTruthy()
-		expect(res?.data?.getFilterGames.nextCursor).toEqual(
-			expected[expected.length - 2]._id
-		)
+		expect(res?.data?.getFilterGames.nextCursor).toEqual(expected[expected.length - 2]._id)
 	})
 
 	it('gets paginated search results', async () => {
@@ -280,10 +247,7 @@ describe('Game', () => {
 		for (let i = 0; i < 15; i++) {
 			otherGames.push(createGame({}))
 		}
-		await populateDatabase(GameMongooseModel, [
-			...matchingGames,
-			...otherGames,
-		])
+		await populateDatabase(GameMongooseModel, [...matchingGames, ...otherGames])
 		const server = new ApolloServer({ schema: graphqlSchema }) as any
 		const { query } = createTestClient(server)
 		const res = await query<{ getSearch: PaginatedGameResponse }>({
@@ -292,9 +256,7 @@ describe('Game', () => {
 		})
 		const nodes = res?.data?.getSearch.nodes
 		for (const node of nodes || []) {
-			const gameId = matchingGames
-				.find((g) => g._id.toHexString() === (node._id as any))
-				?._id.toHexString()
+			const gameId = matchingGames.find((g) => g._id.toHexString() === (node._id as any))?._id.toHexString()
 			expect(gameId).toEqual(node._id)
 		}
 		expect(res?.data?.getSearch.hasMore).toBeFalsy()
@@ -426,9 +388,7 @@ describe('Game', () => {
 				gameId: game._id.toHexString(),
 			},
 		})
-		expect(res.data?.updateLevels[1].description).toEqual(
-			levelsToUpdate[0].description
-		)
+		expect(res.data?.updateLevels[1].description).toEqual(levelsToUpdate[0].description)
 	})
 
 	it('should update a question in db', async () => {
@@ -455,9 +415,7 @@ describe('Game', () => {
 				gameId: game._id.toHexString(),
 			},
 		})
-		expect(res.data?.updateQuestions[1].description).toEqual(
-			questionsToUpdate[0].description
-		)
+		expect(res.data?.updateQuestions[1].description).toEqual(questionsToUpdate[0].description)
 	})
 
 	it('should update a stage in db', async () => {
@@ -484,9 +442,7 @@ describe('Game', () => {
 				gameId: game._id.toHexString(),
 			},
 		})
-		expect(res.data?.updateStages[1].description).toEqual(
-			stagesToUpdate[0].description
-		)
+		expect(res.data?.updateStages[1].description).toEqual(stagesToUpdate[0].description)
 	})
 
 	it('should delete game in db', async () => {
@@ -551,13 +507,9 @@ describe('Game', () => {
 			mutation: UPDATE_GAME,
 			variables: { ...newGameInfo },
 		})
-		expect(res.data?.updateGame.codingLanguage).toEqual(
-			newGameInfo.newCodingLanguage
-		)
+		expect(res.data?.updateGame.codingLanguage).toEqual(newGameInfo.newCodingLanguage)
 		expect(res.data?.updateGame.title).toEqual(newGameInfo.newTitle)
-		expect(res.data?.updateGame.description).toEqual(
-			newGameInfo.newDescription
-		)
+		expect(res.data?.updateGame.description).toEqual(newGameInfo.newDescription)
 	})
 })
 
@@ -632,20 +584,8 @@ const GET_USER_CREATED_GAMES = gql`
 `
 
 const GET_FILTER_GAMES = gql`
-	query getFilterGames(
-		$sort: SORT_OPTIONS
-		$sortDir: Int
-		$amount: Int
-		$language: LANGUAGES
-		$cursor: String
-	) {
-		getFilterGames(
-			sort: $sort
-			sortDir: $sortDir
-			amount: $amount
-			language: $language
-			cursor: $cursor
-		) {
+	query getFilterGames($sort: SORT_OPTIONS, $sortDir: Int, $amount: Int, $language: LANGUAGES, $cursor: String) {
+		getFilterGames(sort: $sort, sortDir: $sortDir, amount: $amount, language: $language, cursor: $cursor) {
 			nodes {
 				_id
 				createdBy
@@ -769,14 +709,8 @@ const UPDATE_LEVELS = gql`
 `
 
 const UPDATE_QUESTIONS = gql`
-	mutation updateQuestions(
-		$questionsToUpdate: [Question!]!
-		$gameId: String!
-	) {
-		updateQuestions(
-			questionsToUpdate: $questionsToUpdate
-			gameId: $gameId
-		) {
+	mutation updateQuestions($questionsToUpdate: [Question!]!, $gameId: String!) {
+		updateQuestions(questionsToUpdate: $questionsToUpdate, gameId: $gameId) {
 			_id
 			title
 			description

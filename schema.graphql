@@ -132,14 +132,22 @@ type LiveCoding {
   _id: ObjectId!
   exampleSolutionCode: String!
   exampleSolutionDescription: String!
+
+  """The expected stdout"""
+  expectedOutput: String!
   prompt: String!
+  stdin: String!
 }
 
 input LiveCodingInput {
   _id: ObjectId!
   exampleSolutionCode: String!
   exampleSolutionDescription: String!
+
+  """The expected stdout"""
+  expectedOutput: String!
   prompt: String!
+  stdin: String!
 }
 
 type Matching {
@@ -276,6 +284,7 @@ type Query {
   getSearch(amount: Int = 10, cursor: String, query: String!): PaginatedGameResponse!
   getStage(gameId: String!, stageId: String!): StageObject!
   getUser(id: ObjectId!): User
+  getUserByUsername(username: String!): User
   getUserCompletedGames(userId: String!): [GameProgress!]!
   getUserCreatedGames(userId: String!): [Game!]!
   getUserGameReview(gameId: String!, userId: String!): Comment

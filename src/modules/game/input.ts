@@ -1,10 +1,4 @@
-import {
-	registerEnumType,
-	ArgsType,
-	Field,
-	ObjectType,
-	Int,
-} from 'type-graphql'
+import { registerEnumType, ArgsType, Field, ObjectType, Int } from 'type-graphql'
 import { Game } from '../../entities'
 import { PaginatedResponse } from '../utils/pagination'
 import { Min, Max } from 'class-validator'
@@ -19,6 +13,28 @@ enum LANGUAGES {
 	JAVASCRIPT = 'javascript',
 	JAVA = 'java',
 	PYTHON = 'python',
+	// Potential new languages to be added
+	// NODEJS = 'nodejs',
+	// PYTHONTHREE = 'python3',
+	// PYTHONTWO = 'python2',
+	// SQL = 'sql',
+	// SCALA = 'scala',
+	// R = 'r',
+	// CLOJURE = 'clojure',
+	// FSHARP = 'fsharp',
+	// GO = 'go',
+	// CSHARP = 'csharp',
+	// KOTLIN = 'kotlin',
+	// OBJECTIVEC = 'objc',
+	// PASCAL = 'pascal',
+	// PERL = 'perl',
+	// PHP = 'php',
+	// RUBY = 'ruby',
+	// RUST = 'rust',
+	// SWIFT = 'swift',
+	// VB = 'vbn',
+	// DART = 'dart',
+	// COFFEESCRIPT = 'coffeescript',
 }
 
 registerEnumType(LANGUAGES, {
