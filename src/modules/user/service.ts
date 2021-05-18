@@ -106,7 +106,7 @@ export default class UserService {
 		const oldUser = await this.userModel.findById(newUserData.userId)
 		if (!oldUser) throw new Error(`User could not be found with ID: ${newUserData.userId}`)
 		// If setting a username, ensure it is unique
-		if (newUsername) {
+		if (newUsername && newUsername!==oldUser.username) {
 			const usernameTaken = await UserMongooseModel.exists({
 				username: newUsername,
 			})
