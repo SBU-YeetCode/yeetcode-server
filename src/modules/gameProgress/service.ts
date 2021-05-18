@@ -188,15 +188,33 @@ export default class GameProgressService {
 						`Submitted question is for ${GAMETYPE.MATCHING} but did not recieve matching from mutation.`
 					)
 				if (submittedAnswer.matching.length !== gameQuestion.matching?.matching.length) break // Incorrect matching length, no need to check
-				// Loop through matching
+				// Check if submission is correct
 				isCorrect = true
 				for (var i = 0; i < submittedAnswer.matching.length; i++) {
-					const cardOne = submittedAnswer.matching[i]
-					const cardTwo = gameQuestion.matching.matching[i]
-					if (cardOne.pairOne !== cardTwo.pairOne || cardOne.pairTwo !== cardTwo.pairTwo) {
-						isCorrect = false
-						break
+					const submittedPair = submittedAnswer.matching[i]
+					let pairIsCorrect = false
+					for (var j = 0; j < gameQuestion.matching.matching.length; j++) {
+						// Check if submittedPair matches any inside the question
+						pairIsCorrect = gameQuestion.matching.matching.some((correctCard) => {
+							if (
+								(correctCard.pairOne === submittedPair.pairOne ||
+									correctCard.pairOne === submittedPair.pairTwo) &&
+								(correctCard.pairTwo === submittedPair.pairTwo ||
+									correctCard.pairTwo === submittedPair.pairOne)
+							)
+								return true
+							else return false
+						})
+						if (pairIsCorrect) {
+							// Move on to next card
+							pairIsCorrect = false
+						} else {
+							// Incorrect pair found
+							isCorrect = false
+							break
+						}
 					}
+					if (!isCorrect) break
 				}
 				break
 			case GAMETYPE.MULTIPLECHOICE:
