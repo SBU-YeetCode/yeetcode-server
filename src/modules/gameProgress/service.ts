@@ -10,6 +10,7 @@ import { SubmittedAnswer } from './input'
 import { differenceInMilliseconds } from 'date-fns'
 import axios from 'axios'
 import { config } from '../../config'
+import { de } from 'date-fns/locale'
 @Service() // Dependencies injection
 export default class GameProgressService {
 	constructor(
@@ -163,11 +164,22 @@ export default class GameProgressService {
 					throw new Error(
 						`Submitted question is for ${GAMETYPE.LIVECODING} but did not recieve matching from mutation.`
 					)
+				let compileLanguage = ''
+				switch (game.codingLanguage.toLowerCase()) {
+					case 'python':
+						compileLanguage = 'python3'
+						break
+					case 'javascript':
+						compileLanguage = 'nodejs'
+						break
+					default:
+						compileLanguage = game.codingLanguage.toLowerCase()
+				}
 				const resp = await axios.post('https://api.jdoodle.com/v1/execute', {
 					clientId: config.jDoodle.clientId,
 					clientSecret: config.jDoodle.clientSecret,
 					script: submittedAnswer.liveCoding,
-					language: game.codingLanguage,
+					language: compileLanguage,
 					stdin: gameQuestion.liveCoding?.stdin,
 				})
 				// Make sure no error has occured

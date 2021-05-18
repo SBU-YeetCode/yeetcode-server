@@ -52,6 +52,7 @@ enum GAMETYPE {
 
 type Game {
   _id: ObjectId!
+  authorInfo: User!
   codingLanguage: String!
   commentCount: Int!
   commentsRef: [String!]!
