@@ -174,6 +174,7 @@ describe('User', () => {
 			newUsername: 'NewUsername1234',
 			newAvatar: 'NewAvatar',
 			newLargePicture: 'NewLargePic',
+			newBio: 'new bio'
 		}
 		user.name = newUserInfo.newName
 		user.username = newUserInfo.newUsername
@@ -260,6 +261,7 @@ const UPDATE_USER = gql`
 			newAvatar: $newAvatar
 			newLargePicture: $newLargePicture
 		) {
+			bio
 			_id
 			username
 			email
@@ -286,6 +288,7 @@ const GET_LEADERBOARD = gql`
 	query getLeaderboard($amount: Int, $cursor: String) {
 		getLeaderboard(amount: $amount, cursor: $cursor) {
 			nodes {
+				bio
 				_id
 				username
 				email
@@ -314,6 +317,7 @@ const GET_LEADERBOARD = gql`
 const GET_USER = gql`
 	query getUser($id: ObjectId!) {
 		getUser(id: $id) {
+			bio
 			username
 			email
 			name
@@ -338,6 +342,7 @@ const GET_USER = gql`
 const GET_ME = gql`
 	query getMe {
 		getMe {
+			bio
 			username
 			email
 			name
