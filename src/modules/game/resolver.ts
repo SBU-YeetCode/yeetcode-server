@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb'
-import { Query, Resolver, Arg, Mutation, Args, UseMiddleware, FieldResolver, Ctx } from 'type-graphql'
+import { Query, Resolver, Arg, Mutation, Args, UseMiddleware, FieldResolver, Ctx, Root } from 'type-graphql'
 import { Service } from 'typedi'
 import {
 	Game,
@@ -11,6 +11,7 @@ import {
 	StageInput,
 	QuestionInput,
 	RoadmapInput,
+	User,
 } from '../../entities'
 import GameService from './service'
 import { LANGUAGES, SORT_OPTIONS, GetFilterGamesInput, UpdateGame, NewGame, NewInstance } from './input'
@@ -20,11 +21,19 @@ import { GameInput } from '../../entities/game/game'
 import { isLoggedIn } from '../middleware/isLoggedIn'
 import { Deleted } from '../utils/output'
 import { canEdit } from '../middleware/canEdit'
+import UserService from '../user/service'
 
 @Service() // Dependencies injection
 @Resolver((of) => Game)
 export default class GameResolver {
-	constructor(private readonly gameService: GameService) {}
+	constructor(private readonly gameService: GameService, private readonly userSerive: UserService) {}
+
+	@FieldResolver(() => User)
+	async authorInfo(@Root() game: Game) {
+		const user = await this.userSerive.getById(new ObjectId(game.createdBy))
+		return user
+	}
+
 	@Query((returns) => Game, { nullable: true })
 	async getGame(@Arg('id') id: string) {
 		const Game = await this.gameService.getById(id)

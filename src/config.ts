@@ -25,9 +25,13 @@ export interface Config {
 		testUri: string
 	}
 	google: {
-		clientId: string,
-		secret: string,
+		clientId: string
+		secret: string
 		callbackUrl: string
+	}
+	jDoodle: {
+		clientId: string
+		clientSecret: string
 	}
 }
 
@@ -44,6 +48,10 @@ export const config: Config = {
 	google: {
 		clientId: env('GOOGLE_CLIENT_ID'),
 		secret: env('GOOGLE_CLIENT_SECRET'),
-		callbackUrl: env('GOOGLE_CALLBACK_URL')
-	}
+		callbackUrl: env('GOOGLE_CALLBACK_URL'),
+	},
+	jDoodle: {
+		clientId: env('JDOODLE_CLIENT_ID'),
+		clientSecret: env('JDOODLE_CLIENT_SECRET'),
+	},
 }

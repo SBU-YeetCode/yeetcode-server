@@ -52,6 +52,7 @@ enum GAMETYPE {
 
 type Game {
   _id: ObjectId!
+  authorInfo: User!
   codingLanguage: String!
   commentCount: Int!
   commentsRef: [String!]!
@@ -132,14 +133,22 @@ type LiveCoding {
   _id: ObjectId!
   exampleSolutionCode: String!
   exampleSolutionDescription: String!
+
+  """The expected stdout"""
+  expectedOutput: String!
   prompt: String!
+  stdin: String!
 }
 
 input LiveCodingInput {
   _id: ObjectId!
   exampleSolutionCode: String!
   exampleSolutionDescription: String!
+
+  """The expected stdout"""
+  expectedOutput: String!
   prompt: String!
+  stdin: String!
 }
 
 type Matching {
