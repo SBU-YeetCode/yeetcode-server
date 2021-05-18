@@ -218,7 +218,7 @@ type Mutation {
   updateQuestions(gameId: String!, questionsToUpdate: [Question!]!): [QuestionObject!]!
   updateRoadmap(gameId: String!, roadmap: [RoadmapInput!]!): [RoadmapObject!]!
   updateStages(gameId: String!, stagesToUpdate: [Stage!]!): [StageObject!]!
-  updateUser(newAvatar: String, newLargePicture: String, newName: String, newUsername: String, userId: ObjectId!): User!
+  updateUser(newAvatar: String, newBio: String, newLargePicture: String, newName: String, newUsername: String, userId: ObjectId!): User!
 }
 
 """Mongo object id scalar type"""
@@ -431,6 +431,7 @@ input SubmittedAnswer {
 
 type User {
   _id: ObjectId!
+  bio: String!
   comments: [Comment!]!
   email: String!
   gamesCompleted: [GameProgress!]!
@@ -446,6 +447,7 @@ type User {
 
 input UserInput {
   _id: ObjectId!
+  bio: String!
   email: String!
   lastUpdated: Date!
   name: String!

@@ -102,7 +102,7 @@ export default class UserService {
 	}
 
 	public async updateUser(newUserData: UpdateUserInput) {
-		const { newName, newUsername, newAvatar, newLargePicture } = newUserData
+		const { newName, newUsername, newAvatar, newLargePicture, newBio } = newUserData
 		const oldUser = await this.userModel.findById(newUserData.userId)
 		if (!oldUser) throw new Error(`User could not be found with ID: ${newUserData.userId}`)
 		// If setting a username, ensure it is unique
@@ -117,6 +117,7 @@ export default class UserService {
 		if (newUsername) oldUser.username = newUsername
 		if (newAvatar) oldUser.profilePicture.avatar = newAvatar
 		if (newLargePicture) oldUser.profilePicture.large = newLargePicture
+		if (newBio) oldUser.bio = newBio
 		const updatedUser = await oldUser.save()
 		if (!updatedUser) throw new Error('Error updating document')
 		return oldUser.toObject() as User

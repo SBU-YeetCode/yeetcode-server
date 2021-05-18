@@ -35,5 +35,6 @@ export const createUser = ({
 		},
 		profilePicture,
 		roles: ['USER'],
+		bio: ''
 	}
 }
