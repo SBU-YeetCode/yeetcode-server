@@ -21,6 +21,10 @@ export class User {
 
 	@prop()
 	@Field()
+	bio!: string
+
+	@prop()
+	@Field()
 	email!: string
 
 	// @prop({ type: () => [String] })

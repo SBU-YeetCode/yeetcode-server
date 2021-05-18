@@ -33,6 +33,7 @@ export const createUser = (user: Partial<User>): User => {
 			large: faker.image.imageUrl(),
 			...profilePicture,
 		},
+		bio: '',
 		...other,
 	}
 }

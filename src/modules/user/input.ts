@@ -22,6 +22,9 @@ export class UpdateUserInput {
 	@Field({ nullable: true })
 	newName?: string
 
+	@Field({nullable: true})
+	newBio?: string
+
 	@Field({ nullable: true })
 	newUsername?: string
 
