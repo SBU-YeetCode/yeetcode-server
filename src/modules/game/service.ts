@@ -113,6 +113,7 @@ export default class GameService {
 		if (newDifficulty) oldGame.difficulty = newDifficulty
 		if (newTags) oldGame.tags = newTags
 		if (newDescription) oldGame.description = newDescription
+		oldGame.lastUpdated = new Date().toISOString() // Update lastUpdated
 		const updatedGame = await oldGame.save()
 		if (!updatedGame) throw new Error('Error updating levels')
 		return updatedGame.toObject() as Game
@@ -123,6 +124,9 @@ export default class GameService {
 		await this.gameModel.updateById(gameId, {
 			$push: {
 				levels: { ...level, _id },
+			},
+			$set: {
+				lastUpdated: new Date().toISOString(), // update lastUpdated
 			},
 		})
 		const game = await this.gameModel.findById(gameId)
@@ -139,6 +143,9 @@ export default class GameService {
 			$push: {
 				questions: { ...question, _id },
 			},
+			$set: {
+				lastUpdated: new Date().toISOString(), // update lastUpdated
+			},
 		})
 		const game = await this.gameModel.findById(gameId)
 		if (!game) throw new Error(`Game could not be found with ID: ${gameId}`)
@@ -153,6 +160,9 @@ export default class GameService {
 			$push: {
 				stages: { ...stage, _id },
 			},
+			$set: {
+				lastUpdated: new Date().toISOString(), // update lastUpdated
+			},
 		})
 		const game = await this.gameModel.findById(gameId)
 		if (!game) throw new Error(`Game could not be found with ID: ${gameId}`)
@@ -165,6 +175,7 @@ export default class GameService {
 		await this.gameModel.updateById(gameId, {
 			$set: {
 				roadmap: newRoadmap,
+				lastUpdated: new Date().toISOString(),
 			},
 		})
 		const game = await this.gameModel.findById(gameId)
@@ -182,6 +193,7 @@ export default class GameService {
 				if (oldLevelArray[i]._id.equals(levelsToUpdate[j]._id)) oldLevelArray[i] = levelsToUpdate[j]
 			}
 		}
+		game.lastUpdated = new Date().toISOString() // update lastUpdated
 		const newGame = await game.save()
 		if (!newGame) throw new Error('Error updating levels')
 		return game.levels
@@ -197,6 +209,7 @@ export default class GameService {
 				if (oldQuestionArray[i]._id.equals(questionsToUpdate[j]._id)) oldQuestionArray[i] = questionsToUpdate[j]
 			}
 		}
+		game.lastUpdated = new Date().toISOString() // update lastUpdated
 		const newGame = await game.save()
 		if (!newGame) throw new Error('Error updating questions')
 		return game.questions
@@ -212,6 +225,7 @@ export default class GameService {
 				if (oldStageArray[i]._id.equals(stagesToUpdate[j]._id)) oldStageArray[i] = stagesToUpdate[j]
 			}
 		}
+		game.lastUpdated = new Date().toISOString() // update lastUpdated
 		const newGame = await game.save()
 		if (!newGame) throw new Error('Error updating stages')
 		return game.stages
@@ -383,6 +397,7 @@ export default class GameService {
 			default:
 				throw new Error(`Cannot add unknown instance type: ${newInstance.kind}`)
 		}
+		game.lastUpdated = new Date().toISOString() // update lastUpdated
 		const savedGame = await game.save()
 		if (!savedGame) throw new Error('Error updating roadmap')
 		return game.roadmap[currentIndex + 1]
@@ -468,6 +483,7 @@ export default class GameService {
 		} else {
 			throw new Error(`Roadmap has unknown kind value: ${roadmapInstance.kind}`)
 		}
+		game.lastUpdated = new Date().toISOString() // update lastUpdated
 		const savedGame = await game.save()
 		if (!savedGame) throw new Error('Error updating roadmap')
 		return game.roadmap
