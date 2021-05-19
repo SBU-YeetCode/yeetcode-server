@@ -8,7 +8,8 @@ import {
 
 export default function buildGameProgress(
 	game: Game,
-	userId: string
+	userId: string,
+	prevPoints?: number
 ): GameProgressInput {
 	let questions: QuestionProgress[] = []
 	let stages: StageProgress[] = []
@@ -46,7 +47,7 @@ export default function buildGameProgress(
 		levels: levels,
 		stages: stages,
 		questions: questions,
-		totalPoints: 0,
+		totalPoints: prevPoints ?? 0,
 		codingLanguage: game.codingLanguage,
 	}
 }

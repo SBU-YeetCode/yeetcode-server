@@ -37,14 +37,17 @@ export default class GameProgressService {
 	}
 
 	public async createGameProgress(userId: string, gameId: string) {
-		const exists = await this.gameprogressModel.exists({ userId, gameId })
-		if (exists)
-			throw new Error(
-				'This user already has an instance of the game being played. Please clear before starting new instance'
-			)
+		const oldProgress = await this.gameprogressModel.findOne({ userId, gameId })
+		let prevPoints: number = 0
+		if (oldProgress) {
+			if(oldProgress.isCompleted) {
+				prevPoints = oldProgress.totalPoints
+			}
+			await oldProgress.deleteOne()
+		}
 		const game = await this.gameModel.findById(gameId)
 		if (!game) throw new Error(`Game could not be found for the given ID: ${gameId}`)
-		const buildedGameProgress: GameProgressInput = buildGameProgress(game as Game, userId)
+		const buildedGameProgress: GameProgressInput = buildGameProgress(game as Game, userId, prevPoints)
 		const gameProgress = await this.gameprogressModel.createGameProgress(buildedGameProgress)
 		if (!gameProgress) throw new Error('Unable to create gameprogress')
 		// Update play count
