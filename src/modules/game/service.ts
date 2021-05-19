@@ -105,7 +105,7 @@ export default class GameService {
 	}
 
 	public async updateGame(newGameData: UpdateGame) {
-		const { newCodingLanguage, newTitle, newDifficulty, newTags, newDescription } = newGameData
+		const { newCodingLanguage, newTitle, newDifficulty, newTags, newDescription, newBanner } = newGameData
 		const oldGame = await this.gameModel.findById(newGameData.gameId.toHexString())
 		if (!oldGame) throw new Error(`Game could not be found with ID: ${newGameData.gameId}`)
 		if (newCodingLanguage) oldGame.codingLanguage = newCodingLanguage
@@ -113,6 +113,7 @@ export default class GameService {
 		if (newDifficulty) oldGame.difficulty = newDifficulty
 		if (newTags) oldGame.tags = newTags
 		if (newDescription) oldGame.description = newDescription
+		if (newBanner) oldGame.bannerUrl = newBanner
 		oldGame.lastUpdated = new Date().toISOString() // Update lastUpdated
 		const updatedGame = await oldGame.save()
 		if (!updatedGame) throw new Error('Error updating levels')

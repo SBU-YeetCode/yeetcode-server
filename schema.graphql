@@ -53,6 +53,7 @@ enum GAMETYPE {
 type Game {
   _id: ObjectId!
   authorInfo: User!
+  bannerUrl: String
   codingLanguage: String!
   commentCount: Int!
   commentsRef: [String!]!
@@ -189,7 +190,7 @@ input MultipleChoiceInput {
 
 type Mutation {
   createComment(comment: CommentInput!, userId: ObjectId!): Comment!
-  createGame(codingLanguage: String, description: String, difficulty: String, tags: [String!], title: String): Game!
+  createGame(bannerUrl: String, codingLanguage: String, description: String, difficulty: String, tags: [String!], title: String): Game!
   createGameProgress(gameId: String!, userId: ObjectId!): GameProgress!
 
   """Used to create a Level, Stage, or Question"""
@@ -212,7 +213,7 @@ type Mutation {
   deleteUser(userId: ObjectId!): Deleted!
   revealHints(gameProgressId: ObjectId!, questionId: String!, userId: ObjectId!): GameProgress!
   submitQuestion(gameId: String!, questionId: String!, submittedAnswer: SubmittedAnswer!, userId: ObjectId!): SubmitQuestion!
-  updateGame(gameId: ObjectId!, newCodingLanguage: String, newDescription: String, newDifficulty: String, newTags: [String!], newTitle: String): Game!
+  updateGame(gameId: ObjectId!, newBanner: String, newCodingLanguage: String, newDescription: String, newDifficulty: String, newTags: [String!], newTitle: String): Game!
   updateLevels(gameId: String!, levelsToUpdate: [Level!]!): [LevelObject!]!
   updateQuestionProgress(gameId: String!, questionProgress: QuestionProgressInput!, userId: ObjectId!): QuestionProgress!
   updateQuestions(gameId: String!, questionsToUpdate: [Question!]!): [QuestionObject!]!

@@ -295,7 +295,45 @@ export default class GameProgressService {
 			}
 			return questionProgress
 		})
-		gameProgress.save()
+		// Check if last question submitted is completed, and if so, update points to user profile and mark game as completed
+		let lastQuestion = null
+		for (var i = 0; i < game.roadmap.length; i++) {
+			let latestIndex = 0
+			if (game.roadmap[i].kind === 'Question') {
+				if (game.roadmap[i].sequence > latestIndex) {
+					latestIndex = game.roadmap[i].sequence
+					lastQuestion = game.questions.find(
+						(question) => question._id.toHexString() === game.roadmap[i].refId
+					)
+				}
+			}
+		}
+		if (
+			lastQuestion?._id.toHexString() === questionId &&
+			gameProgress.questions.some((qProg) => qProg.completed && qProg.questionId === questionId)
+		) {
+			// Is last question and was completed
+			gameProgress.isCompleted = true
+			gameProgress.completedAt = new Date().toISOString()
+			// Get user and update points
+			const user = await this.userModel.findById(new ObjectId(userId))
+			if (!user) throw new Error(`User could not be found with the given ID: ${userId}`)
+			// Check if points are better than last attempt
+			let newTotal = 0
+			for (var i = 0; i < gameProgress.questions.length; i++) {
+				newTotal += gameProgress.questions[i].pointsReceived
+			}
+			if (gameProgress.totalPoints < newTotal) {
+				// Adjust points
+				const oldPoints = gameProgress.totalPoints
+				gameProgress.totalPoints = newTotal
+				user.points.total += newTotal - oldPoints
+				// @ts-ignore
+				user.points[game.codingLanguage.toLowerCase()] += newTotal - oldPoints
+				await user.save()
+			}
+		}
+		await gameProgress.save()
 		return { isCorrect }
 	}
 

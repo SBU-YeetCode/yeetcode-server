@@ -498,6 +498,7 @@ describe('Game', () => {
 			newDifficulty: game.difficulty,
 			newTags: game.tags,
 			newDescription: 'new desc',
+			newBanner: '',
 		}
 		game.codingLanguage = newGameInfo.newCodingLanguage
 		game.title = newGameInfo.newTitle
@@ -547,6 +548,7 @@ const GET_USER_COMPLETED_GAMES = gql`
 	query getUserCompletedGames($userId: String!) {
 		getUserCompletedGames(userId: $userId) {
 			createdBy
+			bannerUrl
 			dateCreated
 			lastUpdated
 			commentCount
@@ -567,6 +569,7 @@ const GET_USER_CREATED_GAMES = gql`
 	query getUserCreatedGames($userId: String!) {
 		getUserCreatedGames(userId: $userId) {
 			createdBy
+			bannerUrl
 			dateCreated
 			lastUpdated
 			commentCount
@@ -588,6 +591,7 @@ const GET_FILTER_GAMES = gql`
 		getFilterGames(sort: $sort, sortDir: $sortDir, amount: $amount, language: $language, cursor: $cursor) {
 			nodes {
 				_id
+				bannerUrl
 				createdBy
 				dateCreated
 				lastUpdated
