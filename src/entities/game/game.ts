@@ -9,8 +9,8 @@ import { Roadmap } from './subgameroadmap'
 
 @ObjectType()
 @InputType('GameInput')
-@Index({ title: 'text', description: 'text', tags: 'text', codingLanguage: 'text' }, {background: false})
-@Index({playCount: 1}, {background: false})
+@Index({ title: 'text', description: 'text', tags: 'text', codingLanguage: 'text' }, { background: false })
+@Index({ playCount: 1 }, { background: false })
 export class GameInput {
 	@prop()
 	@Field()
@@ -47,6 +47,13 @@ export class GameInput {
 	@prop()
 	@Field()
 	codingLanguage!: string
+
+	@prop({
+		type: String,
+		required: false,
+	})
+	@Field(() => String, { nullable: true })
+	bannerUrl: string | null
 
 	@prop()
 	@Field()

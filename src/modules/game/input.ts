@@ -86,6 +86,9 @@ export class UpdateGame {
 
 	@Field({ nullable: true })
 	newDescription?: string
+
+	@Field({ nullable: true })
+	newBanner?: string
 }
 
 @ArgsType()
@@ -104,6 +107,9 @@ export class NewGame {
 
 	@Field({ nullable: true })
 	description: string
+
+	@Field({ nullable: true })
+	bannerUrl: string
 }
 
 @ArgsType()

@@ -24,6 +24,7 @@ export const createGame = (game?: Partial<Game>): Game => {
 		stages: [],
 		questions: [],
 		roadmap: [],
+		bannerUrl: null,
 		...game,
 	}
 }
