@@ -21,8 +21,12 @@ export class LiveCoding {
 	exampleSolutionDescription!: string
 
 	@prop()
-	@Field({ description: 'The expected stdout' })
-	expectedOutput!: string
+	@Field({ description: 'Code added to user code used to run checks' })
+	matcherCode!: string
+
+	@prop()
+	@Field({ description: 'Code given to the user to start with' })
+	starterCode!: string
 
 	@prop()
 	@Field()
