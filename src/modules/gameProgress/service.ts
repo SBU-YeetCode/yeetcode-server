@@ -40,7 +40,7 @@ export default class GameProgressService {
 		const oldProgress = await this.gameprogressModel.findOne({ userId, gameId })
 		let prevPoints: number = 0
 		if (oldProgress) {
-			if(oldProgress.isCompleted) {
+			if (oldProgress.isCompleted) {
 				prevPoints = oldProgress.totalPoints
 			}
 			await oldProgress.deleteOne()
@@ -181,7 +181,7 @@ export default class GameProgressService {
 				const resp = await axios.post('https://api.jdoodle.com/v1/execute', {
 					clientId: config.jDoodle.clientId,
 					clientSecret: config.jDoodle.clientSecret,
-					script: submittedAnswer.liveCoding,
+					script: submittedAnswer.liveCoding + '\n' + gameQuestion.liveCoding?.matcherCode,
 					language: compileLanguage,
 					stdin: gameQuestion.liveCoding?.stdin,
 				})
@@ -191,7 +191,7 @@ export default class GameProgressService {
 					break
 				}
 				// Check if output matches expected output
-				if (gameQuestion.liveCoding?.expectedOutput === resp.data.output) {
+				if (resp.data.output === 'true' || resp.data.output === 'true\n') {
 					isCorrect = true
 					break
 				} else isCorrect = false

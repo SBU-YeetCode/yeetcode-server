@@ -135,9 +135,12 @@ type LiveCoding {
   exampleSolutionCode: String!
   exampleSolutionDescription: String!
 
-  """The expected stdout"""
-  expectedOutput: String!
+  """Code added to user code used to run checks"""
+  matcherCode: String!
   prompt: String!
+
+  """Code given to the user to start with"""
+  starterCode: String!
   stdin: String!
 }
 
@@ -146,9 +149,12 @@ input LiveCodingInput {
   exampleSolutionCode: String!
   exampleSolutionDescription: String!
 
-  """The expected stdout"""
-  expectedOutput: String!
+  """Code added to user code used to run checks"""
+  matcherCode: String!
   prompt: String!
+
+  """Code given to the user to start with"""
+  starterCode: String!
   stdin: String!
 }
 
